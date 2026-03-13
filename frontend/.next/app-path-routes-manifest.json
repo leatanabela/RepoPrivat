@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/chat/stream/route": "/api/chat/stream",
+  "/(auth)/login/page": "/login",
+  "/page": "/",
+  "/(admin)/admin/documents/page": "/admin/documents",
+  "/(dashboard)/chat/page": "/chat",
+  "/(dashboard)/settings/page": "/settings",
+  "/(dashboard)/tickets/[id]/page": "/tickets/[id]",
+  "/(dashboard)/tickets/new/page": "/tickets/new",
+  "/(admin)/admin/reports/page": "/admin/reports",
+  "/(admin)/admin/page": "/admin",
+  "/(dashboard)/tickets/page": "/tickets"
+}

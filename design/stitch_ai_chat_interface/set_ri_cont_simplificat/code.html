@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c385f",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Setări Cont</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-10 py-4 sticky top-0 z-10">
+<div class="flex items-center gap-4 text-primary dark:text-slate-100">
+<div class="flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">settings</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Setări Cont</h2>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Avatar utilizator Ion Popescu" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEJmOwYxCW1Zu2bnOqHYc9gj8uatsgKxUmIkGyin4DgImShJa7Fn_fmHjzDQ3wv_vv0JnIJCcFl9W8ub_7MZCF-sAnUOFqkfCYbentHBhSiIHmGv-6I4CmeRoqMYRmtCoIGJpaNcBQMeIkaAu6bUzSqQ6ef8cu9ofoDsyOp-kLwuvsSgqOzKZlVVVo48oROoQoWIfm0QR1uhhWxedDTl4oBBmUG9juomTgVttS34qW8ghEGb6jreHx9nazI2DmmUT0rOYSIkfNqD_J')"></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex justify-center py-8 px-4 md:px-10">
+<div class="max-w-4xl w-full flex flex-col gap-8">
+<!-- Section: Profil -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-primary">person</span>
+<h3 class="text-lg font-bold">Profil</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="p-6 flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-slate-500">Nume complet</span>
+<span class="text-base font-semibold">Ion Popescu</span>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-medium text-sm self-start md:self-center">
+                                        Editează
+                                    </button>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-slate-500">Adresă Email</span>
+<span class="text-base font-semibold">ion.popescu@exemplu.ro</span>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-medium text-sm self-start md:self-center">
+                                        Schimbă
+                                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Securitate -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-primary">shield</span>
+<h3 class="text-lg font-bold">Securitate</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-slate-500">Parolă</span>
+<span class="text-base font-semibold">••••••••••••</span>
+<p class="text-xs text-slate-400 mt-1">Ultima actualizare: acum 3 luni</p>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-medium text-sm self-start md:self-center">
+                                    Actualizează parola
+                                </button>
+</div>
+</div>
+</section>
+<!-- Section: Preferinte -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-primary">tune</span>
+<h3 class="text-lg font-bold">Preferințe</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8">
+<!-- Font Size Slider -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-base font-semibold">Dimensiune font</span>
+<span class="text-sm px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full font-medium">Mediu (16px)</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-bold">A</span>
+<input class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" max="24" min="12" type="range" value="16"/>
+<span class="text-xl font-bold">A</span>
+</div>
+</div>
+<!-- Toggles Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+<div class="flex flex-col">
+<span class="font-semibold">Mod Întunecat</span>
+<span class="text-xs text-slate-500">Aspect vizual relaxant</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+<div class="flex flex-col">
+<span class="font-semibold">Notificări Email</span>
+<span class="text-xs text-slate-500">Noutăți și alerte</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Actions -->
+<div class="flex justify-end gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+<button class="px-8 py-3 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            Anulează
+                        </button>
+<button class="px-10 py-3 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+                            Salvează Modificările
+                        </button>
+</div>
+</div>
+</main>
+<!-- Bottom helper footer -->
+<footer class="py-10 text-center">
+<p class="text-sm text-slate-400">Aveți nevoie de ajutor? <a class="text-primary font-medium underline" href="#">Contactați asistența</a></p>
+</footer>
+</div>
+</div>
+</body></html>

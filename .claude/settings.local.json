@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:\\\\Users\\\\leata\\\\VScodeProjects\\\\RepoPrivat\\\\backend\" -type f -name \"*.ts\" 2>/dev/null | head -50)",
+      "Bash(ls \"C:/Users/leata/VScodeProjects/RepoPrivat/frontend/src/app/\\(dashboard\\)/\")",
+      "Bash(cd C:/Users/leata/VScodeProjects/RepoPrivat/frontend && npm install 2>&1)"
+    ]
+  }
+}

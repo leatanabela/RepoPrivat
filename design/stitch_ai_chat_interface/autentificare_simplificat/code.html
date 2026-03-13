@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c385f",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Autentificare - HelpDesk Instituțional</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased flex flex-col min-h-screen">
+<div class="flex-grow flex items-center justify-center px-4 py-12">
+<div class="max-w-md w-full bg-white dark:bg-slate-900 shadow-xl rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800">
+<div class="p-8 sm:p-10">
+<div class="flex flex-col items-center mb-10">
+<div class="bg-primary/10 p-3 rounded-full mb-4">
+<svg class="w-10 h-10 text-primary" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_330)">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h1 class="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Autentificare</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-2 text-center text-sm leading-relaxed">
+                        Accesați platforma de suport instituțional folosind contul dumneavoastră.
+                    </p>
+</div>
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="email">Adresă Email</label>
+<div class="relative">
+<input class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="email" placeholder="nume.prenume@institutie.ro" type="email"/>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300" for="password">Parolă</label>
+<a class="text-xs font-medium text-primary hover:underline" href="#">Am uitat parola</a>
+</div>
+<div class="relative flex items-center">
+<input class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 pr-12 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="password" placeholder="********" type="password"/>
+<button class="absolute right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-2 block text-sm text-slate-600 dark:text-slate-400" for="remember-me">Ține-mă minte</label>
+</div>
+<button class="w-full h-14 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="submit">
+                        Conectare
+                    </button>
+</form>
+<div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+<p class="text-xs text-slate-500 dark:text-slate-400">
+                        Aveți nevoie de asistență? <a class="text-primary font-semibold hover:underline" href="#">Contactați administratorul IT</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+<footer class="w-full py-8 px-6 text-center">
+<div class="max-w-7xl mx-auto">
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                © 2024 Portal HelpDesk Instituțional - Guvernul României
+            </p>
+<div class="mt-2 flex justify-center space-x-4 text-xs text-slate-400 dark:text-slate-500">
+<a class="hover:text-primary transition-colors" href="#">Termeni și condiții</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Politica de confidențialitate</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</body></html>
