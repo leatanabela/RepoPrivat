@@ -26,6 +26,7 @@ import {
   Users,
   MessageSquare,
   BookOpen,
+  Upload,
 } from 'lucide-react';
 import type { Document, Department, Analytics } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -44,6 +45,9 @@ export function MentenantaPage() {
   const [uploading, setUploading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [search, setSearch] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+  const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number; fileName: string } | null>(null);
 
   // Analytics state
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -142,6 +146,93 @@ export function MentenantaPage() {
     loadDocuments();
   }
 
+  const ACCEPTED_TYPES = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+  ];
+  const ACCEPTED_EXT = ['.pdf', '.docx', '.txt'];
+
+  function filterValidFiles(files: FileList | File[]): File[] {
+    return Array.from(files).filter((f) => {
+      const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
+      return ACCEPTED_TYPES.includes(f.type) || ACCEPTED_EXT.includes(ext);
+    });
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const valid = filterValidFiles(e.dataTransfer.files);
+    if (valid.length === 0) {
+      toast.error('Niciun fișier valid. Acceptă doar PDF, DOCX, TXT.');
+      return;
+    }
+    setBulkFiles(valid);
+    setShowUpload(true);
+  }
+
+  function handleBulkFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return;
+    const valid = filterValidFiles(e.target.files);
+    if (valid.length === 0) {
+      toast.error('Niciun fișier valid. Acceptă doar PDF, DOCX, TXT.');
+      return;
+    }
+    setBulkFiles((prev) => [...prev, ...valid]);
+  }
+
+  function removeBulkFile(index: number) {
+    setBulkFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleBulkUpload(departmentId: string) {
+    if (bulkFiles.length === 0) return;
+    setUploading(true);
+
+    let success = 0;
+    let failed = 0;
+
+    for (let i = 0; i < bulkFiles.length; i++) {
+      const file = bulkFiles[i];
+      const title = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+      setBulkProgress({ current: i + 1, total: bulkFiles.length, fileName: file.name });
+
+      const formData = new FormData();
+      formData.set('file', file);
+      formData.set('title', title);
+      formData.set('departmentId', departmentId);
+
+      try {
+        const result = await uploadDocument(formData);
+        if (result.error) {
+          toast.error(`${file.name}: ${result.error}`);
+          failed++;
+        } else {
+          success++;
+        }
+      } catch {
+        toast.error(`${file.name}: Eroare neașteptată`);
+        failed++;
+      }
+    }
+
+    setBulkProgress(null);
+    setUploading(false);
+    setBulkFiles([]);
+    setShowUpload(false);
+
+    if (success > 0) {
+      toast.success(`${success} document${success > 1 ? 'e' : ''} încărcat${success > 1 ? 'e' : ''}!`);
+      // Trigger RAG processing for all
+      triggerProcessAll().catch(() => {});
+    }
+    if (failed > 0) {
+      toast.error(`${failed} document${failed > 1 ? 'e' : ''} nu s-a${failed > 1 ? 'u' : ''} putut încărca.`);
+    }
+    loadDocuments();
+  }
+
   const totalPages = Math.ceil(docTotal / limit);
   const filteredDocs = search
     ? documents.filter(
@@ -196,20 +287,41 @@ export function MentenantaPage() {
         {/* ── DOCUMENTE TAB ── */}
         {activeTab === 'documente' && (
           <div>
+            {/* Drop zone */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => setShowUpload(true)}
+              className={`mb-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all ${
+                dragOver
+                  ? 'border-primary bg-primary/10 scale-[1.01]'
+                  : 'border-slate-300 dark:border-slate-700 hover:border-primary/50 hover:bg-primary/5'
+              } p-8 flex flex-col items-center justify-center gap-3`}
+            >
+              <Upload size={40} className={dragOver ? 'text-primary' : 'text-slate-400'} />
+              <p className="text-lg font-bold text-slate-700 dark:text-slate-300">
+                Trage fișierele aici sau click pentru a selecta
+              </p>
+              <p className="text-sm text-slate-400">
+                PDF, DOCX, TXT — poți adăuga mai multe fișiere odată
+              </p>
+            </div>
+
             {/* Action buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <button
                 onClick={() => setShowUpload(true)}
-                className="h-20 bg-primary text-white rounded-2xl text-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+                className="h-16 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
               >
-                <Plus size={26} />
+                <Plus size={22} />
                 Adaugă Document
               </button>
               <button
                 onClick={handleProcessAll}
-                className="h-20 border-2 border-primary/30 text-primary rounded-2xl text-xl font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-3"
+                className="h-16 border-2 border-primary/30 text-primary rounded-2xl text-lg font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-3"
               >
-                <Zap size={26} />
+                <Zap size={22} />
                 Procesează Tot (RAG)
               </button>
             </div>
@@ -393,70 +505,131 @@ export function MentenantaPage() {
         )}
       </div>
 
-      {/* Upload Modal */}
+      {/* Upload Modal — Bulk / Drag & Drop */}
       {showUpload && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-8">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Adaugă Document</h3>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                Încarcă Documente
+              </h3>
               <button
-                onClick={() => setShowUpload(false)}
-                className="size-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors"
+                onClick={() => { setShowUpload(false); setBulkFiles([]); }}
+                disabled={uploading}
+                className="size-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors disabled:opacity-50"
               >
                 <X size={22} />
               </button>
             </div>
 
-            <form onSubmit={handleUpload} className="space-y-5">
-              <div>
-                <label className="block text-lg font-bold mb-2 text-slate-800 dark:text-slate-200">
-                  Titlu
-                </label>
+            {/* Drop zone inside modal */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                const valid = filterValidFiles(e.dataTransfer.files);
+                if (valid.length > 0) setBulkFiles((prev) => [...prev, ...valid]);
+                else toast.error('Fișiere invalide. Acceptă doar PDF, DOCX, TXT.');
+              }}
+              className={`rounded-xl border-2 border-dashed p-6 text-center transition-all mb-6 ${
+                dragOver
+                  ? 'border-primary bg-primary/10'
+                  : 'border-slate-300 dark:border-slate-700'
+              }`}
+            >
+              <Upload size={32} className={`mx-auto mb-3 ${dragOver ? 'text-primary' : 'text-slate-400'}`} />
+              <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Trage fișierele aici
+              </p>
+              <p className="text-sm text-slate-400 mb-3">sau</p>
+              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary rounded-xl font-bold cursor-pointer hover:bg-primary/20 transition-colors">
+                <Plus size={18} />
+                Selectează Fișiere
                 <input
-                  name="title"
-                  required
-                  placeholder="Ex: Procedura de onboarding angajati"
-                  className="w-full h-14 px-4 text-lg border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-transparent focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all placeholder:text-slate-400"
+                  type="file"
+                  multiple
+                  accept=".pdf,.docx,.txt"
+                  className="hidden"
+                  onChange={handleBulkFileSelect}
                 />
-              </div>
+              </label>
+              <p className="text-xs text-slate-400 mt-3">PDF, DOCX, TXT — max 20MB per fișier</p>
+            </div>
 
+            {/* File list */}
+            {bulkFiles.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-3">
+                  {bulkFiles.length} fișier{bulkFiles.length > 1 ? 'e' : ''} selectat{bulkFiles.length > 1 ? 'e' : ''}
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {bulkFiles.map((file, i) => (
+                    <div key={`${file.name}-${i}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+                      <FileText size={18} className="text-primary flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{file.name}</p>
+                        <p className="text-xs text-slate-400">{(file.size / 1024).toFixed(0)} KB</p>
+                      </div>
+                      {!uploading && (
+                        <button
+                          onClick={() => removeBulkFile(i)}
+                          className="size-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Progress bar */}
+            {bulkProgress && (
+              <div className="mb-6">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="font-medium text-slate-700 dark:text-slate-300">
+                    Se încarcă: {bulkProgress.fileName}
+                  </span>
+                  <span className="text-slate-500">
+                    {bulkProgress.current} / {bulkProgress.total}
+                  </span>
+                </div>
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Department selector + upload button */}
+            <div className="space-y-4">
               <div>
-                <label className="block text-lg font-bold mb-2 text-slate-800 dark:text-slate-200">
-                  Departament
+                <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">
+                  Departament (pentru toate fișierele)
                 </label>
                 <select
-                  name="departmentId"
-                  className="w-full h-14 px-4 text-lg border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                  id="bulk-department"
+                  className="w-full h-12 px-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                 >
                   <option value="">General (toate departamentele)</option>
                   {departments.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
+                    <option key={d.id} value={d.id}>{d.name}</option>
                   ))}
                 </select>
               </div>
 
-              <div>
-                <label className="block text-lg font-bold mb-2 text-slate-800 dark:text-slate-200">
-                  Fișier
-                </label>
-                <input
-                  name="file"
-                  type="file"
-                  required
-                  accept=".pdf,.docx,.txt"
-                  className="w-full text-base file:mr-4 file:py-3 file:px-5 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold cursor-pointer"
-                />
-                <p className="text-sm text-slate-400 mt-1.5">
-                  Formate acceptate: PDF, DOCX, TXT. Documentul va fi procesat automat pentru RAG.
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3">
                 <button
-                  type="submit"
-                  disabled={uploading}
+                  onClick={() => {
+                    const select = document.getElementById('bulk-department') as HTMLSelectElement;
+                    handleBulkUpload(select?.value || '');
+                  }}
+                  disabled={uploading || bulkFiles.length === 0}
                   className="flex-1 h-14 bg-primary text-white rounded-xl text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all hover:bg-primary/90"
                 >
                   {uploading ? (
@@ -469,20 +642,21 @@ export function MentenantaPage() {
                     </>
                   ) : (
                     <>
-                      <Plus size={20} />
-                      Încarcă și Procesează
+                      <Upload size={20} />
+                      Încarcă {bulkFiles.length > 0 ? `${bulkFiles.length} fișier${bulkFiles.length > 1 ? 'e' : ''}` : ''}
                     </>
                   )}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowUpload(false)}
-                  className="px-6 h-14 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-lg font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                  onClick={() => { setShowUpload(false); setBulkFiles([]); }}
+                  disabled={uploading}
+                  className="px-6 h-14 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-lg font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-50"
                 >
                   Anulează
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

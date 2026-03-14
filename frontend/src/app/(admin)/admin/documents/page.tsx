@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getDocuments, uploadDocument, deleteDocument, triggerProcessing, triggerProcessAll } from '@/lib/actions/document.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
 import { Pagination } from '@/components/ui/pagination';
@@ -41,17 +41,39 @@ export default function AdminDocumentsPage() {
 
   async function handleUpload(formData: FormData) {
     setUploading(true);
-    const result = await uploadDocument(formData);
-    setUploading(false);
+    try {
+      const result = await uploadDocument(formData);
 
-    if (result.error) {
-      toast.error(result.error);
-      return;
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success('Document încărcat! Se inițiază procesarea RAG...');
+      setShowUpload(false);
+
+      // Auto-trigger RAG processing for the newly uploaded document
+      if (result.document?.id) {
+        triggerProcessing(result.document.id).then((procResult) => {
+          if (procResult.error) {
+            toast.error(`Procesare RAG eșuată: ${procResult.error}`);
+          } else {
+            toast.success('Document procesat cu succes pentru RAG!');
+          }
+          loadData();
+        }).catch(() => {
+          toast.error('Serviciul AI nu este disponibil pentru procesare.');
+          loadData();
+        });
+      }
+
+      loadData();
+    } catch (err) {
+      toast.error('Eroare neașteptată la upload.');
+      console.error('Upload error:', err);
+    } finally {
+      setUploading(false);
     }
-
-    toast.success('Document încărcat cu succes!');
-    setShowUpload(false);
-    loadData();
   }
 
   async function handleDelete(id: string) {
@@ -130,19 +152,25 @@ export default function AdminDocumentsPage() {
                 <X size={20} />
               </button>
             </div>
-            <form action={handleUpload} className="space-y-4">
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const formData = new FormData(form);
+              await handleUpload(formData);
+              form.reset();
+            }} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-1">Titlu</label>
-                <input name="title" required className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none" />
+                <input name="title" required placeholder="Ex: Procedura de onboarding angajați" className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Descriere</label>
-                <textarea name="description" rows={2} className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none resize-none" />
+                <textarea name="description" rows={2} placeholder="Descriere opțională a documentului" className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none resize-none" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Departament</label>
-                <select name="departmentId" className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent">
-                  <option value="">General</option>
+                <select name="departmentId" className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
+                  <option value="">General (toate departamentele)</option>
                   {departments.map((d) => (
                     <option key={d.id} value={d.id}>{d.name}</option>
                   ))}
@@ -151,12 +179,26 @@ export default function AdminDocumentsPage() {
               <div>
                 <label className="block text-sm font-semibold mb-1">Fișier</label>
                 <input name="file" type="file" required accept=".pdf,.docx,.txt" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-semibold" />
+                <p className="text-xs text-slate-400 mt-1">Formate acceptate: PDF, DOCX, TXT. Documentul va fi procesat automat pentru RAG.</p>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="submit" disabled={uploading} className="flex-1 h-12 bg-primary text-white rounded-lg font-bold disabled:opacity-50">
-                  {uploading ? 'Se încarcă...' : 'Încarcă'}
+                <button type="submit" disabled={uploading} className="flex-1 h-12 bg-primary text-white rounded-lg font-bold disabled:opacity-50 flex items-center justify-center gap-2">
+                  {uploading ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Se încarcă...
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={18} />
+                      Încarcă și Procesează
+                    </>
+                  )}
                 </button>
-                <button type="button" onClick={() => setShowUpload(false)} className="px-6 h-12 border border-slate-200 rounded-lg font-bold text-slate-600">
+                <button type="button" onClick={() => setShowUpload(false)} className="px-6 h-12 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-600 dark:text-slate-400">
                   Anulează
                 </button>
               </div>
@@ -190,7 +232,8 @@ export default function AdminDocumentsPage() {
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50">
                   <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Nume Fișier</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Data Încărcare</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Departament</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Încărcat de</th>
                   <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-right">Acțiuni</th>
                 </tr>
@@ -203,11 +246,16 @@ export default function AdminDocumentsPage() {
                         <FileText size={20} className="text-primary/60" />
                         <div>
                           <span className="font-medium text-slate-900 dark:text-slate-100">{doc.file_name}</span>
-                          <p className="text-xs text-slate-400">{doc.title} &bull; {formatFileSize(doc.file_size)}</p>
+                          <p className="text-xs text-slate-400">{doc.title} &bull; {formatFileSize(doc.file_size)} &bull; {formatDate(doc.created_at)}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-slate-500 dark:text-slate-400">{formatDate(doc.created_at)}</td>
+                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
+                      {doc.departments?.name || <span className="text-slate-400 italic">General</span>}
+                    </td>
+                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
+                      {doc.profiles?.full_name || '—'}
+                    </td>
                     <td className="px-6 py-5">
                       {doc.is_processed ? (
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">

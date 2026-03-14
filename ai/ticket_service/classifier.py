@@ -1,24 +1,24 @@
 import json
 from ai.chat_service.llm import generate_response
 
-CLASSIFICATION_PROMPT = """You are an AI assistant that classifies support tickets for a public institution.
+CLASSIFICATION_PROMPT = """Ești un asistent AI care clasifică tichetele de suport pentru o instituție publică din România (primărie).
 
-Given the ticket description below, suggest:
-1. The most appropriate department
-2. The most appropriate category
-3. The priority level (low, medium, high, urgent)
+Analizează descrierea tichetului de mai jos și sugerează:
+1. Departamentul cel mai potrivit
+2. Categoria cea mai potrivită
+3. Nivelul de prioritate (low, medium, high, urgent)
 
-Available departments:
+Departamente disponibile:
 {departments}
 
-Available categories:
+Categorii disponibile:
 {categories}
 
-Ticket description:
+Descrierea tichetului:
 {description}
 
-Respond ONLY with a valid JSON object in this exact format, no other text:
-{{"department": "department name", "category": "category name", "priority": "low|medium|high|urgent", "reasoning": "brief explanation"}}"""
+Răspunde DOAR cu un obiect JSON valid în acest format exact, fără alt text:
+{{"department": "numele departamentului", "category": "numele categoriei", "priority": "low|medium|high|urgent", "reasoning": "explicație scurtă în română"}}"""
 
 
 def suggest_ticket_metadata(
@@ -61,7 +61,7 @@ def suggest_ticket_metadata(
             "department": departments[0]["name"] if departments else None,
             "category": categories[0]["name"] if categories else None,
             "priority": "medium",
-            "reasoning": "Could not determine automatically",
+            "reasoning": "Nu s-a putut determina automat",
         }
 
     # Map names back to IDs

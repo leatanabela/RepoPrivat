@@ -27,8 +27,11 @@ export async function getDocuments(filters: {
 
 export async function uploadDocument(formData: FormData) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Neautentificat' };
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    console.error('[uploadDocument] Auth error:', authError?.message);
+    return { error: 'Neautentificat. Te rog să te reloghezi.' };
+  }
 
   const file = formData.get('file') as File;
   const title = formData.get('title') as string;
@@ -37,19 +40,42 @@ export async function uploadDocument(formData: FormData) {
 
   if (!file || !title) return { error: 'Fișierul și titlul sunt obligatorii' };
 
-  const fileBuffer = Buffer.from(await file.arrayBuffer());
-  const filePath = `${Date.now()}_${file.name}`;
+  console.log('[uploadDocument] Uploading:', { title, fileName: file.name, fileSize: file.size, fileType: file.type, departmentId, userId: user.id });
+
+  // Convert file to buffer
+  let fileBuffer: Buffer;
+  try {
+    fileBuffer = Buffer.from(await file.arrayBuffer());
+  } catch (e) {
+    console.error('[uploadDocument] File buffer error:', e);
+    return { error: 'Eroare la citirea fișierului. Verifică dimensiunea (max 20MB).' };
+  }
+
+  const filePath = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 
   // Upload to Supabase storage
-  const { error: uploadError } = await supabaseAdmin.storage
+  const { data: storageData, error: uploadError } = await supabaseAdmin.storage
     .from(BUCKETS.DOCUMENTS)
-    .upload(filePath, fileBuffer, { contentType: file.type });
+    .upload(filePath, fileBuffer, {
+      contentType: file.type,
+      upsert: false,
+    });
 
-  if (uploadError) return { error: uploadError.message };
+  if (uploadError) {
+    console.error('[uploadDocument] Storage upload error:', uploadError);
+    if (uploadError.message?.includes('Bucket not found')) {
+      return { error: 'Bucket-ul "documents" nu există în Supabase Storage. Creează-l din dashboard-ul Supabase → Storage → New Bucket → "documents" (public).' };
+    }
+    return { error: `Eroare stocare: ${uploadError.message}` };
+  }
+
+  console.log('[uploadDocument] Storage upload success:', storageData);
 
   const { data: urlData } = supabaseAdmin.storage
     .from(BUCKETS.DOCUMENTS)
     .getPublicUrl(filePath);
+
+  console.log('[uploadDocument] Public URL:', urlData.publicUrl);
 
   const { data: doc, error: dbError } = await supabaseAdmin
     .from('documents')
@@ -66,7 +92,12 @@ export async function uploadDocument(formData: FormData) {
     .select()
     .single();
 
-  if (dbError) return { error: dbError.message };
+  if (dbError) {
+    console.error('[uploadDocument] DB insert error:', dbError);
+    return { error: `Eroare bază de date: ${dbError.message}` };
+  }
+
+  console.log('[uploadDocument] Document created:', doc.id);
   return { document: doc };
 }
 

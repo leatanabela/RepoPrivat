@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getTickets } from '@/lib/actions/ticket.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { PriorityBadge } from '@/components/ui/priority-badge';
 import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/loading-skeleton';
 import { formatDate } from '@/lib/utils';
@@ -141,6 +142,7 @@ export default function TicketsPage() {
                     {isAdmin && (
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-40">Utilizator</th>
                     )}
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-32">Prioritate</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-40">Status</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-40">Data</th>
                   </tr>
@@ -168,6 +170,9 @@ export default function TicketsPage() {
                           {ticket.profiles?.full_name || '—'}
                         </td>
                       )}
+                      <td className="px-6 py-5">
+                        <PriorityBadge priority={ticket.priority} />
+                      </td>
                       <td className="px-6 py-5">
                         <StatusBadge status={ticket.status} />
                       </td>
