@@ -2,36 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createTicket, getCategories, getDepartments } from '@/lib/actions/ticket.actions';
+import { createTicket, getDepartments } from '@/lib/actions/ticket.actions';
 import { Send } from 'lucide-react';
-import type { TicketPriority, Department, TicketCategory } from '@/lib/types';
-import { PRIORITY_LABELS } from '@/lib/constants';
+import type { TicketPriority, Department } from '@/lib/types';
 import toast from 'react-hot-toast';
 
 const priorityOptions: Array<{ value: TicketPriority; label: string; color: string }> = [
-  { value: 'low', label: 'Mica', color: 'peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 peer-checked:text-green-700' },
-  { value: 'medium', label: 'Medie', color: 'peer-checked:border-orange-500 peer-checked:bg-orange-50 dark:peer-checked:bg-orange-900/20 peer-checked:text-orange-700' },
-  { value: 'high', label: 'Mare', color: 'peer-checked:border-red-600 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 peer-checked:text-red-700' },
+  { value: 'scazuta', label: 'Mica', color: 'peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 peer-checked:text-green-700' },
+  { value: 'medie', label: 'Medie', color: 'peer-checked:border-orange-500 peer-checked:bg-orange-50 dark:peer-checked:bg-orange-900/20 peer-checked:text-orange-700' },
+  { value: 'ridicata', label: 'Mare', color: 'peer-checked:border-red-600 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 peer-checked:text-red-700' },
 ];
 
 export default function NewTicketPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [categories, setCategories] = useState<TicketCategory[]>([]);
-  const [selectedDept, setSelectedDept] = useState('');
 
   useEffect(() => {
     getDepartments().then(setDepartments);
-    getCategories().then(setCategories);
   }, []);
 
-  const filteredCategories = selectedDept
-    ? categories.filter((c) => c.department_id === selectedDept)
-    : categories;
-
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
+    const formData = new FormData(e.currentTarget);
     formData.set('useAi', 'true');
     const result = await createTicket(formData);
     setLoading(false);
@@ -61,7 +55,7 @@ export default function NewTicketPage() {
           </p>
         </div>
 
-        <form action={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-3">
             <label className="text-xl font-bold text-slate-800 dark:text-slate-200 block" htmlFor="title">
               Subiect
@@ -84,8 +78,6 @@ export default function NewTicketPage() {
               className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
               id="departmentId"
               name="departmentId"
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
             >
               <option value="">Alegeti un departament...</option>
               {departments.map((d) => (
@@ -93,24 +85,6 @@ export default function NewTicketPage() {
               ))}
             </select>
           </div>
-
-          {filteredCategories.length > 0 && (
-            <div className="space-y-3">
-              <label className="text-xl font-bold text-slate-800 dark:text-slate-200 block" htmlFor="categoryId">
-                Categorie
-              </label>
-              <select
-                className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                id="categoryId"
-                name="categoryId"
-              >
-                <option value="">Alegeti o categorie...</option>
-                {filteredCategories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
 
           <div className="space-y-3">
             <p className="text-xl font-bold text-slate-800 dark:text-slate-200">Urgenta</p>
@@ -122,7 +96,7 @@ export default function NewTicketPage() {
                     name="priority"
                     type="radio"
                     value={opt.value}
-                    defaultChecked={opt.value === 'medium'}
+                    defaultChecked={opt.value === 'scazuta'}
                   />
                   <div className={`w-full py-5 px-6 text-center rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 ${opt.color} transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50`}>
                     <span className="text-lg font-bold">{opt.label}</span>
@@ -148,12 +122,25 @@ export default function NewTicketPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6 pb-20">
             <button
-              className="flex-1 h-16 bg-primary hover:bg-primary/90 text-white rounded-xl text-xl font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 h-16 bg-primary hover:bg-primary/90 text-white rounded-xl text-xl font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
               disabled={loading}
             >
-              <Send size={20} />
-              {loading ? 'Se trimite...' : 'Trimite Tichet'}
+              {loading ? (
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <Send size={20} />
+              )}
+              <span>{loading ? 'Se trimite...' : 'Trimite Tichet'}</span>
             </button>
             <button
               className="sm:w-1/3 h-16 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xl font-bold transition-all"

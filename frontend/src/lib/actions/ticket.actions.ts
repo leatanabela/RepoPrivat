@@ -25,10 +25,16 @@ export async function createTicket(formData: FormData) {
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
-  const priority = (formData.get('priority') as TicketPriority) || 'medium';
+  const priority = (formData.get('priority') as TicketPriority) || 'medie';
   const categoryId = formData.get('categoryId') as string | null;
   const departmentId = formData.get('departmentId') as string | null;
   const useAi = formData.get('useAi') === 'true';
+
+  // Map English AI priority values to Romanian enum values
+  const priorityMap: Record<string, TicketPriority> = {
+    low: 'scazuta', medium: 'medie', high: 'ridicata', urgent: 'urgenta',
+    scazuta: 'scazuta', medie: 'medie', ridicata: 'ridicata', urgenta: 'urgenta',
+  };
 
   let aiSuggestions = null;
   if (useAi && description) {
@@ -42,19 +48,19 @@ export async function createTicket(formData: FormData) {
     department_id: departmentId || null,
     category_id: categoryId || null,
     user_id: user.id,
-    status: 'new',
+    status: 'nou',
   };
 
   if (aiSuggestions) {
     insertData.ai_suggested_department = aiSuggestions.department_id || null;
     insertData.ai_suggested_category = aiSuggestions.category_id || null;
-    insertData.ai_suggested_priority = aiSuggestions.priority || null;
+    insertData.ai_suggested_priority = priorityMap[aiSuggestions.priority] || null;
   }
 
   const { data: ticket, error } = await supabase
     .from('tickets')
     .insert(insertData)
-    .select('*, departments(name), ticket_categories(name)')
+    .select('*, departments!tickets_department_id_fkey(name), ticket_categories!tickets_category_id_fkey(name)')
     .single();
 
   if (error) return { error: error.message };
@@ -64,6 +70,7 @@ export async function createTicket(formData: FormData) {
 export async function getTickets(filters: {
   status?: TicketStatus;
   priority?: TicketPriority;
+  departmentId?: string;
   page?: number;
   limit?: number;
   userId?: string;
@@ -87,7 +94,7 @@ export async function getTickets(filters: {
   let query = supabase
     .from('tickets')
     .select(
-      '*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
+      '*, departments!tickets_department_id_fkey(name), ticket_categories!tickets_category_id_fkey(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -101,6 +108,7 @@ export async function getTickets(filters: {
   if (rest.status) query = query.eq('status', rest.status);
   if (rest.priority) query = query.eq('priority', rest.priority);
   if (rest.userId) query = query.eq('user_id', rest.userId);
+  if (rest.departmentId) query = query.eq('department_id', rest.departmentId);
 
   const { data, error, count } = await query;
   if (error) return { tickets: [], total: 0, page, limit };
@@ -113,7 +121,7 @@ export async function getTicketById(id: string) {
   const { data, error } = await supabase
     .from('tickets')
     .select(
-      '*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)'
+      '*, departments!tickets_department_id_fkey(name), ticket_categories!tickets_category_id_fkey(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)'
     )
     .eq('id', id)
     .single();

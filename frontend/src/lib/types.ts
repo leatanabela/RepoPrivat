@@ -1,5 +1,5 @@
-export type TicketStatus = 'new' | 'assigned' | 'in_progress' | 'waiting_user' | 'resolved' | 'closed';
-export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TicketStatus = 'nou' | 'atribuit' | 'in_lucru' | 'asteptare_utilizator' | 'rezolvat' | 'inchis';
+export type TicketPriority = 'scazuta' | 'medie' | 'ridicata' | 'urgenta';
 export type UserRole = 'admin' | 'employee';
 
 export interface Profile {

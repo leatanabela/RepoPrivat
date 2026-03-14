@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageSquare, Ticket, Settings, LogOut, Menu, X } from 'lucide-react';
+import { MessageSquare, Ticket, Settings, LogOut, Menu, X, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
@@ -14,10 +14,14 @@ const navItems = [
   { href: '/settings', label: 'Setări', icon: Settings },
 ];
 
+const adminItems = [
+  { href: '/mentenanta', label: 'Mentenanță', icon: Wrench },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar } = useUIStore();
-  const { user } = useAuthStore();
+  const { user, isAdmin } = useAuthStore();
 
   return (
     <>
@@ -78,6 +82,30 @@ export function Sidebar() {
                   </Link>
                 );
               })}
+
+              {isAdmin && (
+                <>
+                  <div className="my-2 border-t border-slate-100 dark:border-slate-800" />
+                  {adminItems.map((item) => {
+                    const isActive = pathname.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
+                          isActive
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        )}
+                      >
+                        <item.icon size={22} />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
             </nav>
           </div>
 

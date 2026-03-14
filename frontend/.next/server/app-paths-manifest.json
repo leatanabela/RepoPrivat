@@ -1,14 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/chat/stream/route": "app/api/chat/stream/route.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/page": "app/page.js",
-  "/(admin)/admin/documents/page": "app/(admin)/admin/documents/page.js",
+  "/(dashboard)/tickets/page": "app/(dashboard)/tickets/page.js",
   "/(dashboard)/chat/page": "app/(dashboard)/chat/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
   "/(dashboard)/tickets/[id]/page": "app/(dashboard)/tickets/[id]/page.js",
-  "/(dashboard)/tickets/new/page": "app/(dashboard)/tickets/new/page.js",
-  "/(admin)/admin/reports/page": "app/(admin)/admin/reports/page.js",
-  "/(admin)/admin/page": "app/(admin)/admin/page.js",
-  "/(dashboard)/tickets/page": "app/(dashboard)/tickets/page.js"
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/mentenanta/page": "app/(dashboard)/mentenanta/page.js"
 }

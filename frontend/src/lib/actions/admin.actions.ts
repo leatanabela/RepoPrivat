@@ -60,6 +60,7 @@ export async function getAnalytics(): Promise<Analytics> {
 
 export async function getAllTickets(filters: {
   status?: string;
+  departmentId?: string;
   page?: number;
   limit?: number;
 } = {}) {
@@ -69,17 +70,40 @@ export async function getAllTickets(filters: {
   let query = supabaseAdmin
     .from('tickets')
     .select(
-      '*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
+      '*, departments(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (filters.status) query = query.eq('status', filters.status);
+  if (filters.departmentId) query = query.eq('department_id', filters.departmentId);
 
   const { data, error, count } = await query;
   if (error) return { tickets: [], total: 0, page, limit };
   return { tickets: data || [], total: count || 0, page, limit };
+}
+
+export async function adminUpdateTicketStatus(ticketId: string, status: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('roles(name)')
+    .eq('id', user.id)
+    .single();
+
+  if ((profile?.roles as any)?.name !== 'admin') return { error: 'Acces neautorizat' };
+
+  const { error } = await supabaseAdmin
+    .from('tickets')
+    .update({ status })
+    .eq('id', ticketId);
+
+  if (error) return { error: error.message };
+  return { success: true };
 }
 
 export async function assignTicketToAdmin(ticketId: string) {

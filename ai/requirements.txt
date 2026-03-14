@@ -17,7 +17,6 @@ langchain-text-splitters==0.3.3
 
 # Embeddings & LLM
 ollama==0.4.4
-httpx==0.28.1
 
 # Database
 supabase==2.11.0

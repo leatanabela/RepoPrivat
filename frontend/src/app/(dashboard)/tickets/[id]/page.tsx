@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getTicketById, getTicketMessages, addTicketMessage, updateTicket } from '@/lib/actions/ticket.actions';
+import { getTicketById, getTicketMessages, addTicketMessage } from '@/lib/actions/ticket.actions';
+import { adminUpdateTicketStatus } from '@/lib/actions/admin.actions';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { PriorityBadge } from '@/components/ui/priority-badge';
 import { formatDateTime, formatRelativeDate } from '@/lib/utils';
 import { ArrowLeft, Send, User } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
-import { STATUS_LABELS, PRIORITY_LABELS } from '@/lib/constants';
+import { STATUS_LABELS } from '@/lib/constants';
 import type { Ticket, TicketMessage, TicketStatus } from '@/lib/types';
 import toast from 'react-hot-toast';
 
@@ -55,7 +56,7 @@ export default function TicketDetailPage() {
   }
 
   async function handleStatusChange(status: TicketStatus) {
-    const result = await updateTicket(params.id as string, { status });
+    const result = await adminUpdateTicketStatus(params.id as string, status);
     if (result.error) {
       toast.error(result.error);
       return;
@@ -110,36 +111,28 @@ export default function TicketDetailPage() {
 
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500">
             <span>Departament: <strong>{ticket.departments?.name || '\u2014'}</strong></span>
-            <span>Categorie: <strong>{ticket.ticket_categories?.name || '\u2014'}</strong></span>
             <span>Creat de: <strong>{ticket.profiles?.full_name || '\u2014'}</strong></span>
             {ticket.assigned?.full_name && (
               <span>Atribuit: <strong>{ticket.assigned.full_name}</strong></span>
             )}
           </div>
 
-          {/* AI suggestions */}
-          {(ticket.ai_suggested_priority || ticket.ai_suggested_department || ticket.ai_suggested_category) && (
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm">
-              <p className="font-semibold text-blue-700 dark:text-blue-300 mb-1">Sugestii AI:</p>
-              {ticket.ai_suggested_priority && (
-                <p className="text-blue-600 dark:text-blue-400">Prioritate sugerata: {PRIORITY_LABELS[ticket.ai_suggested_priority]}</p>
-              )}
-            </div>
-          )}
-
           {/* Admin status change */}
           {isAdmin && (
-            <div className="mt-4 flex gap-2 flex-wrap">
-              {(['assigned', 'in_progress', 'resolved', 'closed'] as TicketStatus[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleStatusChange(s)}
-                  disabled={ticket.status === s}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-primary/5 disabled:opacity-40 transition-colors"
-                >
-                  {STATUS_LABELS[s]}
-                </button>
-              ))}
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Schimbă status</p>
+              <div className="flex gap-2 flex-wrap">
+                {(['atribuit', 'in_lucru', 'asteptare_utilizator', 'rezolvat', 'inchis'] as TicketStatus[]).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleStatusChange(s)}
+                    disabled={ticket.status === s}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-primary/5 hover:border-primary/30 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {STATUS_LABELS[s]}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
