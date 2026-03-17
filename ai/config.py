@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 50
 
     class Config:
-        env_file = ".env"
+        env_file = [".env", "ai/.env"]
 
 
 settings = Settings()

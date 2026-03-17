@@ -6,11 +6,6 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
-    ],
     "/(dashboard)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -21,20 +16,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/chat/page.js"
     ],
-    "/api/chat/stream/route": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/chat/stream/route.js"
-    ],
-    "/(dashboard)/tickets/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/tickets/page.js"
-    ],
-    "/(dashboard)/mentenanta/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/mentenanta/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

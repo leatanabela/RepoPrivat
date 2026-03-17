@@ -172,6 +172,16 @@ export default function ChatPage() {
                 if (parsed.type === 'token' && parsed.data) {
                   fullContent += parsed.data;
                   appendStreamingContent(parsed.data);
+<<<<<<< Updated upstream
+=======
+                }
+                if (parsed.token) {
+                  fullContent += parsed.token;
+                  appendStreamingContent(parsed.token);
+                }
+                if (parsed.answer) {
+                  fullContent = parsed.answer;
+>>>>>>> Stashed changes
                 }
               } catch {
                 // Plain text token
@@ -239,7 +249,15 @@ export default function ChatPage() {
                     className="truncate flex-1"
                     onClick={() => selectSession(session.id)}
                   >
-                    {session.title || 'Conversație nouă'}
+                    {session.title && session.title !== 'Conversație nouă'
+                      ? session.title
+                      : new Date(session.created_at).toLocaleString('ro-RO', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                   </span>
                   <button
                     onClick={(e) => {
