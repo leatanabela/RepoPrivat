@@ -12,7 +12,10 @@
       "Bash(python -m uvicorn ai.main:app --host 0.0.0.0 --port 8000)",
       "Bash(taskkill //F //IM python.exe)",
       "Bash(curl -s -X POST http://localhost:8000/api/chat/stream -H \"Content-Type: application/json\" -d \"{\"\"question\"\": \"\"buna ziua\"\", \"\"chat_history\"\": []}\")",
-      "Bash(curl -s http://localhost:8000/api/health)"
+      "Bash(curl -s http://localhost:8000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} - Connect: %{time_connect}s, TTFB: %{time_starttransfer}s, Total: %{time_total}s\" http://localhost:8000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} - Connect: %{time_connect}s, TTFB: %{time_starttransfer}s, Total: %{time_total}s\" http://localhost:11434/api/tags)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} - Connect: %{time_connect}s, TTFB: %{time_starttransfer}s, Total: %{time_total}s\" http://localhost:3000)"
     ]
   }
 }

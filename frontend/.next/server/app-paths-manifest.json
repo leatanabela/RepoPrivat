@@ -1,8 +1,5 @@
 {
-  "/api/chat/stream/route": "app/api/chat/stream/route.js",
-  "/(dashboard)/tickets/page": "app/(dashboard)/tickets/page.js",
   "/(dashboard)/chat/page": "app/(dashboard)/chat/page.js",
-  "/(dashboard)/tickets/[id]/page": "app/(dashboard)/tickets/[id]/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/tickets/page": "app/(dashboard)/tickets/page.js",
   "/(dashboard)/mentenanta/page": "app/(dashboard)/mentenanta/page.js"
 }
