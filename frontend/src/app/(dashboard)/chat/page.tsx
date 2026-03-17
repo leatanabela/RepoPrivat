@@ -172,8 +172,6 @@ export default function ChatPage() {
                 if (parsed.type === 'token' && parsed.data) {
                   fullContent += parsed.data;
                   appendStreamingContent(parsed.data);
-<<<<<<< Updated upstream
-=======
                 }
                 if (parsed.token) {
                   fullContent += parsed.token;
@@ -181,7 +179,6 @@ export default function ChatPage() {
                 }
                 if (parsed.answer) {
                   fullContent = parsed.answer;
->>>>>>> Stashed changes
                 }
               } catch {
                 // Plain text token
