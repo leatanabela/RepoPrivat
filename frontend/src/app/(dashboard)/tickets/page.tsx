@@ -100,7 +100,7 @@ export default function TicketsPage() {
                       : 'border-transparent text-slate-500 hover:text-primary'
                   }`}
                 >
-                  {f.label} {f.value === 'all' && total > 0 ? `(${total})` : ''}
+                  {f.label}{statusFilter === f.value ? ` (${total})` : ''}
                 </button>
               ))}
             </div>
