@@ -138,8 +138,8 @@ CREATE TABLE document_chunks (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create index for vector similarity search
-CREATE INDEX ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+-- Create index for vector similarity search (HNSW - works without pre-existing data)
+CREATE INDEX ON document_chunks USING hnsw (embedding vector_cosine_ops);
 
 -- ============================================================
 -- CHAT HISTORY (AI Assistant conversations)
@@ -377,6 +377,21 @@ BEGIN
     WHERE 1 - (dc.embedding <=> query_embedding) > match_threshold
     ORDER BY dc.embedding <=> query_embedding
     LIMIT match_count;
+END;
+$$;
+
+-- Function to rebuild vector index after new document processing
+CREATE OR REPLACE FUNCTION rebuild_vector_index()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Drop old IVFFlat index if it exists
+    DROP INDEX IF EXISTS document_chunks_embedding_idx;
+    -- Recreate as HNSW (works incrementally, no pre-training needed)
+    CREATE INDEX IF NOT EXISTS document_chunks_embedding_hnsw_idx
+        ON document_chunks USING hnsw (embedding vector_cosine_ops);
 END;
 $$;
 

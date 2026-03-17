@@ -4,9 +4,10 @@ from ai.chat_service.llm import generate_response
 CLASSIFICATION_PROMPT = """Ești un asistent AI care clasifică tichetele de suport pentru o instituție publică din România (primărie).
 
 Analizează descrierea tichetului de mai jos și sugerează:
-1. Departamentul cel mai potrivit
-2. Categoria cea mai potrivită
-3. Nivelul de prioritate (low, medium, high, urgent)
+1. Un titlu scurt și clar pentru tichet (maxim 10 cuvinte, stil administrativ)
+2. Departamentul cel mai potrivit
+3. Categoria cea mai potrivită
+4. Nivelul de prioritate (low, medium, high, urgent)
 
 Departamente disponibile:
 {departments}
@@ -18,7 +19,7 @@ Descrierea tichetului:
 {description}
 
 Răspunde DOAR cu un obiect JSON valid în acest format exact, fără alt text:
-{{"department": "numele departamentului", "category": "numele categoriei", "priority": "low|medium|high|urgent", "reasoning": "explicație scurtă în română"}}"""
+{{"title": "titlu scurt și clar", "department": "numele departamentului", "category": "numele categoriei", "priority": "low|medium|high|urgent", "reasoning": "explicație scurtă în română"}}"""
 
 
 def suggest_ticket_metadata(
@@ -82,6 +83,7 @@ def suggest_ticket_metadata(
         priority = "medium"
 
     return {
+        "title": result.get("title", ""),
         "department_id": dept_id,
         "department_name": result.get("department"),
         "category_id": cat_id,

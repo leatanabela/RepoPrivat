@@ -84,6 +84,12 @@ async def process_document(document_id: str, file_path: str | None = None):
             "chunk_count": len(chunks),
         }).eq("id", document_id).execute()
 
+        # Step 7: Rebuild vector index after new data (IVFFlat needs retraining)
+        try:
+            supabase.rpc("rebuild_vector_index", {}).execute()
+        except Exception:
+            pass  # Non-critical, search still works without it
+
         return {
             "document_id": document_id,
             "chunks_created": len(chunks),
