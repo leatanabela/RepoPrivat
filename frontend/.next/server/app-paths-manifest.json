@@ -1,5 +1,9 @@
 {
+  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/(dashboard)/chat/page": "app/(dashboard)/chat/page.js",
+  "/(dashboard)/mentenanta/page": "app/(dashboard)/mentenanta/page.js",
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
   "/(dashboard)/tickets/page": "app/(dashboard)/tickets/page.js",
-  "/(dashboard)/mentenanta/page": "app/(dashboard)/mentenanta/page.js"
+  "/(dashboard)/tickets/new/page": "app/(dashboard)/tickets/new/page.js",
+  "/(dashboard)/tickets/[id]/page": "app/(dashboard)/tickets/[id]/page.js"
 }

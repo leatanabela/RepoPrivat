@@ -21,20 +21,35 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/chat/page.js"
     ],
-    "/api/chat/stream/route": [
+    "/(auth)/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/chat/stream/route.js"
+      "static/chunks/app/(auth)/login/page.js"
+    ],
+    "/(dashboard)/mentenanta/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/mentenanta/page.js"
     ],
     "/(dashboard)/tickets/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/tickets/page.js"
     ],
-    "/(dashboard)/mentenanta/page": [
+    "/(dashboard)/settings/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/mentenanta/page.js"
+      "static/chunks/app/(dashboard)/settings/page.js"
+    ],
+    "/(dashboard)/tickets/new/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/tickets/new/page.js"
+    ],
+    "/(dashboard)/tickets/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/tickets/[id]/page.js"
     ]
   }
 }

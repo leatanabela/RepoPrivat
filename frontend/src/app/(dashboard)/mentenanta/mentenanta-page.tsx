@@ -10,6 +10,7 @@ import {
 } from '@/lib/actions/document.actions';
 import { getAnalytics } from '@/lib/actions/admin.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
+import { createEmployee, getEmployees, getDepartments as getEmployeeDepartments } from '@/lib/actions/employee.actions';
 import { Pagination } from '@/components/ui/pagination';
 import { formatDate, formatFileSize } from '@/lib/utils';
 import {
@@ -27,11 +28,20 @@ import {
   MessageSquare,
   BookOpen,
   Upload,
+  UserPlus,
+  Copy,
+  Check,
 } from 'lucide-react';
-import type { Document, Department, Analytics } from '@/lib/types';
+import type { Document, Department, Analytics, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
 
-type Tab = 'documente' | 'statistici';
+interface CreatedAccount {
+  fullName: string;
+  email: string;
+  tempPassword: string;
+}
+
+type Tab = 'documente' | 'angajati' | 'statistici';
 
 export function MentenantaPage() {
   const [activeTab, setActiveTab] = useState<Tab>('documente');
@@ -52,6 +62,16 @@ export function MentenantaPage() {
   // Analytics state
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  // Employees state
+  const [employees, setEmployees] = useState<Profile[]>([]);
+  const [empTotal, setEmpTotal] = useState(0);
+  const [empLoading, setEmpLoading] = useState(true);
+  const [empSubmitting, setEmpSubmitting] = useState(false);
+  const [showEmpForm, setShowEmpForm] = useState(false);
+  const [createdAccount, setCreatedAccount] = useState<CreatedAccount | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [empDepartments, setEmpDepartments] = useState<Department[]>([]);
 
   const limit = 10;
 
@@ -78,6 +98,49 @@ export function MentenantaPage() {
       .then(setAnalytics)
       .finally(() => setAnalyticsLoading(false));
   }, []);
+
+  const loadEmployees = useCallback(async () => {
+    setEmpLoading(true);
+    try {
+      const [empData, deptData] = await Promise.all([
+        getEmployees({ limit: 100 }),
+        empDepartments.length === 0 ? getEmployeeDepartments() : Promise.resolve(empDepartments),
+      ]);
+      setEmployees(empData.employees);
+      setEmpTotal(empData.total);
+      if (deptData !== empDepartments) setEmpDepartments(deptData as Department[]);
+    } catch {
+      toast.error('Eroare la încărcarea angajaților');
+    } finally {
+      setEmpLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'angajati') loadEmployees();
+  }, [activeTab, loadEmployees]);
+
+  async function handleCreateEmployee(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEmpSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    const result = await createEmployee(formData);
+
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(result.message || 'Angajat creat cu succes!');
+      setCreatedAccount({
+        fullName: formData.get('fullName') as string,
+        email: formData.get('email') as string,
+        tempPassword: result.tempPassword || '',
+      });
+      setShowEmpForm(false);
+      (e.target as HTMLFormElement).reset();
+      loadEmployees();
+    }
+    setEmpSubmitting(false);
+  }
 
   async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -267,6 +330,7 @@ export function MentenantaPage() {
         <div className="flex gap-2 mb-10 border-b-2 border-slate-200 dark:border-slate-800">
           {([
             { id: 'documente', label: 'Gestionare Documente', icon: FileText },
+            { id: 'angajati', label: 'Angajați', icon: Users },
             { id: 'statistici', label: 'Statistici', icon: BarChart3 },
           ] as const).map((tab) => (
             <button
@@ -406,6 +470,169 @@ export function MentenantaPage() {
                   total={docTotal}
                   limit={limit}
                 />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── ANGAJAȚI TAB ── */}
+        {activeTab === 'angajati' && (
+          <div>
+            {/* Create button */}
+            <button
+              onClick={() => { setShowEmpForm(!showEmpForm); setCreatedAccount(null); }}
+              className="mb-8 h-16 w-full sm:w-auto px-8 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+            >
+              {showEmpForm ? <X size={22} /> : <UserPlus size={22} />}
+              {showEmpForm ? 'Anulează' : 'Creează Cont Angajat'}
+            </button>
+
+            {/* Created account credentials */}
+            {createdAccount && (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-8">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-200 mb-3">
+                      Cont creat — {createdAccount.fullName}
+                    </h3>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-4">
+                      Transmite aceste credențiale angajatului. Parola poate fi schimbată din Setări.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-emerald-700 dark:text-emerald-300 font-bold w-16">Email:</span>
+                        <code className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 text-sm">
+                          {createdAccount.email}
+                        </code>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-emerald-700 dark:text-emerald-300 font-bold w-16">Parolă:</span>
+                        <code className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 text-sm font-mono">
+                          {createdAccount.tempPassword}
+                        </code>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(createdAccount.tempPassword);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          className="size-8 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-800 flex items-center justify-center transition-colors"
+                          title="Copiază parola"
+                        >
+                          {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} className="text-emerald-600" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setCreatedAccount(null); setCopied(false); }}
+                    className="size-8 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-800 flex items-center justify-center transition-colors"
+                  >
+                    <X size={16} className="text-emerald-600" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Create form */}
+            {showEmpForm && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6 mb-8">
+                <form onSubmit={handleCreateEmployee} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nume complet</label>
+                    <input
+                      name="fullName"
+                      type="text"
+                      required
+                      placeholder="Ion Popescu"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="ion.popescu@companie.ro"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Departament</label>
+                    <select
+                      name="departmentId"
+                      required
+                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    >
+                      <option value="">Selectează departament</option>
+                      {empDepartments.map((dept) => (
+                        <option key={dept.id} value={dept.id}>{dept.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="md:col-span-3 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={empSubmitting}
+                      className="h-12 px-6 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {empSubmitting ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Se creează...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={18} />
+                          Creează Cont
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+                <p className="mt-3 text-xs text-slate-400">
+                  Parola temporară va fi afișată după creare. Angajatul o poate schimba din Setări.
+                </p>
+              </div>
+            )}
+
+            {/* Employees list */}
+            <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+              <div className="px-6 py-4 border-b-2 border-slate-100 dark:border-slate-800">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <Users size={20} />
+                  {empTotal} angajați în sistem
+                </h3>
+              </div>
+              {empLoading ? (
+                <div className="p-16 text-center text-slate-400 text-xl">Se încarcă...</div>
+              ) : employees.length === 0 ? (
+                <div className="p-16 text-center">
+                  <Users size={56} className="mx-auto text-slate-200 dark:text-slate-700 mb-4" />
+                  <p className="text-xl font-bold text-slate-400">Nu există angajați.</p>
+                  <p className="text-slate-400 mt-1">Apasă <strong>"Creează Cont Angajat"</strong> pentru a începe.</p>
+                </div>
+              ) : (
+                <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
+                  {employees.map((emp) => (
+                    <div key={emp.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+                        {emp.full_name?.charAt(0)?.toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-slate-900 dark:text-slate-100 truncate">{emp.full_name}</p>
+                        <p className="text-sm text-slate-400">{emp.email}</p>
+                      </div>
+                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex-shrink-0">
+                        {emp.departments?.name || '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
