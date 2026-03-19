@@ -6,7 +6,6 @@ import {
   uploadDocument,
   deleteDocument,
   triggerProcessing,
-  triggerProcessAll,
 } from '@/lib/actions/document.actions';
 import { getAnalytics } from '@/lib/actions/admin.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
@@ -18,7 +17,6 @@ import {
   Trash2,
   FileText,
   Search,
-  Zap,
   X,
   BarChart3,
   Package,
@@ -161,10 +159,23 @@ export function MentenantaPage() {
         return;
       }
 
-      toast.success('Document încărcat! Se inițiază procesarea RAG...');
+      toast.success('Document încărcat! Se procesează automat...');
       setShowUpload(false);
       form.reset();
-      triggerProcessAll().catch(() => {});
+      // Auto-process the uploaded document for AI
+      if (result.document?.id) {
+        triggerProcessing(result.document.id).then((procResult) => {
+          if (procResult.error) {
+            toast.error(`Procesare eșuată: ${procResult.error}`);
+          } else {
+            toast.success('Document procesat cu succes! AI-ul poate răspunde din el.');
+          }
+          loadDocuments();
+        }).catch(() => {
+          toast.error('Serviciul AI nu este disponibil pentru procesare.');
+          loadDocuments();
+        });
+      }
       loadDocuments();
     } catch (err) {
       toast.error('Eroare neașteptată la upload. Verifică dimensiunea fișierului (max 20MB).');
@@ -182,30 +193,6 @@ export function MentenantaPage() {
       return;
     }
     toast.success('Document șters!');
-    loadDocuments();
-  }
-
-  async function handleProcess(id: string) {
-    toast.loading('Se procesează...', { id: 'process' });
-    const result = await triggerProcessing(id);
-    toast.dismiss('process');
-    if (result.error) {
-      toast.error(result.error);
-      return;
-    }
-    toast.success('Procesat cu succes!');
-    loadDocuments();
-  }
-
-  async function handleProcessAll() {
-    toast.loading('Se procesează toate documentele...', { id: 'processAll' });
-    const result = await triggerProcessAll();
-    toast.dismiss('processAll');
-    if (result.error) {
-      toast.error(result.error);
-      return;
-    }
-    toast.success('Procesarea a fost inițiată!');
     loadDocuments();
   }
 
@@ -273,6 +260,10 @@ export function MentenantaPage() {
           failed++;
         } else {
           success++;
+          // Auto-process each document for AI
+          if (result.document?.id) {
+            triggerProcessing(result.document.id).catch(() => {});
+          }
         }
       } catch {
         toast.error(`${file.name}: Eroare neașteptată`);
@@ -286,9 +277,7 @@ export function MentenantaPage() {
     setShowUpload(false);
 
     if (success > 0) {
-      toast.success(`${success} document${success > 1 ? 'e' : ''} încărcat${success > 1 ? 'e' : ''}!`);
-      // Trigger RAG processing for all
-      triggerProcessAll().catch(() => {});
+      toast.success(`${success} document${success > 1 ? 'e' : ''} încărcat${success > 1 ? 'e' : ''} și se procesează automat!`);
     }
     if (failed > 0) {
       toast.error(`${failed} document${failed > 1 ? 'e' : ''} nu s-a${failed > 1 ? 'u' : ''} putut încărca.`);
@@ -351,43 +340,18 @@ export function MentenantaPage() {
         {/* ── DOCUMENTE TAB ── */}
         {activeTab === 'documente' && (
           <div>
-            {/* Drop zone */}
-            <div
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => setShowUpload(true)}
-              className={`mb-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all ${
-                dragOver
-                  ? 'border-primary bg-primary/10 scale-[1.01]'
-                  : 'border-slate-300 dark:border-slate-700 hover:border-primary/50 hover:bg-primary/5'
-              } p-8 flex flex-col items-center justify-center gap-3`}
-            >
-              <Upload size={40} className={dragOver ? 'text-primary' : 'text-slate-400'} />
-              <p className="text-lg font-bold text-slate-700 dark:text-slate-300">
-                Trage fișierele aici sau click pentru a selecta
-              </p>
-              <p className="text-sm text-slate-400">
-                PDF, DOCX, TXT — poți adăuga mai multe fișiere odată
-              </p>
-            </div>
-
-            {/* Action buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {/* Add document button */}
+            <div className="mb-8">
               <button
                 onClick={() => setShowUpload(true)}
-                className="h-16 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+                className="h-14 px-8 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
               >
                 <Plus size={22} />
                 Adaugă Document
               </button>
-              <button
-                onClick={handleProcessAll}
-                className="h-16 border-2 border-primary/30 text-primary rounded-2xl text-lg font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-3"
-              >
-                <Zap size={22} />
-                Procesează Tot (RAG)
-              </button>
+              <p className="text-sm text-slate-400 mt-2">
+                Documentele încărcate sunt procesate automat pentru AI.
+              </p>
             </div>
 
             {/* Search */}
@@ -440,15 +404,6 @@ export function MentenantaPage() {
                           <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500">
                             În așteptare
                           </span>
-                        )}
-                        {!doc.is_processed && (
-                          <button
-                            onClick={() => handleProcess(doc.id)}
-                            title="Procesează RAG"
-                            className="size-11 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center transition-colors"
-                          >
-                            <Zap size={18} />
-                          </button>
                         )}
                         <button
                           onClick={() => handleDelete(doc.id)}

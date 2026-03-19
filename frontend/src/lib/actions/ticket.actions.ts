@@ -138,6 +138,7 @@ export async function updateTicket(
     department_id?: string;
     category_id?: string;
     assigned_to?: string;
+    description?: string;
   }
 ) {
   const supabase = await createServerSupabaseClient();
@@ -182,6 +183,56 @@ export async function getTicketMessages(ticketId: string) {
 
   if (error) return [];
   return data || [];
+}
+
+export async function getAiTicketSuggestions(description: string) {
+  return getAiSuggestions(description);
+}
+
+export async function createTicketFromChat(
+  question: string,
+  aiResponse: string,
+  userDescription: string,
+  priority: TicketPriority,
+  departmentId: string | null,
+  aiSuggestedPriority?: string | null,
+  aiSuggestedDepartment?: string | null,
+) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  const priorityMap: Record<string, TicketPriority> = {
+    low: 'scazuta', medium: 'medie', high: 'ridicata', urgent: 'urgenta',
+    scazuta: 'scazuta', medie: 'medie', ridicata: 'ridicata', urgenta: 'urgenta',
+  };
+
+  const title = question.length > 300 ? question.slice(0, 297) + '...' : question;
+
+  const insertData: Record<string, unknown> = {
+    title,
+    description: userDescription || `Întrebare din chat AI:\n${question}\n\nRăspuns AI:\n${aiResponse}`,
+    status: 'nou',
+    priority: priorityMap[priority] || 'medie',
+    department_id: departmentId || null,
+    user_id: user.id,
+  };
+
+  if (aiSuggestedPriority) {
+    insertData.ai_suggested_priority = priorityMap[aiSuggestedPriority] || null;
+  }
+  if (aiSuggestedDepartment) {
+    insertData.ai_suggested_department = aiSuggestedDepartment;
+  }
+
+  const { data: ticket, error } = await supabase
+    .from('tickets')
+    .insert(insertData)
+    .select('*')
+    .single();
+
+  if (error) return { error: error.message };
+  return { ticket };
 }
 
 export async function getCategories(departmentId?: string) {

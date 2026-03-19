@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getTicketById, getTicketMessages, addTicketMessage } from '@/lib/actions/ticket.actions';
+import { getTicketById, getTicketMessages, addTicketMessage, updateTicket, getDepartments } from '@/lib/actions/ticket.actions';
 import { adminUpdateTicketStatus } from '@/lib/actions/admin.actions';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { PriorityBadge } from '@/components/ui/priority-badge';
 import { formatDateTime, formatRelativeDate } from '@/lib/utils';
-import { ArrowLeft, Send, User } from 'lucide-react';
+import { ArrowLeft, Send, User, Pencil, Check, X } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
-import { STATUS_LABELS } from '@/lib/constants';
-import type { Ticket, TicketMessage, TicketStatus } from '@/lib/types';
+import { STATUS_LABELS, PRIORITY_LABELS } from '@/lib/constants';
+import type { Ticket, TicketMessage, TicketStatus, TicketPriority } from '@/lib/types';
 import toast from 'react-hot-toast';
 
 export default function TicketDetailPage() {
@@ -22,6 +22,16 @@ export default function TicketDetailPage() {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+
+  // Admin editing state
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [editDescription, setEditDescription] = useState('');
+  const [editingPriority, setEditingPriority] = useState(false);
+  const [editPriority, setEditPriority] = useState<TicketPriority>('medie');
+  const [editingDepartment, setEditingDepartment] = useState(false);
+  const [editDepartmentId, setEditDepartmentId] = useState('');
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadTicket();
@@ -65,6 +75,54 @@ export default function TicketDetailPage() {
     toast.success(`Status actualizat: ${STATUS_LABELS[status]}`);
   }
 
+  async function handleSaveField(field: 'description' | 'priority' | 'department_id') {
+    if (!ticket) return;
+    setSaving(true);
+
+    const updates: Record<string, unknown> = {};
+    if (field === 'description') updates.description = editDescription;
+    if (field === 'priority') updates.priority = editPriority;
+    if (field === 'department_id') updates.department_id = editDepartmentId || null;
+
+    const result = await updateTicket(ticket.id, updates as Parameters<typeof updateTicket>[1]);
+    setSaving(false);
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    // Update local state
+    if (field === 'description') {
+      setTicket((t) => t ? { ...t, description: editDescription } : t);
+      setEditingDescription(false);
+    }
+    if (field === 'priority') {
+      setTicket((t) => t ? { ...t, priority: editPriority } : t);
+      setEditingPriority(false);
+    }
+    if (field === 'department_id') {
+      const dept = departments.find((d) => d.id === editDepartmentId);
+      setTicket((t) => t ? {
+        ...t,
+        department_id: editDepartmentId || null,
+        departments: dept ? { name: dept.name } : null,
+      } : t);
+      setEditingDepartment(false);
+    }
+
+    toast.success('Tichet actualizat');
+  }
+
+  async function startEditDepartment() {
+    if (departments.length === 0) {
+      const depts = await getDepartments();
+      setDepartments(depts);
+    }
+    setEditDepartmentId(ticket?.department_id || '');
+    setEditingDepartment(true);
+  }
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -103,14 +161,130 @@ export default function TicketDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={ticket.status} />
-              <PriorityBadge priority={ticket.priority} />
+
+              {/* Priority - editable for admin */}
+              {isAdmin && editingPriority ? (
+                <div className="flex items-center gap-1">
+                  <select
+                    value={editPriority}
+                    onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
+                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none"
+                  >
+                    {Object.entries(PRIORITY_LABELS).map(([val, label]) => (
+                      <option key={val} value={val}>{label}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => handleSaveField('priority')}
+                    disabled={saving}
+                    className="p-1 text-green-600 hover:text-green-700"
+                  >
+                    <Check size={14} />
+                  </button>
+                  <button
+                    onClick={() => setEditingPriority(false)}
+                    className="p-1 text-slate-400 hover:text-slate-600"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className={isAdmin ? 'cursor-pointer' : ''}
+                  onClick={() => {
+                    if (!isAdmin) return;
+                    setEditPriority(ticket.priority);
+                    setEditingPriority(true);
+                  }}
+                >
+                  <PriorityBadge priority={ticket.priority} />
+                </div>
+              )}
             </div>
           </div>
 
-          <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{ticket.description}</p>
+          {/* Description - editable for admin */}
+          {isAdmin && editingDescription ? (
+            <div className="space-y-2">
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={6}
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleSaveField('description')}
+                  disabled={saving}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 disabled:opacity-50"
+                >
+                  <Check size={14} /> Salvează
+                </button>
+                <button
+                  onClick={() => setEditingDescription(false)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-slate-500 hover:text-slate-700 text-xs font-medium"
+                >
+                  <X size={14} /> Anulează
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="group relative">
+              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{ticket.description}</p>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    setEditDescription(ticket.description || '');
+                    setEditingDescription(true);
+                  }}
+                  className="absolute top-0 right-0 p-1.5 text-slate-300 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Pencil size={14} />
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500">
-            <span>Departament: <strong>{ticket.departments?.name || '\u2014'}</strong></span>
+            {/* Department - editable for admin */}
+            <span>
+              Departament:{' '}
+              {isAdmin && editingDepartment ? (
+                <span className="inline-flex items-center gap-1">
+                  <select
+                    value={editDepartmentId}
+                    onChange={(e) => setEditDepartmentId(e.target.value)}
+                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none font-semibold"
+                  >
+                    <option value="">-- Niciun departament --</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => handleSaveField('department_id')}
+                    disabled={saving}
+                    className="p-1 text-green-600 hover:text-green-700"
+                  >
+                    <Check size={14} />
+                  </button>
+                  <button
+                    onClick={() => setEditingDepartment(false)}
+                    className="p-1 text-slate-400 hover:text-slate-600"
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ) : (
+                <strong
+                  className={isAdmin ? 'cursor-pointer hover:text-primary transition-colors' : ''}
+                  onClick={() => isAdmin && startEditDepartment()}
+                >
+                  {ticket.departments?.name || '\u2014'}
+                  {isAdmin && <Pencil size={12} className="inline ml-1 opacity-0 group-hover:opacity-100" />}
+                </strong>
+              )}
+            </span>
             <span>Creat de: <strong>{ticket.profiles?.full_name || '\u2014'}</strong></span>
             {ticket.assigned?.full_name && (
               <span>Atribuit: <strong>{ticket.assigned.full_name}</strong></span>

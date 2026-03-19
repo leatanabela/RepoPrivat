@@ -84,6 +84,12 @@ async def process_document(document_id: str, file_path: str | None = None):
             "chunk_count": len(chunks),
         }).eq("id", document_id).execute()
 
+        # Step 7: Rebuild vector index after new data (IVFFlat needs retraining)
+        try:
+            supabase.rpc("rebuild_vector_index", {}).execute()
+        except Exception:
+            pass  # Non-critical, search still works without it
+
         return {
             "document_id": document_id,
             "chunks_created": len(chunks),
@@ -101,10 +107,24 @@ async def _download_from_storage(file_url: str, file_name: str) -> str:
     ext = os.path.splitext(file_name)[1]
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(file_url)
-        response.raise_for_status()
-        tmp.write(response.content)
+    # Extract the storage path from the URL
+    # URL format: .../storage/v1/object/public/documents/filename
+    storage_path = file_url.split("/storage/v1/object/public/documents/")[-1] if "/storage/v1/object/public/documents/" in file_url else file_url.split("/documents/")[-1]
+
+    # Use Supabase client with service key to download (works even if bucket is not public)
+    supabase = get_supabase()
+    try:
+        response = supabase.storage.from_("documents").download(storage_path)
+        tmp.write(response)
+    except Exception:
+        # Fallback: try direct HTTP download with auth header
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                file_url,
+                headers={"Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}"},
+            )
+            resp.raise_for_status()
+            tmp.write(resp.content)
 
     tmp.close()
     return tmp.name

@@ -2,44 +2,16 @@ from ai.rag_pipeline.retriever import retrieve_relevant_chunks
 from ai.chat_service.llm import generate_response, generate_response_stream
 from collections.abc import AsyncGenerator
 
-SYSTEM_PROMPT = """Ești un asistent AI integrat într-un sistem intern de HelpDesk pentru angajații instituțiilor publice din România, în special primării.
+SYSTEM_PROMPT = """Ești asistentul AI al primăriei. Răspunzi DOAR pe baza documentelor furnizate, în limba română.
 
-Rolul tău este să ajuți angajații să găsească informații despre proceduri administrative, legislație și procese interne, răspunzând la întrebări strict pe baza documentelor oficiale care ți-au fost furnizate.
-
-Aceste documente pot include:
-• legi administrative
-• regulamente de organizare și funcționare ale primăriilor
-• proceduri interne
-• legislație privind administrația publică
-• legi privind achizițiile publice
-• reglementări fiscale
-• documente administrative interne
-
-REGULI IMPORTANTE:
-- Toate răspunsurile trebuie să fie bazate EXCLUSIV pe informațiile din documentele furnizate.
-- Dacă răspunsul nu poate fi găsit în documentele furnizate, spune clar: "Nu am găsit informații despre această întrebare în documentele disponibile. Vă recomand să consultați direct documentele oficiale sau să contactați departamentul responsabil."
-- NU inventa informații.
-- NU ghici.
-- NU oferi interpretări juridice în afara documentelor.
-
-CUM SĂ RĂSPUNZI:
-1. Analizează cu atenție întrebarea utilizatorului.
-2. Folosește doar informațiile regăsite din documentele furnizate.
-3. Oferă o explicație clară și concisă.
-4. Dacă este posibil, menționează documentul sau secțiunea din care provine informația.
-5. Folosește răspunsuri structurate când este util (bullet points sau pași numerotați).
-
-Răspunsurile trebuie să fie clare și ușor de înțeles pentru utilizatori non-tehnici.
-Evită limbajul juridic excesiv de complex când este posibil.
-
-LIMBA:
-- Răspunde ÎNTOTDEAUNA în limba română.
-- Folosește un limbaj administrativ formal dar clar, potrivit pentru angajații instituțiilor publice.
-
-STIL:
-- Răspunsurile trebuie să fie: precise, profesionale, neutre, bazate strict pe documente.
-- Dacă răspunsul conține pași procedurali, prezintă-i ca pași numerotați.
-- Dacă întrebarea se referă la legislație, indică legea sau regulamentul menționat în documente.
+REGULI:
+- Răspunde DIRECT la întrebare. NU folosi introduceri precum "Bună ziua!", "Răspunsul meu va fi:", "Întrebarea ta este clară". Mergi direct la subiect.
+- Fii CONCIS. Maxim 2-3 paragrafe scurte. Nu repeta informația.
+- Folosește limbaj simplu și clar.
+- NU inventa. NU ghici. Doar ce scrie în documente.
+- Dacă întrebarea NU e despre administrație publică, legislație sau proceduri ale primăriei (de ex: persoane publice, sport, politică, istorie, rețete, divertisment), răspunde DOAR cu: "Îmi pare rău, nu pot ajuta cu acest subiect. Sunt specializat doar pe proceduri administrative și legislație."
+- Dacă documentele nu conțin răspunsul, spune scurt: "Nu am găsit informații despre asta în documentele disponibile."
+- Pentru pași procedurali, folosește liste numerotate.
 """
 
 
@@ -65,17 +37,17 @@ def _build_prompt(
     history_text = ""
     if chat_history:
         history_parts = []
-        for msg in chat_history[-6:]:  # Keep last 6 messages for context
+        for msg in chat_history[-4:]:  # Keep last 4 messages for context
             role = "Utilizator" if msg["role"] == "user" else "Asistent"
             history_parts.append(f"{role}: {msg['content']}")
         history_text = f"\nConversația anterioară:\n" + "\n".join(history_parts) + "\n"
 
-    prompt = f"""DOCUMENTE OFICIALE DISPONIBILE:
+    prompt = f"""DOCUMENTE:
 {context_text}
 {history_text}
-ÎNTREBAREA ANGAJATULUI: {question}
+ÎNTREBARE: {question}
 
-Răspunde în limba română, bazându-te STRICT pe documentele de mai sus. Menționează sursa documentului când este relevant. Dacă informația nu se găsește în documente, spune clar acest lucru."""
+Răspunde concis în română, strict din documente. Mergi direct la subiect."""
 
     return prompt
 
@@ -84,13 +56,13 @@ def ask_question(
     question: str,
     chat_history: list[dict] | None = None,
     top_k: int = 5,
-    threshold: float = 0.5,
+    threshold: float = 0.2,
 ) -> dict:
     """
     Full RAG pipeline:
     1. Retrieve relevant document chunks
     2. Build prompt with context
-    3. Generate answer with llama3:8b
+    3. Generate answer with helpdesk-ro
     4. Return answer with sources
     """
     # Step 1: Retrieve
@@ -127,7 +99,7 @@ async def ask_question_stream(
     question: str,
     chat_history: list[dict] | None = None,
     top_k: int = 5,
-    threshold: float = 0.5,
+    threshold: float = 0.2,
 ) -> AsyncGenerator[dict, None]:
     """
     Streaming RAG pipeline - yields answer tokens one at a time.
@@ -150,8 +122,9 @@ async def ask_question_stream(
                 "file_url": chunk.get("file_url", ""),
             })
 
-    # Yield sources first
+    # Yield sources and metadata first
     yield {"type": "sources", "data": sources}
+    yield {"type": "metadata", "data": {"chunks_used": len(chunks)}}
 
     # Build prompt and stream answer
     prompt = _build_prompt(question, chunks, chat_history)

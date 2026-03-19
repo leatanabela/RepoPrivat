@@ -4,7 +4,7 @@ from ai.config import settings
 
 
 def generate_response(prompt: str, system_prompt: str | None = None) -> str:
-    """Generate a response using llama3:8b via Ollama."""
+    """Generate a response using the custom helpdesk-ro model via Ollama."""
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -20,7 +20,7 @@ def generate_response(prompt: str, system_prompt: str | None = None) -> str:
 async def generate_response_stream(
     prompt: str, system_prompt: str | None = None
 ) -> AsyncGenerator[str, None]:
-    """Stream a response from llama3:8b via Ollama."""
+    """Stream a response using the custom helpdesk-ro model via Ollama."""
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
