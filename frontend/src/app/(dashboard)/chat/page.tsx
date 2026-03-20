@@ -80,11 +80,22 @@ export default function ChatPage() {
     loadSessions();
   }, []);
 
+  // When currentSessionId changes (e.g. from sidebar history), load messages
+  useEffect(() => {
+    if (currentSessionId) {
+      getChatMessages(currentSessionId).then(setMessages).catch(() => {});
+    }
+  }, [currentSessionId]);
+
   async function loadSessions() {
     try {
       const data = await getChatSessions();
       setSessions(data);
-      if (data.length > 0 && !currentSessionId) {
+      if (currentSessionId) {
+        // Load messages for session selected from history
+        const msgs = await getChatMessages(currentSessionId);
+        setMessages(msgs);
+      } else if (data.length > 0) {
         selectSession(data[0].id);
       }
     } catch {
@@ -316,83 +327,36 @@ export default function ChatPage() {
   return (
     <>
       {/* Header */}
-      <header className="h-16 flex items-center justify-between px-8 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-background-dark shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-            Conversație Asistent AI
-          </h2>
-        </div>
+      <header className="h-16 flex items-center justify-between px-8 border-b border-slate-100 dark:border-transparent bg-white dark:bg-dm-surface-low shrink-0">
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-dm-on-surface">
+          Asistent AI
+        </h2>
         <div className="flex items-center gap-2">
           <button
             onClick={handleNewSession}
-            className="flex items-center gap-2 px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 bg-primary dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
           >
             <Plus size={16} />
-            <span className="hidden sm:inline">Conversație nouă</span>
+            <span className="hidden sm:inline">Conversație Nouă</span>
           </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Session list - collapsible */}
-        {sessions.length > 0 && (
-          <div className="w-64 border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 overflow-y-auto hidden md:block">
-            <div className="p-3 space-y-1">
-              {sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer group transition-colors text-sm',
-                    session.id === currentSessionId
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                >
-                  <MessageSquare size={14} className="shrink-0" />
-                  <span
-                    className="truncate flex-1"
-                    onClick={() => selectSession(session.id)}
-                  >
-                    {session.title && session.title !== 'Conversație nouă'
-                      ? session.title
-                      : new Date(session.created_at).toLocaleString('ro-RO', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteSession(session.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto px-8 py-10">
-            <div className="max-w-3xl mx-auto flex flex-col gap-10">
+          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10">
+            <div className="max-w-5xl mx-auto flex flex-col gap-10">
               <div className="flex items-start gap-4">
-                <div className="size-8 rounded-full bg-primary flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                  <MessageSquare size={18} className="text-white" />
+                <div className="size-8 rounded-full bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                  <MessageSquare size={18} className="text-white dark:text-dm-primary" />
                 </div>
                 <div className="flex flex-col gap-1.5 max-w-[85%]">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-dm-on-surface-variant px-1">
                     Asistent AI
                   </span>
-                  <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-2xl rounded-tl-none shadow-sm">
-                    <p className="text-[17px] leading-relaxed text-slate-700 dark:text-slate-300">
+                  <div className="bg-slate-100 dark:bg-dm-surface-high p-6 rounded-2xl rounded-tl-none shadow-sm">
+                    <p className="text-[17px] leading-relaxed text-slate-700 dark:text-dm-on-surface">
                       Bună ziua! Sunt asistentul tău virtual. Cu ce te pot ajuta astăzi? Putem discuta despre tichete, setări sau alte informații tehnice.
                     </p>
                   </div>
@@ -404,7 +368,7 @@ export default function ChatPage() {
                   <ChatMessage role={msg.role} content={msg.content} />
                   {msg.role === 'assistant' && ticketableMessages.has(msg.id) && (
                     <div className="flex justify-center mt-4">
-                      <div className="relative bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-5 w-full max-w-md shadow-sm">
+                      <div className="relative bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl p-5 w-full max-w-md shadow-sm">
                         <button
                           onClick={() => setTicketableMessages((prev) => { const next = new Set(prev); next.delete(msg.id); return next; })}
                           className="absolute top-3 right-3 text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors"
@@ -412,19 +376,19 @@ export default function ChatPage() {
                           <X size={16} />
                         </button>
                         <div className="flex flex-col items-center text-center gap-2 pr-0">
-                          <div className="size-10 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
-                            <TicketPlus size={20} className="text-primary" />
+                          <div className="size-10 rounded-xl bg-primary/10 dark:bg-dm-primary/15 flex items-center justify-center">
+                            <TicketPlus size={20} className="text-primary dark:text-dm-primary" />
                           </div>
-                          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                          <p className="text-sm font-semibold text-slate-800 dark:text-dm-on-surface">
                             Nu am găsit un răspuns
                           </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant">
                             Trimite întrebarea către un administrator pentru asistență.
                           </p>
                         </div>
                         <button
                           onClick={() => openTicketModal(msg.id, msg.content)}
-                          className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#1e293b] dark:bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-all"
+                          className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#1e293b] dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-all"
                         >
                           <Send size={15} />
                           Creează Sesizare
@@ -438,14 +402,14 @@ export default function ChatPage() {
               {/* AI Thinking Indicator */}
               {streaming && !streamingContent && (
                 <div className="flex items-start gap-4">
-                  <div className="size-8 rounded-full bg-primary flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                    <MessageSquare size={18} className="text-white" />
+                  <div className="size-8 rounded-full bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                    <MessageSquare size={18} className="text-white dark:text-dm-primary" />
                   </div>
                   <div className="flex flex-col gap-1.5 max-w-[85%]">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-dm-on-surface-variant px-1">
                       Asistent AI
                     </span>
-                    <div className="bg-slate-100 dark:bg-slate-800 px-6 py-4 rounded-2xl rounded-tl-none shadow-sm">
+                    <div className="bg-slate-100 dark:bg-dm-surface-high px-6 py-4 rounded-2xl rounded-tl-none shadow-sm">
                       <div className="flex items-center gap-1.5">
                         <span className="size-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0ms]" />
                         <span className="size-2 bg-slate-400 rounded-full animate-bounce [animation-delay:150ms]" />
@@ -471,13 +435,13 @@ export default function ChatPage() {
       {/* Ticket Creation Modal — Stitch design */}
       {ticketModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-[#f8fafc] dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-[540px] overflow-hidden max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#f8fafc] dark:bg-dm-surface-bright rounded-2xl shadow-2xl w-full max-w-[540px] overflow-hidden max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="px-8 pt-8 pb-1">
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-dm-on-surface tracking-tight">
                 Sesizare Nouă
               </h3>
-              <p className="text-[15px] text-slate-500 dark:text-slate-400 mt-1.5">
+              <p className="text-[15px] text-slate-500 dark:text-dm-on-surface-variant mt-1.5">
                 Te rugăm să completezi formularul de mai jos pentru asistență tehnică.
               </p>
             </div>
@@ -499,28 +463,28 @@ export default function ChatPage() {
 
                   {/* Subiect */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
+                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
                       Subiect
                     </label>
                     <input
                       type="text"
                       value={ticketForm.subject || ticketModal.question}
                       onChange={(e) => setTicketForm((f) => ({ ...f, subject: e.target.value }))}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                       placeholder="Ex: Eroare conectare imprimantă"
                     />
                   </div>
 
                   {/* Categorie */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
+                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
                       Categorie
                     </label>
                     <div className="relative">
                       <select
                         value={ticketForm.departmentId}
                         onChange={(e) => setTicketForm((f) => ({ ...f, departmentId: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none pr-10"
+                        className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none pr-10"
                       >
                         <option value="">Alegeți o categorie...</option>
                         {departments.map((d) => (
@@ -533,7 +497,7 @@ export default function ChatPage() {
 
                   {/* Urgență */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2.5">
+                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2.5">
                       Urgență
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -550,7 +514,7 @@ export default function ChatPage() {
                             'py-4 rounded-xl text-sm font-semibold transition-all border',
                             ticketForm.priority === opt.value
                               ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-400 dark:border-orange-500 text-orange-600 dark:text-orange-400'
-                              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-orange-300 hover:text-orange-500'
+                              : 'bg-white dark:bg-dm-surface-high border-slate-200 dark:border-dm-surface-bright/15 text-slate-600 dark:text-dm-on-surface-variant hover:border-orange-300 hover:text-orange-500'
                           )}
                         >
                           {opt.label}
@@ -561,14 +525,14 @@ export default function ChatPage() {
 
                   {/* Descriere */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
+                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
                       Descriere
                     </label>
                     <textarea
                       value={ticketForm.description}
                       onChange={(e) => setTicketForm((f) => ({ ...f, description: e.target.value }))}
                       rows={5}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none transition-all"
+                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none transition-all"
                       placeholder="Descrieți problema cât mai detaliat..."
                     />
                   </div>
@@ -581,7 +545,7 @@ export default function ChatPage() {
               <button
                 onClick={handleSubmitTicket}
                 disabled={ticketSubmitting || modalLoading || !ticketForm.description.trim()}
-                className="flex-[3] flex items-center justify-center gap-2.5 py-4 bg-[#1e293b] dark:bg-primary text-white rounded-xl text-[15px] font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                className="flex-[3] flex items-center justify-center gap-2.5 py-4 bg-[#1e293b] dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl text-[15px] font-bold hover:opacity-90 transition-all disabled:opacity-50"
               >
                 {ticketSubmitting ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -592,7 +556,7 @@ export default function ChatPage() {
               </button>
               <button
                 onClick={() => setTicketModal(null)}
-                className="flex-[2] py-4 bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl text-[15px] font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="flex-[2] py-4 bg-slate-200/60 dark:bg-dm-surface-high text-slate-600 dark:text-dm-on-surface-variant rounded-xl text-[15px] font-medium hover:bg-slate-200 dark:hover:bg-dm-surface-bright transition-colors"
               >
                 Anulează
               </button>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rapoarte și Analitice - Panou Administrator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c385f",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Public Sans", sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-10 py-4">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-3 text-primary dark:text-slate-100">
+<span class="material-symbols-outlined text-3xl">analytics</span>
+<h1 class="text-xl font-bold tracking-tight">Admin Panel</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-primary" href="#">Tablou de bord</a>
+<a class="text-primary dark:text-white text-lg font-bold border-b-2 border-primary" href="#">Rapoarte</a>
+<a class="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-primary" href="#">Setări</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2">
+<span class="material-symbols-outlined">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-lg w-48 ml-2" placeholder="Caută..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-lg font-medium hidden sm:block">Ion Popescu</span>
+<div class="size-12 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20" data-alt="Avatar utilizator administrator">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto w-full p-6 md:p-10">
+<!-- Header Section -->
+<div class="mb-10">
+<h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-2">Rapoarte și Analitice</h2>
+<p class="text-xl text-slate-600 dark:text-slate-400">Monitorizarea performanței și a solicitărilor în timp real.</p>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl">
+<p class="text-lg font-medium dark:text-slate-400 mb-1">Total Solicitări</p>
+<div class="flex items-end gap-3">
+<p class="text-4xl font-bold text-slate-900 dark:text-white">1.284</p>
+<p class="text-green-600 font-bold text-lg mb-1 flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> +12%
+                    </p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl">
+<p class="text-lg font-medium dark:text-slate-400 mb-1">Timp Mediu</p>
+<div class="flex items-end gap-3">
+<p class="text-4xl font-bold text-slate-900 dark:text-white">24h 15m</p>
+<p class="text-red-600 font-bold text-lg mb-1 flex items-center">
+<span class="material-symbols-outlined text-sm">trending_down</span> -5%
+                    </p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl">
+<p class="text-lg font-medium dark:text-slate-400 mb-1">Rata de Rezolvare</p>
+<div class="flex items-end gap-3">
+<p class="text-4xl font-bold text-slate-900 dark:text-white">92%</p>
+<p class="text-green-600 font-bold text-lg mb-1 flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> +3%
+                    </p>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+<!-- Bar Chart Component -->
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">Tipuri de solicitări</h3>
+<p class="text-lg">Distribuția pe categorii (Total: 850)</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">bar_chart</span>
+</div>
+<div class="flex-1 flex items-end justify-between gap-4 h-64 px-4">
+<div class="flex flex-col items-center w-full gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group h-[40%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">340</div>
+</div>
+<span class="text-sm font-bold text-slate-600 uppercase tracking-wider">Tehnic</span>
+</div>
+<div class="flex flex-col items-center w-full gap-2">
+<div class="w-full bg-primary/40 rounded-t-lg relative group h-[70%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">595</div>
+</div>
+<span class="text-sm font-bold text-slate-600 uppercase tracking-wider">Facturare</span>
+</div>
+<div class="flex flex-col items-center w-full gap-2">
+<div class="w-full bg-primary rounded-t-lg relative group h-[90%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">765</div>
+</div>
+<span class="text-sm font-bold text-slate-600 uppercase tracking-wider">Suport</span>
+</div>
+<div class="flex flex-col items-center w-full gap-2">
+<div class="w-full bg-primary/60 rounded-t-lg relative group h-[55%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">467</div>
+</div>
+<span class="text-sm font-bold text-slate-600 uppercase tracking-wider">Info</span>
+</div>
+<div class="flex flex-col items-center w-full gap-2">
+<div class="w-full bg-primary/30 rounded-t-lg relative group h-[30%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">255</div>
+</div>
+<span class="text-sm font-bold text-slate-600 uppercase tracking-wider">Retur</span>
+</div>
+</div>
+</div>
+<!-- Line/Area Chart Component -->
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">Timp mediu de rezolvare</h3>
+<p class="text-lg">Evoluția săptămânală (Medie: 18h)</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">show_chart</span>
+</div>
+<div class="flex-1 relative mt-4 h-64">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 500 150">
+<path d="M0,120 C50,110 100,40 150,60 C200,80 250,20 300,50 C350,80 400,100 450,30 L500,40" fill="none" stroke="#1c385f" stroke-linecap="round" stroke-width="4"></path>
+<path d="M0,120 C50,110 100,40 150,60 C200,80 250,20 300,50 C350,80 400,100 450,30 L500,40 V150 H0 Z" fill="#1c385f" fill-opacity="0.05"></path>
+</svg>
+<div class="flex justify-between mt-4 border-t border-slate-100 pt-4">
+<span class="text-sm font-bold uppercase tracking-wider">Lun</span>
+<span class="text-sm font-bold uppercase tracking-wider">Mar</span>
+<span class="text-sm font-bold uppercase tracking-wider">Mie</span>
+<span class="text-sm font-bold uppercase tracking-wider">Joi</span>
+<span class="text-sm font-bold uppercase tracking-wider">Vin</span>
+<span class="text-sm font-bold uppercase tracking-wider">Sâm</span>
+<span class="text-sm font-bold uppercase tracking-wider">Dum</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+<div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">Solicitări Recente</h3>
+<button class="text-primary font-bold text-lg hover:underline flex items-center gap-1">
+                    Vezi tot <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/50 dark:bg-slate-800/50">
+<th class="px-8 py-5 text-lg font-bold text-slate-700 dark:text-slate-300 text-slate-600">ID</th>
+<th class="px-8 py-5 text-lg font-bold text-slate-700 dark:text-slate-300 text-slate-600">Client</th>
+<th class="px-8 py-5 text-lg font-bold text-slate-700 dark:text-slate-300 text-slate-600">Categorie</th>
+<th class="px-8 py-5 text-lg font-bold text-slate-700 dark:text-slate-300 text-slate-600">Status</th>
+<th class="px-8 py-5 text-lg font-bold text-slate-700 dark:text-slate-300 text-right text-slate-600">Dată</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-lg font-medium text-slate-600 dark:text-slate-400">#8421</td>
+<td class="px-8 py-6 text-lg font-bold text-slate-900 dark:text-white">Mihai Enache</td>
+<td class="px-8 py-6 text-lg text-slate-600 dark:text-slate-400">Tehnic</td>
+<td class="px-8 py-6">
+<span class="px-4 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-base font-bold">Finalizat</span>
+</td>
+<td class="px-8 py-6 text-lg text-right">Acum 2h</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-lg font-medium text-slate-600 dark:text-slate-400">#8420</td>
+<td class="px-8 py-6 text-lg font-bold text-slate-900 dark:text-white">Elena Radu</td>
+<td class="px-8 py-6 text-lg text-slate-600 dark:text-slate-400">Facturare</td>
+<td class="px-8 py-6">
+<span class="px-4 py-1.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 text-base font-bold">În lucru</span>
+</td>
+<td class="px-8 py-6 text-lg text-right">Acum 5h</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-lg font-medium text-slate-600 dark:text-slate-400">#8419</td>
+<td class="px-8 py-6 text-lg font-bold text-slate-900 dark:text-white">Vasile Ionescu</td>
+<td class="px-8 py-6 text-lg text-slate-600 dark:text-slate-400">Suport</td>
+<td class="px-8 py-6">
+<span class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 text-base font-bold">Nou</span>
+</td>
+<td class="px-8 py-6 text-lg text-right">Ieri</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-lg font-medium text-slate-600 dark:text-slate-400">#8418</td>
+<td class="px-8 py-6 text-lg font-bold text-slate-900 dark:text-white">Ana Popa</td>
+<td class="px-8 py-6 text-lg text-slate-600 dark:text-slate-400">Info</td>
+<td class="px-8 py-6">
+<span class="px-4 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-base font-bold">Finalizat</span>
+</td>
+<td class="px-8 py-6 text-lg text-right">Ieri</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- Footer for context -->
+<footer class="mt-auto py-10 px-10 border-t border-slate-200 dark:border-slate-800 text-center">
+<p class="text-lg">© 2024 Panou Administrator - Rapoarte și Analitice. Versiunea 2.4.0</p>
+</footer>
+</div>
+</body></html>

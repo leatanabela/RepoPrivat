@@ -25,11 +25,11 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   }
 
   return (
-    <div className="p-8 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-background-dark">
+    <div className="p-8 border-t border-slate-100 dark:border-transparent bg-white dark:bg-dm-surface-low">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
         <input
           ref={inputRef}
-          className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-5 pl-6 pr-16 text-lg focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 transition-all outline-none"
+          className="w-full bg-slate-50 dark:bg-dm-surface-high border-none rounded-2xl py-5 pl-6 pr-16 text-lg focus:ring-2 focus:ring-primary/20 dark:focus:ring-dm-primary/20 placeholder:text-slate-400 dark:placeholder:text-dm-on-surface-variant dark:text-dm-on-surface transition-all outline-none"
           placeholder="Pune o întrebare..."
           type="text"
           value={message}
@@ -39,12 +39,12 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         <button
           type="submit"
           disabled={disabled || !message.trim()}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-primary dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl shadow-lg shadow-primary/20 dark:shadow-dm-primary/10 hover:opacity-90 transition-all disabled:opacity-50"
         >
           <Send size={20} />
         </button>
       </form>
-      <p className="text-center text-xs text-slate-400 mt-4">
+      <p className="text-center text-xs text-slate-400 dark:text-dm-on-surface-variant mt-4 tracking-wide">
         Asistentul AI poate face greșeli. Verifică informațiile importante.
       </p>
     </div>

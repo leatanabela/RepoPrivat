@@ -10,7 +10,8 @@
 }
 
 .dark {
-  --background: #13181f;
+  --primary: #A2C9FF;
+  --background: #131313;
 }
 
 body {
@@ -30,5 +31,5 @@ body {
   border-radius: 3px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #393939;
 }

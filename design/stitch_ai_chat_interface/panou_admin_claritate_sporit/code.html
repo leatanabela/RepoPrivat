@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Panou Administrare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c385f",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-primary/10 bg-white dark:bg-background-dark flex flex-col fixed h-full transition-colors duration-300 border-r-slate-200">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="size-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">dashboard</span>
+</div>
+<div>
+<h1 class="text-sm font-semibold tracking-tight text-primary">Panou Administrare</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-400">Admin Dashboard</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/5 text-primary font-medium transition-all" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="text-sm">Toate Tichetele</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 dark:hover:bg-primary/10 transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm">Rapoarte</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 dark:hover:bg-primary/10 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Setări</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-primary/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-primary/20 bg-cover bg-center" data-alt="Avatar administrator profil" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuASKTUg_fIsH-qcAa5VqNWCVxNu6ovQwV-7KOc4UVXR7IDFvGpEogM7RT5OEmEC9OI1Tu7X26IYAZibarIhmGrKsNRMoV5opgzEGCRKW_GfevIPeeDhRTDtXIs0wyVVWTTRY6PiILp6tC4r7uWiBorAHVo6If2BkatuVpOVNqiBiEDCXDjNLVY-mATNQXigG77YyL2-FrBIxDntqazHZsj9n-9bcw1RO5O69SuLn1OPaoNm_9YqS5IvKsxjEmsxCC1SYF8DupW3xnNr')"></div>
+<div class="flex flex-col">
+<span class="text-xs font-medium">Andrei Popescu</span>
+<span class="text-[10px] text-slate-400">Administrator</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 p-8">
+<header class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Prezentare Generală</h2>
+<p class="text-sm text-slate-400">Monitorizarea activității curente</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary transition-colors">notifications</span>
+<div class="absolute -top-1 -right-1 size-2 bg-red-400 rounded-full border-2 border-background-light"></div>
+</div>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Tichet Nou
+                    </button>
+</div>
+</header>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<p class="text-sm font-medium text-slate-500">Total Tichete</p>
+<span class="material-symbols-outlined text-primary/40">inventory_2</span>
+</div>
+<p class="text-3xl font-bold text-primary">150</p>
+<div class="mt-2 flex items-center gap-1 text-[11px] text-emerald-500 font-medium">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% față de luna trecută</span>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<p class="text-sm font-medium text-slate-500">În lucru</p>
+<span class="material-symbols-outlined text-amber-400/60">pending</span>
+</div>
+<p class="text-3xl font-bold text-primary">42</p>
+<p class="mt-2 text-[11px] text-slate-400">15 priorități ridicate</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<p class="text-sm font-medium text-slate-500">Rezolvate</p>
+<span class="material-symbols-outlined text-emerald-400/60">task_alt</span>
+</div>
+<p class="text-3xl font-bold text-primary">108</p>
+<div class="mt-2 flex items-center gap-1 text-[11px] text-slate-400">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>Timp mediu: 4.2h</span>
+</div>
+</div>
+</div>
+<!-- Recent Tickets Table -->
+<div class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-primary/10 shadow-md overflow-hidden">
+<div class="px-6 py-4 border-b border-primary/5 flex justify-between items-center">
+<h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Tichete Recente</h3>
+<button class="text-xs text-primary font-medium hover:underline">Vezi tot</button>
+</div>
+<div class="overflow-x-auto @container">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-slate-50/50 dark:bg-primary/5">
+<th class="px-6 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">ID</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Subiect</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Dată</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Acțiuni</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/5">
+<tr class="hover:bg-slate-50/50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 text-sm text-slate-400">#1024</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-slate-700 dark:text-slate-200">Problemă conectare VPN</div>
+<div class="text-[11px] text-slate-400">Utilizator: Iulian Marian</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">
+                                        În lucru
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">Acum 5 min</td>
+<td class="px-6 py-4">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 text-sm text-slate-400">#1023</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-slate-700 dark:text-slate-200">Update software necesar</div>
+<div class="text-[11px] text-slate-400">Utilizator: Elena Dumitru</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                        Rezolvat
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">Ieri, 14:20</td>
+<td class="px-6 py-4">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 text-sm text-slate-400">#1022</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-slate-700 dark:text-slate-200">Resetare parolă email</div>
+<div class="text-[11px] text-slate-400">Utilizator: Marius Radu</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">
+                                        Nou
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">Ieri, 09:15</td>
+<td class="px-6 py-4">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 text-sm text-slate-400">#1021</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-slate-700 dark:text-slate-200">Eroare bază de date</div>
+<div class="text-[11px] text-slate-400">Utilizator: System Monitor</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">
+                                        În lucru
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">2 zile în urmă</td>
+<td class="px-6 py-4">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-primary/5 flex justify-between items-center text-xs text-slate-400">
+<p>Afișare 4 din 150 rezultate</p>
+<div class="flex gap-2">
+<button class="px-2 py-1 border border-primary/5 rounded hover:bg-slate-50 disabled:opacity-50">Anterior</button>
+<button class="px-2 py-1 border border-primary/5 rounded hover:bg-slate-50">Următor</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

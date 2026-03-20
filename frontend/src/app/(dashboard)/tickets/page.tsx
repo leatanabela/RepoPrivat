@@ -48,7 +48,7 @@ export default function TicketsPage() {
       setTickets(result.tickets);
       setTotal(result.total);
     } catch {
-      toast.error('Eroare la incarcarea tichetelor');
+      toast.error('Eroare la încărcarea tichetelor');
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export default function TicketsPage() {
           {/* Department filter — admin only */}
           {isAdmin && departments.length > 0 && (
             <select
-              className="h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+              className="h-10 px-3 text-sm border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-white dark:bg-dm-surface focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
               value={departmentFilter}
               onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1); }}
             >
@@ -122,7 +122,7 @@ export default function TicketsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-background-dark rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-dm-surface rounded-xl border border-primary/10 shadow-sm overflow-hidden">
           {loading ? (
             <TableSkeleton rows={5} />
           ) : tickets.length === 0 ? (
@@ -156,7 +156,7 @@ export default function TicketsPage() {
                       <td className="px-6 py-5">
                         <Link href={`/tickets/${ticket.id}`} className="block">
                           <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 hover:text-primary transition-colors">
+                            <span className="text-sm font-semibold text-slate-900 dark:text-dm-on-surface hover:text-primary transition-colors">
                               {ticket.title}
                             </span>
                             <span className="text-xs text-slate-400">

@@ -80,15 +80,15 @@ export default function SettingsPage() {
             <User size={20} className="text-primary" />
             <h3 className="text-lg font-bold">Profil</h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="bg-white dark:bg-dm-surface rounded-xl shadow-sm border border-slate-200 dark:border-dm-surface-high overflow-hidden">
             <div className="p-6 flex flex-col gap-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-dm-surface-high pb-6">
                 <div className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-slate-500">Nume complet</span>
                   {editingName ? (
                     <div className="flex items-center gap-2">
                       <input
-                        className="h-10 px-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
+                        className="h-10 px-3 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         autoFocus
@@ -137,14 +137,14 @@ export default function SettingsPage() {
             <Shield size={20} className="text-primary" />
             <h3 className="text-lg font-bold">Securitate</h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+          <div className="bg-white dark:bg-dm-surface rounded-xl shadow-sm border border-slate-200 dark:border-dm-surface-high p-6">
             {showPasswordForm ? (
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-500 mb-1">Parola curentă</label>
                   <input
                     type="password"
-                    className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-12 px-4 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                   />
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-slate-500 mb-1">Parola nouă</label>
                   <input
                     type="password"
-                    className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-12 px-4 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
@@ -197,19 +197,19 @@ export default function SettingsPage() {
             <Sliders size={20} className="text-primary" />
             <h3 className="text-lg font-bold">Preferințe</h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8">
+          <div className="bg-white dark:bg-dm-surface rounded-xl shadow-sm border border-slate-200 dark:border-dm-surface-high p-6 flex flex-col gap-8">
             {/* Font Size */}
             <div className="flex flex-col gap-4">
               <div className="flex justify-between items-center">
                 <span className="text-base font-semibold">Dimensiune font</span>
-                <span className="text-sm px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full font-medium">
+                <span className="text-sm px-3 py-1 bg-slate-100 dark:bg-dm-surface-high rounded-full font-medium">
                   {fontSize}px
                 </span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-xs font-bold">A</span>
                 <input
-                  className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                  className="w-full h-2 bg-slate-200 dark:bg-dm-surface-bright rounded-lg appearance-none cursor-pointer accent-primary"
                   max={24}
                   min={12}
                   type="range"
@@ -221,8 +221,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Toggles */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-dm-surface-high">
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-dm-surface-high/50 rounded-xl">
                 <div className="flex flex-col">
                   <span className="font-semibold">Mod Întunecat</span>
                   <span className="text-xs text-slate-500">Aspect vizual relaxant</span>
@@ -234,7 +234,7 @@ export default function SettingsPage() {
                     checked={darkMode}
                     onChange={handleDarkModeToggle}
                   />
-                  <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary" />
+                  <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-dm-surface-bright peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary" />
                 </label>
               </div>
             </div>

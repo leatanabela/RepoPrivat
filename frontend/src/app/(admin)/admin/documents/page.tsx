@@ -122,7 +122,7 @@ export default function AdminDocumentsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight">Administrare Documente</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg">Centralizator pentru toate fișierele și resursele digitale.</p>
+          <p className="text-slate-500 dark:text-dm-on-surface-variant text-lg">Centralizator pentru toate fișierele și resursele digitale.</p>
         </div>
         <div className="flex gap-3">
           <button
@@ -145,7 +145,7 @@ export default function AdminDocumentsPage() {
       {/* Upload dialog */}
       {showUpload && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg p-6">
+          <div className="bg-white dark:bg-dm-surface rounded-xl shadow-2xl w-full max-w-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">Încarcă Document</h3>
               <button onClick={() => setShowUpload(false)} className="text-slate-400 hover:text-slate-600">
@@ -161,15 +161,15 @@ export default function AdminDocumentsPage() {
             }} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-1">Titlu</label>
-                <input name="title" required placeholder="Ex: Procedura de onboarding angajați" className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none" />
+                <input name="title" required placeholder="Ex: Procedura de onboarding angajați" className="w-full h-12 px-4 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Descriere</label>
-                <textarea name="description" rows={2} placeholder="Descriere opțională a documentului" className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none resize-none" />
+                <textarea name="description" rows={2} placeholder="Descriere opțională a documentului" className="w-full px-4 py-3 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-transparent focus:ring-2 focus:ring-primary/20 outline-none resize-none" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Departament</label>
-                <select name="departmentId" className="w-full h-12 px-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
+                <select name="departmentId" className="w-full h-12 px-4 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg bg-white dark:bg-dm-surface">
                   <option value="">General (toate departamentele)</option>
                   {departments.map((d) => (
                     <option key={d.id} value={d.id}>{d.name}</option>
@@ -198,7 +198,7 @@ export default function AdminDocumentsPage() {
                     </>
                   )}
                 </button>
-                <button type="button" onClick={() => setShowUpload(false)} className="px-6 h-12 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-600 dark:text-slate-400">
+                <button type="button" onClick={() => setShowUpload(false)} className="px-6 h-12 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg font-bold text-slate-600 dark:text-dm-on-surface-variant">
                   Anulează
                 </button>
               </div>
@@ -208,11 +208,11 @@ export default function AdminDocumentsPage() {
       )}
 
       {/* Search */}
-      <div className="bg-white dark:bg-slate-900 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
+      <div className="bg-white dark:bg-dm-surface p-2 rounded-xl shadow-sm border border-slate-200 dark:border-dm-surface-high mb-8">
         <div className="relative flex items-center w-full">
           <div className="absolute left-4 text-slate-400"><Search size={20} /></div>
           <input
-            className="w-full pl-12 pr-4 py-3 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
+            className="w-full pl-12 pr-4 py-3 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-dm-on-surface placeholder:text-slate-400"
             placeholder="Caută documente după nume..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -221,7 +221,7 @@ export default function AdminDocumentsPage() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-dm-surface-high bg-white dark:bg-dm-surface shadow-sm">
         {loading ? (
           <TableSkeleton />
         ) : filteredDocs.length === 0 ? (
@@ -230,12 +230,12 @@ export default function AdminDocumentsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50">
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Nume Fișier</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Departament</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Încărcat de</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-right">Acțiuni</th>
+                <tr className="bg-slate-50 dark:bg-dm-surface-high/50">
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-dm-on-surface uppercase tracking-wider">Nume Fișier</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-dm-on-surface uppercase tracking-wider">Departament</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-dm-on-surface uppercase tracking-wider">Încărcat de</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-dm-on-surface uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-dm-on-surface uppercase tracking-wider text-right">Acțiuni</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -245,15 +245,15 @@ export default function AdminDocumentsPage() {
                       <div className="flex items-center gap-3">
                         <FileText size={20} className="text-primary/60" />
                         <div>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{doc.file_name}</span>
+                          <span className="font-medium text-slate-900 dark:text-dm-on-surface">{doc.file_name}</span>
                           <p className="text-xs text-slate-400">{doc.title} &bull; {formatFileSize(doc.file_size)} &bull; {formatDate(doc.created_at)}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-dm-on-surface-variant">
                       {doc.departments?.name || <span className="text-slate-400 italic">General</span>}
                     </td>
-                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="px-6 py-5 text-sm text-slate-500 dark:text-dm-on-surface-variant">
                       {doc.profiles?.full_name || '—'}
                     </td>
                     <td className="px-6 py-5">

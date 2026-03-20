@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Administrare Documente - Centru de Suport</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#071e27",
+                        "on-primary-fixed-variant": "#004881",
+                        "primary-fixed": "#d3e4ff",
+                        "on-tertiary": "#20333b",
+                        "on-primary-container": "#a0c8ff",
+                        "inverse-primary": "#0060a8",
+                        "background": "#131313",
+                        "surface-tint": "#a2c9ff",
+                        "secondary-fixed": "#cfe6f2",
+                        "secondary-container": "#374c56",
+                        "primary-container": "#005494",
+                        "on-tertiary-container": "#b5c9d3",
+                        "on-secondary": "#1e333c",
+                        "tertiary": "#b5cad4",
+                        "outline": "#8c919c",
+                        "on-secondary-fixed-variant": "#354a53",
+                        "surface-container-highest": "#353534",
+                        "on-primary": "#00315b",
+                        "tertiary-fixed-dim": "#b5cad4",
+                        "on-tertiary-fixed-variant": "#374952",
+                        "tertiary-fixed": "#d1e6f0",
+                        "on-primary-fixed": "#001c38",
+                        "outline-variant": "#424751",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#a2c9ff",
+                        "on-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#42555e",
+                        "secondary": "#b4cad6",
+                        "inverse-on-surface": "#313030",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#a6bcc7",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#0a1e26",
+                        "surface-container-low": "#1c1b1b",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#c2c6d3",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed-dim": "#b4cad6",
+                        "primary-fixed-dim": "#a2c9ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #131313;
+            color: #e5e2e1;
+        }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/80 backdrop-blur-md flex justify-between items-center h-16 px-8 w-full shadow-[0_40px_0_0_rgba(229,226,225,0.06)]">
+<div class="text-xl font-bold tracking-tight text-[#E5E2E1] font-['Public_Sans']">
+            Centru de Suport
+        </div>
+<div class="flex items-center gap-6">
+<div class="relative hidden md:flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-high border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary w-64 text-on-surface transition-all" placeholder="Caută documente..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#C2C6D3] hover:bg-[#393939] p-2 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-[#C2C6D3] hover:bg-[#393939] p-2 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Profil utilizator" class="w-full h-full object-cover" data-alt="User profile avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArsN195bmYzhYu8CHZeaCmYCk-USuzt4eul_2TXJFAdJABucG6qAQOHOBPRnRkuapAFCVvmuiAbbVNFPBxz_CqdHCjk8vTfxTBIhBZlEQ-rXBUdsUifktvtrNAKiB6D-bX4YojvOcvgKURDiL5K-3ITcOvfrJwBqXencyrvmqpT9-nAef_aH4ocMmBIFwS5xTGRG8-3aOlGMkw__ZdA_E-k_45aCW1Pb4XTbTD3754wXbOftzPzUb5AQ6MNM0UL2cagzm-QPXYbXY1"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="h-full w-72 fixed left-0 top-0 z-40 bg-[#1C1B1B] flex flex-col pt-20 pb-8 px-4 gap-2 border-r border-outline-variant/10">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-[#E5E2E1] leading-tight">Suport Cetățeni</h2>
+<p class="text-xs text-on-surface-variant font-medium">Serviciu Digital</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-['Public_Sans'] text-base font-medium">Asistent AI</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-['Public_Sans'] text-base font-medium">Istoric Tichete</span>
+</a>
+<a class="bg-[#2A2A2A] text-[#A2C9FF] rounded-lg px-4 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-['Public_Sans'] text-base font-medium">Tichetele Mele</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Public_Sans'] text-base font-medium">Setări</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+                Solicitare Nouă
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="pl-72 pt-16 min-h-screen">
+<div class="p-10 max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div class="space-y-2">
+<h1 class="text-[2.75rem] font-bold leading-tight tracking-tight text-on-surface font-headline">Administrare Documente</h1>
+<p class="text-on-surface-variant text-lg">Gestionați documentele încărcate și starea acestora în sistem.</p>
+</div>
+<button class="bg-primary text-on-primary font-bold py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-primary-fixed-dim transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined">upload_file</span>
+                    Adaugă Document
+                </button>
+</div>
+<!-- Dashboard Stats (Bento Minimal) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium">Total Documente</span>
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="text-3xl font-bold">124</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium">În așteptare</span>
+<span class="material-symbols-outlined text-secondary">pending_actions</span>
+</div>
+<div class="text-3xl font-bold">12</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium">Sincronizate</span>
+<span class="material-symbols-outlined text-primary">cloud_done</span>
+</div>
+<div class="text-3xl font-bold">112</div>
+</div>
+</div>
+<!-- Main Table Container -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/5 shadow-2xl">
+<div class="p-6 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container">
+<div class="flex gap-4">
+<button class="px-4 py-2 bg-surface-container-high rounded-lg text-sm font-semibold text-primary border border-primary/20">Toate</button>
+<button class="px-4 py-2 hover:bg-surface-container-high rounded-lg text-sm font-medium text-on-surface-variant transition-colors">Finalizate</button>
+<button class="px-4 py-2 hover:bg-surface-container-high rounded-lg text-sm font-medium text-on-surface-variant transition-colors">În așteptare</button>
+</div>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+<span class="text-sm font-medium">Filtrează</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-on-surface-variant border-b border-outline-variant/10">
+<th class="px-8 py-5 font-semibold text-sm uppercase tracking-wider">Nume Document</th>
+<th class="px-8 py-5 font-semibold text-sm uppercase tracking-wider">Data Încărcării</th>
+<th class="px-8 py-5 font-semibold text-sm uppercase tracking-wider">Stare</th>
+<th class="px-8 py-5 font-semibold text-sm uppercase tracking-wider text-right">Acțiuni</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high transition-all group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-red-900/20 flex items-center justify-center text-red-400">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Cerere_Subventie_2024.pdf</div>
+<div class="text-xs text-on-surface-variant">2.4 MB • PDF</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="text-sm text-on-surface font-medium">14 Mai 2024</div>
+<div class="text-xs text-on-surface-variant">10:45 AM</div>
+</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                        Finalizat
+                                    </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-primary transition-colors" title="Download">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-error transition-colors" title="Delete">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high transition-all group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-blue-900/20 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Contract_Salubritate_Anexa.docx</div>
+<div class="text-xs text-on-surface-variant">1.1 MB • DOCX</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="text-sm text-on-surface font-medium">12 Mai 2024</div>
+<div class="text-xs text-on-surface-variant">09:12 AM</div>
+</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary border border-secondary/20">
+                                        În așteptare
+                                    </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high transition-all group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-gray-900/40 flex items-center justify-center text-gray-400 border border-outline-variant/20">
+<span class="material-symbols-outlined">draft</span>
+</div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Draft_Proiect_Urbanism.pdf</div>
+<div class="text-xs text-on-surface-variant">5.7 MB • PDF</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="text-sm text-on-surface font-medium">10 Mai 2024</div>
+<div class="text-xs text-on-surface-variant">04:30 PM</div>
+</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-outline-variant/20 text-on-surface-variant border border-outline-variant/30">
+                                        Ciornă
+                                    </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-high transition-all group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-red-900/20 flex items-center justify-center text-red-400">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Adeverinta_Venit_Salariat.pdf</div>
+<div class="text-xs text-on-surface-variant">0.8 MB • PDF</div>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="text-sm text-on-surface font-medium">08 Mai 2024</div>
+<div class="text-xs text-on-surface-variant">11:15 AM</div>
+</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                        Finalizat
+                                    </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="p-2 hover:bg-surface-bright rounded-lg text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-6 border-t border-outline-variant/10 flex items-center justify-between text-sm text-on-surface-variant font-medium">
+<div>Afișare 1-10 din 124 documente</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors text-outline">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg flex items-center justify-center bg-primary-container text-primary font-bold">1</button>
+<button class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors">2</button>
+<button class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors">3</button>
+<button class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

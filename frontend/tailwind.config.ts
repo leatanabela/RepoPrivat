@@ -8,7 +8,16 @@ const config: Config = {
       colors: {
         primary: '#1c385f',
         'background-light': '#f6f7f8',
-        'background-dark': '#13181f',
+        // Dark mode design tokens from "Digital Monolith"
+        'dm-surface': '#131313',
+        'dm-surface-low': '#1C1B1B',
+        'dm-surface-high': '#2A2A2A',
+        'dm-surface-bright': '#393939',
+        'dm-primary': '#A2C9FF',
+        'dm-primary-container': '#005494',
+        'dm-secondary': '#B4CAD6',
+        'dm-on-surface': '#E5E2E1',
+        'dm-on-surface-variant': '#C2C6D3',
       },
       fontFamily: {
         display: ['Public Sans', 'sans-serif'],

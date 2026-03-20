@@ -19,7 +19,7 @@ export function DashboardShell({
   }, [profile, setUser]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark">
+    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-dm-surface text-slate-900 dark:text-dm-on-surface">
       <Sidebar />
       <main className="flex-1 flex flex-col h-full overflow-hidden">{children}</main>
     </div>

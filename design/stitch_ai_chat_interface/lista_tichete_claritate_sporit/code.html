@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Portal Angajați - Tichetele Mele</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1c385f",
+              "background-light": "#f6f7f8",
+              "background-dark": "#13181f",
+            },
+            fontFamily: {
+              "display": ["Public Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between border-b border-primary/10 bg-white dark:bg-background-dark px-6 py-4 lg:px-10">
+<div class="flex items-center gap-4">
+<div class="text-primary size-8">
+<span class="material-symbols-outlined text-4xl">confirmation_number</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Portal Angajați</h2>
+</div>
+<div class="flex items-center gap-6">
+<button class="hidden md:flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90">
+<span class="material-symbols-outlined mr-2 text-sm">add</span>
+                    Creare Tichet
+                </button>
+<div class="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden" data-alt="User profile avatar placeholder image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD63epoq5A4foR3ArLxLiehSK_vXhVTff8gaIKYsQXvm6PMFhL6ikKg351M_4TdJbUirhoGnHWRfLaFBYqzpZJtLWAo4Ga95BwGnpX5RE8tFsEx8gPoXYXog6aNGBEE61Owp30KPMXpO488cXzkBfeiZH6b6XaI96zt3XU1gXwqSAJFUT7IKjFd6pkilYuEqzaopfLkp6zZ4Wf_sIeOJAnvFEjrxKQqn1vHcKrBRLAI61OZXTTnFkY05BYp1FkvYy_D9UdVlwh2v_jn");'>
+</div>
+</div>
+</header>
+<div class="flex flex-1 flex-col lg:flex-row">
+<!-- Sidebar -->
+<aside class="w-full lg:w-72 bg-white dark:bg-background-dark border-r border-primary/10 p-6">
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3 border-b border-primary/5 pb-6">
+<div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center" data-alt="Employee profile picture detail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBJ1ITaj-HKANP9mvEEp6_2-jobDjPT3i4mqLMiEOA3iJibtYRp_Bg5XAVi8y2l7mOJPr69_5yRvGzUz8kZEteCIqce3V4RK4yRgKLSbGTKHYOVp40xahrLsCcSB7UsETfGfg6KUOmlq-ei7pP63UUkpWcThrMhVzTULxBnT-tAiLiR7eDG7GGgXdyc8sBJ7STvYpIr0RQXWt7cl4PY5-nW7zF38VJk5GyApds89dTDtditObLFYDD7kju0ohWJGCrJDfsqBYEAgjA9");'></div>
+<div class="flex flex-col">
+<h3 class="text-sm font-semibold">Andrei Popescu</h3>
+<p class="text-xs text-slate-500">Departament IT</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">home</span>
+<span class="text-sm font-medium">Acasă</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white shadow-sm" href="#">
+<span class="material-symbols-outlined text-xl">confirmation_number</span>
+<span class="text-sm font-medium">Tichetele Mele</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="text-sm font-medium">Documente</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-sm font-medium">Setări</span>
+</a>
+</nav>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-6 lg:p-10">
+<div class="max-w-6xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h1 class="text-3xl font-black tracking-tight text-primary">Tichetele Mele</h1>
+<p class="text-slate-500 mt-1">Urmărește starea cererilor tale de asistență</p>
+</div>
+<button class="md:hidden flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white">
+                            Creare Tichet
+                        </button>
+</div>
+<!-- Filters / Tabs -->
+<div class="mb-6 border-b border-primary/10">
+<div class="flex gap-8 overflow-x-auto no-scrollbar">
+<a class="border-b-2 border-primary pb-3 text-sm font-bold text-primary whitespace-nowrap" href="#">Toate (12)</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 hover:text-primary transition-colors whitespace-nowrap" href="#">Nou</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 hover:text-primary transition-colors whitespace-nowrap" href="#">În lucru</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 hover:text-primary transition-colors whitespace-nowrap" href="#">Rezolvat</a>
+</div>
+</div>
+<!-- Tickets Table -->
+<div class="bg-white dark:bg-background-dark rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-primary/10">
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-24">ID</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Subiect</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-40">Status</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-40">Dată</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-16 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/5">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 text-sm font-medium text-slate-400">#4521</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Problemă acces VPN</span>
+<span class="text-xs text-slate-400">Suport IT • Hardware</span>
+</div>
+</td>
+<td class="px-6 py-5"><span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                                Nou
+                                            </span></td>
+<td class="px-6 py-5 text-sm text-slate-500">12 Oct 2023</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 text-sm font-medium text-slate-400">#4518</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Cerere monitor nou</span>
+<span class="text-xs text-slate-400">Achiziții • Echipament</span>
+</div>
+</td>
+<td class="px-6 py-5"><span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                                În lucru
+                                            </span></td>
+<td class="px-6 py-5 text-sm text-slate-500">10 Oct 2023</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 text-sm font-medium text-slate-400">#4490</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Resetare parolă email</span>
+<span class="text-xs text-slate-400">Suport IT • Cont</span>
+</div>
+</td>
+<td class="px-6 py-5"><span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                Rezolvat
+                                            </span></td>
+<td class="px-6 py-5 text-sm text-slate-500">05 Oct 2023</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 text-sm font-medium text-slate-400">#4482</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Acces folder partajat "Marketing"</span>
+<span class="text-xs text-slate-400">IT Admin • Permisiuni</span>
+</div>
+</td>
+<td class="px-6 py-5"><span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                Rezolvat
+                                            </span></td>
+<td class="px-6 py-5 text-sm text-slate-500">01 Oct 2023</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 text-sm font-medium text-slate-400">#4450</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Eroare sistem payroll</span>
+<span class="text-xs text-slate-400">Resurse Umane • Software</span>
+</div>
+</td>
+<td class="px-6 py-5"><span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                                În lucru
+                                            </span></td>
+<td class="px-6 py-5 text-sm text-slate-500">28 Sep 2023</td>
+<td class="px-6 py-5 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-primary/10 px-6 py-4 bg-primary/5">
+<p class="text-sm text-slate-500">Afișare 5 din 12 tichete</p>
+<div class="flex gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded border border-primary/20 bg-white text-slate-400 hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-primary/20 bg-primary text-white text-sm font-bold">1</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-primary/20 bg-white text-slate-600 text-sm font-medium hover:bg-primary/5 transition-colors">2</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-primary/20 bg-white text-slate-600 text-sm font-medium hover:bg-primary/5 transition-colors">3</button>
+<button class="flex h-8 w-8 items-center justify-center rounded border border-primary/20 bg-white text-slate-400 hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

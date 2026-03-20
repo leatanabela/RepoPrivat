@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Conversație Asistent AI - Centru de Suport</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#131313",
+              "on-secondary-fixed": "#071e27",
+              "on-primary-fixed-variant": "#004881",
+              "primary-fixed": "#d3e4ff",
+              "on-tertiary": "#20333b",
+              "on-primary-container": "#a0c8ff",
+              "inverse-primary": "#0060a8",
+              "background": "#131313",
+              "surface-tint": "#a2c9ff",
+              "secondary-fixed": "#cfe6f2",
+              "secondary-container": "#374c56",
+              "primary-container": "#005494",
+              "on-tertiary-container": "#b5c9d3",
+              "on-secondary": "#1e333c",
+              "tertiary": "#b5cad4",
+              "outline": "#8c919c",
+              "on-secondary-fixed-variant": "#354a53",
+              "surface-container-highest": "#353534",
+              "on-primary": "#00315b",
+              "tertiary-fixed-dim": "#b5cad4",
+              "on-tertiary-fixed-variant": "#374952",
+              "tertiary-fixed": "#d1e6f0",
+              "on-primary-fixed": "#001c38",
+              "outline-variant": "#424751",
+              "on-background": "#e5e2e1",
+              "on-error-container": "#ffdad6",
+              "primary": "#a2c9ff",
+              "on-surface": "#e5e2e1",
+              "surface-bright": "#393939",
+              "surface-container-lowest": "#0e0e0e",
+              "surface": "#131313",
+              "surface-variant": "#353534",
+              "error": "#ffb4ab",
+              "tertiary-container": "#42555e",
+              "secondary": "#b4cad6",
+              "inverse-on-surface": "#313030",
+              "on-error": "#690005",
+              "on-secondary-container": "#a6bcc7",
+              "inverse-surface": "#e5e2e1",
+              "surface-container-high": "#2a2a2a",
+              "on-tertiary-fixed": "#0a1e26",
+              "surface-container-low": "#1c1b1b",
+              "error-container": "#93000a",
+              "on-surface-variant": "#c2c6d3",
+              "surface-container": "#201f1f",
+              "secondary-fixed-dim": "#b4cad6",
+              "primary-fixed-dim": "#a2c9ff"
+            },
+            fontFamily: {
+              "headline": ["Public Sans"],
+              "body": ["Public Sans"],
+              "label": ["Public Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Public Sans', sans-serif;
+        background-color: #131313;
+        color: #e5e2e1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #353534;
+        border-radius: 10px;
+      }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/80 backdrop-blur-md shadow-[0_40px_0_0_rgba(229,226,225,0.06)]">
+<div class="flex justify-between items-center h-16 px-8 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-[#E5E2E1]">Centru de Suport</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-8 mr-8">
+<a class="text-[#A2C9FF] font-bold border-b-2 border-[#A2C9FF] transition-all duration-300" href="#">Asistent AI</a>
+<a class="text-[#C2C6D3] hover:bg-[#393939] transition-all duration-300 px-2 py-1 rounded" href="#">Istoric Tichete</a>
+<a class="text-[#C2C6D3] hover:bg-[#393939] transition-all duration-300 px-2 py-1 rounded" href="#">Tichetele Mele</a>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-[#A2C9FF] hover:bg-[#393939] rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-[#A2C9FF] hover:bg-[#393939] rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-[#A2C9FF]/20">
+<img alt="Profil utilizator" data-alt="Avatar circular utilizator cu trăsături neutre" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp1AO00kOJEnYlJcF1YBie9eho5PE50jXSZc-JmqTiCCS6TxU6M1hDaWpjtcyo-ZFzQc6H2OS-R5GVJzcvQnSN3DkYh-CYy5TpMOx3ygBdHsdx_icL9EFQUIaf5Z2ozwW8jbteXYMWb4MEjFWwwxUrnwtTnNY5MweveNzOgmyt9rsznMcwcnxhtYvEXXQpiiw4fM5FbABEB1jIqTS6v_9acKML4P2hNjKp_oQLs-GT3eUd5DdTlFkWIsLErwbsSlUHfLl7dcEsVZJE"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="h-full w-72 fixed left-0 top-0 z-40 bg-[#1C1B1B] hidden lg:block">
+<div class="flex flex-col pt-20 pb-8 px-4 gap-2 h-full">
+<div class="px-4 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-[#2A2A2A] rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-[#A2C9FF]">shield_person</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-[#E5E2E1] leading-none">Suport Cetățeni</h2>
+<p class="text-xs text-[#C2C6D3] mt-1 uppercase tracking-widest font-semibold">Serviciu Digital</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="bg-[#2A2A2A] text-[#A2C9FF] rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer transition-all" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-medium">Asistent AI</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-medium">Istoric Tichete</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-medium">Tichetele Mele</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium">Setări</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full bg-gradient-to-br from-[#A2C9FF] to-[#005494] text-[#001c38] font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-[#005494]/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                    Solicitare Nouă
+                </button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-72 pt-16 h-screen flex flex-col bg-[#131313]">
+<!-- Header Section -->
+<section class="px-8 py-8 border-b border-[#E5E2E1]/5 bg-[#1C1B1B]/40">
+<div class="max-w-4xl mx-auto flex items-end justify-between">
+<div>
+<span class="text-[#A2C9FF] text-sm font-semibold tracking-widest uppercase mb-2 block">Interfață Angajați</span>
+<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[#E5E2E1]">Conversație Asistent AI</h1>
+</div>
+<div class="hidden md:flex gap-2">
+<span class="px-3 py-1 bg-[#2A2A2A] text-[#C2C6D3] rounded-full text-xs font-medium flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistem Online
+                    </span>
+<span class="px-3 py-1 bg-[#2A2A2A] text-[#C2C6D3] rounded-full text-xs font-medium">Model 4.5 Turbo</span>
+</div>
+</div>
+</section>
+<!-- Chat Area -->
+<section class="flex-1 overflow-y-auto custom-scrollbar px-8 py-8">
+<div class="max-w-4xl mx-auto space-y-10">
+<!-- AI Message -->
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#005494] flex items-center justify-center shadow-lg shadow-[#005494]/10">
+<span class="material-symbols-outlined text-[#A2C9FF]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="flex-1 space-y-4">
+<div class="flex items-center gap-3">
+<span class="font-bold text-[#E5E2E1]">Asistent AI</span>
+<span class="text-xs text-[#C2C6D3]">Acum 5 minute</span>
+</div>
+<div class="bg-[#1C1B1B] p-6 rounded-2xl rounded-tl-none border border-[#E5E2E1]/5 leading-relaxed text-lg">
+                            Bună ziua! Sunt asistentul digital dedicat departamentului de relații cu publicul. Vă pot ajuta cu informații despre procedurile de urbanism, statusul cererilor depuse sau legislația locală în vigoare. Cu ce vă pot fi de folos astăzi?
+                        </div>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 bg-[#2A2A2A] hover:bg-[#393939] text-[#A2C9FF] text-sm rounded-lg transition-colors border border-[#A2C9FF]/10">
+                                Proceduri Urbanism
+                            </button>
+<button class="px-4 py-2 bg-[#2A2A2A] hover:bg-[#393939] text-[#A2C9FF] text-sm rounded-lg transition-colors border border-[#A2C9FF]/10">
+                                Regulament Taxe 2024
+                            </button>
+</div>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-6 flex-row-reverse group">
+<div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#2A2A2A] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#C2C6D3]">person</span>
+</div>
+<div class="flex-1 space-y-4 text-right">
+<div class="flex items-center gap-3 justify-end">
+<span class="text-xs text-[#C2C6D3]">Acum 2 minute</span>
+<span class="font-bold text-[#E5E2E1]">Utilizator</span>
+</div>
+<div class="inline-block bg-[#005494]/20 p-6 rounded-2xl rounded-tr-none border border-[#A2C9FF]/20 leading-relaxed text-lg text-left max-w-[80%]">
+                            Care este termenul legal de răspuns pentru o cerere de tip PUD (Plan Urbanistic de Detaliu) conform noului regulament intern?
+                        </div>
+</div>
+</div>
+<!-- AI Message with Sources -->
+<div class="flex gap-6">
+<div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#005494] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#A2C9FF]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="flex-1 space-y-4">
+<div class="flex items-center gap-3">
+<span class="font-bold text-[#E5E2E1]">Asistent AI</span>
+<span class="text-xs text-[#C2C6D3]">Recent</span>
+</div>
+<div class="bg-[#1C1B1B] p-6 rounded-2xl rounded-tl-none border border-[#E5E2E1]/5 leading-relaxed text-lg space-y-4">
+<p>Conform noului regulament intern actualizat la 15 Ianuarie 2024, termenele pentru PUD sunt următoarele:</p>
+<ul class="list-disc ml-5 space-y-2 text-[#C2C6D3]">
+<li><strong class="text-[#E5E2E1]">Analiza inițială:</strong> 5 zile lucrătoare de la înregistrare.</li>
+<li><strong class="text-[#E5E2E1]">Răspuns final:</strong> Maxim 30 de zile calendaristice pentru emiterea avizului tehnic.</li>
+</ul>
+<p>Dacă documentația este incompletă, termenul se suspendă până la depunerea clarificărilor solicitate.</p>
+</div>
+<!-- Sources Section -->
+<div class="bg-[#0e0e0e] rounded-xl p-4 border-l-4 border-[#A2C9FF]">
+<p class="text-xs font-bold text-[#A2C9FF] uppercase tracking-wider mb-3">Surse consultate:</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<a class="flex items-center gap-3 p-2 bg-[#1C1B1B] hover:bg-[#2A2A2A] rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-sm text-[#C2C6D3]">description</span>
+<span class="text-xs text-[#E5E2E1] truncate">Hotărâre Consiliu Local Nr. 45/2024</span>
+<span class="material-symbols-outlined text-xs text-[#A2C9FF] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+<a class="flex items-center gap-3 p-2 bg-[#1C1B1B] hover:bg-[#2A2A2A] rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-sm text-[#C2C6D3]">account_tree</span>
+<span class="text-xs text-[#E5E2E1] truncate">Ghid Flux Lucru Urbanism V2.0</span>
+<span class="material-symbols-outlined text-xs text-[#A2C9FF] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Input Section -->
+<section class="p-8 bg-[#1C1B1B] border-t border-[#E5E2E1]/5">
+<div class="max-w-4xl mx-auto relative">
+<div class="flex items-end gap-4 bg-[#2A2A2A] p-4 rounded-2xl focus-within:ring-2 focus-within:ring-[#A2C9FF]/30 transition-all shadow-2xl">
+<button class="p-2 text-[#C2C6D3] hover:text-[#A2C9FF] transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-[#E5E2E1] placeholder-[#C2C6D3] resize-none text-lg py-2 h-auto" placeholder="Pune o întrebare..." rows="1"></textarea>
+<button class="bg-gradient-to-br from-[#A2C9FF] to-[#005494] text-[#001c38] p-3 rounded-xl flex items-center justify-center active:scale-95 transition-transform shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<div class="mt-3 flex justify-between px-2">
+<p class="text-[10px] text-[#C2C6D3] uppercase tracking-widest font-bold">Informațiile generate trebuie verificate cu legislația primară.</p>
+<div class="flex gap-4">
+<span class="text-[10px] text-[#C2C6D3] font-bold">SHFT + ENTER pentru rând nou</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Mobile Navigation Overlay (Visible on small screens) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-[#1C1B1B] flex justify-around items-center h-20 px-4 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+<button class="flex flex-col items-center gap-1 text-[#A2C9FF]">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="text-[10px] font-bold uppercase">AI</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#C2C6D3]">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-bold uppercase">Istoric</span>
+</button>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-gradient-to-br from-[#A2C9FF] to-[#005494] rounded-full flex items-center justify-center shadow-xl">
+<span class="material-symbols-outlined text-[#001c38]">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-[#C2C6D3]">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="text-[10px] font-bold uppercase">Tichete</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#C2C6D3]">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase">Profil</span>
+</button>
+</nav>
+</body></html>

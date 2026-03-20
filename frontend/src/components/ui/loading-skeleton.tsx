@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 
 export function Skeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('animate-pulse bg-slate-200 dark:bg-slate-700 rounded', className)} />
+    <div className={cn('animate-pulse bg-slate-200 dark:bg-dm-surface-bright rounded', className)} />
   );
 }
 
@@ -42,7 +42,7 @@ export function ChatSkeleton() {
 
 export function StatCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/5 shadow-sm">
+    <div className="bg-white dark:bg-dm-surface p-6 rounded-xl border border-primary/5 shadow-sm">
       <div className="flex justify-between items-start mb-4">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-5 w-5" />

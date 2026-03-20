@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
     <div className="p-8">
       <header className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Prezentare Generală</h2>
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-dm-on-surface">Prezentare Generală</h2>
           <p className="text-sm text-slate-400">Monitorizarea activității curente</p>
         </div>
       </header>
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
           </>
         ) : (
           <>
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-dm-surface p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-sm font-medium text-slate-500">Total Tichete</p>
                 <Package size={20} className="text-primary/40" />
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-dm-surface p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-sm font-medium text-slate-500">În lucru</p>
                 <Clock size={20} className="text-amber-400/60" />
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
               <p className="mt-2 text-[11px] text-slate-400">tichete deschise</p>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-dm-surface p-6 rounded-xl border border-primary/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-sm font-medium text-slate-500">Rezolvate</p>
                 <CheckCircle size={20} className="text-emerald-400/60" />
@@ -108,9 +108,9 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Tickets Table */}
-      <div className="bg-white dark:bg-background-dark rounded-xl border border-primary/5 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-dm-surface rounded-xl border border-primary/5 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-primary/5 flex justify-between items-center">
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Tichete Recente</h3>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-dm-on-surface">Tichete Recente</h3>
           <select
             className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-transparent"
             value={statusFilter}
@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
                     <td className="px-6 py-4 text-sm text-slate-400">#{ticket.id.slice(0, 6)}</td>
                     <td className="px-6 py-4">
                       <Link href={`/tickets/${ticket.id}`}>
-                        <div className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-primary transition-colors">
+                        <div className="text-sm font-medium text-slate-700 dark:text-dm-on-surface hover:text-primary transition-colors">
                           {ticket.title}
                         </div>
                         <div className="text-[11px] text-slate-400">
@@ -156,7 +156,7 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">{formatRelativeDate(ticket.created_at)}</td>
                     <td className="px-6 py-4">
-                      {ticket.status === 'new' && (
+                      {ticket.status === 'nou' && (
                         <button
                           onClick={() => handleAssign(ticket.id)}
                           className="text-xs text-primary font-medium hover:underline"

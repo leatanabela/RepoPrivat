@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Setări Cont - Centru de Suport</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#071e27",
+                        "on-primary-fixed-variant": "#004881",
+                        "primary-fixed": "#d3e4ff",
+                        "on-tertiary": "#20333b",
+                        "on-primary-container": "#a0c8ff",
+                        "inverse-primary": "#0060a8",
+                        "background": "#131313",
+                        "surface-tint": "#a2c9ff",
+                        "secondary-fixed": "#cfe6f2",
+                        "secondary-container": "#374c56",
+                        "primary-container": "#005494",
+                        "on-tertiary-container": "#b5c9d3",
+                        "on-secondary": "#1e333c",
+                        "tertiary": "#b5cad4",
+                        "outline": "#8c919c",
+                        "on-secondary-fixed-variant": "#354a53",
+                        "surface-container-highest": "#353534",
+                        "on-primary": "#00315b",
+                        "tertiary-fixed-dim": "#b5cad4",
+                        "on-tertiary-fixed-variant": "#374952",
+                        "tertiary-fixed": "#d1e6f0",
+                        "on-primary-fixed": "#001c38",
+                        "outline-variant": "#424751",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#a2c9ff",
+                        "on-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#42555e",
+                        "secondary": "#b4cad6",
+                        "inverse-on-surface": "#313030",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#a6bcc7",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#0a1e26",
+                        "surface-container-low": "#1c1b1b",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#c2c6d3",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed-dim": "#b4cad6",
+                        "primary-fixed-dim": "#a2c9ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #131313; }
+        ::-webkit-scrollbar-thumb { background: #353534; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface antialiased">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/80 backdrop-blur-md flex justify-between items-center h-16 px-8 w-full shadow-[0_40px_0_0_rgba(229,226,225,0.06)]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-[#E5E2E1]">Centru de Suport</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8 text-[#C2C6D3] font-['Public_Sans'] text-base leading-relaxed">
+<a class="hover:bg-[#393939] px-3 py-1 rounded transition-all duration-300" href="#">Asistent AI</a>
+<a class="hover:bg-[#393939] px-3 py-1 rounded transition-all duration-300" href="#">Tichete</a>
+<a class="text-[#A2C9FF] font-bold border-b-2 border-[#A2C9FF] px-3 py-1" href="#">Setări</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#C2C6D3] hover:bg-[#393939] p-2 rounded-full transition-all">notifications</button>
+<button class="material-symbols-outlined text-[#C2C6D3] hover:bg-[#393939] p-2 rounded-full transition-all">help_outline</button>
+<img alt="Profil utilizator" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" data-alt="User profile portrait in circular frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcqKre5nF_1GTHTxna3zEjUJjuFEnKmZo3acASFdi1c2-Udq-7FuidrI2XgussbAM-wi8yCtST1i_iygObQfOuolKT0AsqXceTeNca1nLCeT8t5RNq-GX10BAj8E4jWzN919qClcChYx-rx8DivwL24KHbrq_bTSE8uMm6nakGJ6oZtGb_ld-4OoRUBVw9O6AicxL9fw-1LA4BcPH_zjBqp4j0qvDxUsv3E9D0IzBclkq9eokAIgX8nBTOvdzbPLomgXmNAMgFnW8e"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="hidden lg:flex flex-col pt-20 pb-8 px-4 gap-2 h-full w-72 fixed left-0 top-0 z-40 bg-[#1C1B1B]">
+<div class="px-4 py-6 mb-4 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-[#E5E2E1] leading-tight">Suport Cetățeni</h2>
+<p class="text-xs text-on-surface-variant font-medium">Serviciu Digital</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">smart_toy</span>
+<span class="font-['Public_Sans'] text-base font-medium">Asistent AI</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="font-['Public_Sans'] text-base font-medium">Istoric Tichete</span>
+</a>
+<a class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">confirmation_number</span>
+<span class="font-['Public_Sans'] text-base font-medium">Tichetele Mele</span>
+</a>
+<a class="bg-[#2A2A2A] text-[#A2C9FF] rounded-lg px-4 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-['Public_Sans'] text-base font-medium">Setări</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+<span>Solicitare Nouă</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:pl-72 pt-16 min-h-screen">
+<div class="max-w-6xl mx-auto px-8 py-12">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-5xl font-extrabold tracking-tight text-on-background mb-4">Setări Cont</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl">Gestionați informațiile personale, securitatea contului și preferințele de accesibilitate pentru o experiență digitală optimizată.</p>
+</header>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Personal Info -->
+<section class="lg:col-span-7 flex flex-col gap-8">
+<!-- Profile Card -->
+<div class="bg-surface-container-low rounded-xl p-8 transition-all hover:bg-surface-container-high group border border-outline-variant/5">
+<div class="flex items-center gap-4 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">person</span>
+<h2 class="text-xl font-bold">Informații Profil</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Nume Complet</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none transition-all placeholder-on-surface-variant/30" type="text" value="Andrei Popescu"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Email</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none transition-all" type="email" value="andrei.popescu@cetatean.ro"/>
+</div>
+<div class="md:col-span-2 flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Număr Telefon</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none transition-all" placeholder="+40 7xx xxx xxx" type="tel"/>
+</div>
+</div>
+</div>
+<!-- Security Card -->
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/5">
+<div class="flex items-center gap-4 mb-8">
+<span class="material-symbols-outlined text-secondary text-3xl">shield</span>
+<h2 class="text-xl font-bold">Securitate</h2>
+</div>
+<div class="space-y-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Parolă Curentă</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none" placeholder="••••••••" type="password"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Noua Parolă</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none" type="password"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1">Confirmă Noua Parolă</label>
+<input class="bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 text-on-surface outline-none" type="password"/>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between p-4 bg-surface-container-highest/30 rounded-xl">
+<div class="flex gap-3 items-center">
+<span class="material-symbols-outlined text-on-surface-variant">devices</span>
+<div>
+<p class="font-medium">Autentificare în doi pași</p>
+<p class="text-xs text-on-surface-variant">Protejați-vă contul cu un cod suplimentar</p>
+</div>
+</div>
+<button class="text-primary font-bold hover:underline">Activează</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Preferences & Accessibility -->
+<section class="lg:col-span-5 flex flex-col gap-8">
+<!-- Accessibility Card -->
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/5 flex-grow">
+<div class="flex items-center gap-4 mb-8">
+<span class="material-symbols-outlined text-primary-fixed-dim text-3xl">visibility</span>
+<h2 class="text-xl font-bold">Accesibilitate</h2>
+</div>
+<div class="space-y-8">
+<!-- Font Size -->
+<div>
+<label class="text-sm font-semibold text-on-surface-variant block mb-4">Dimensiune Text</label>
+<div class="flex items-center justify-between bg-surface-container-high rounded-full p-1">
+<button class="flex-1 py-2 text-sm font-bold bg-surface-container-highest rounded-full text-on-surface">Standard</button>
+<button class="flex-1 py-2 text-sm font-medium hover:text-primary transition-colors">Mare</button>
+<button class="flex-1 py-2 text-sm font-medium hover:text-primary transition-colors">Foarte Mare</button>
+</div>
+</div>
+<!-- Dark Mode Toggle -->
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold">Mod Întunecat</p>
+<p class="text-sm text-on-surface-variant">Reduce oboseala ochilor</p>
+</div>
+<div class="w-14 h-8 bg-primary rounded-full relative cursor-pointer flex items-center px-1">
+<div class="w-6 h-6 bg-on-primary rounded-full shadow-lg ml-auto"></div>
+</div>
+</div>
+<!-- Contrast Toggle -->
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold">Contrast Ridicat</p>
+<p class="text-sm text-on-surface-variant">Culori mai pregnante</p>
+</div>
+<div class="w-14 h-8 bg-surface-container-highest rounded-full relative cursor-pointer flex items-center px-1">
+<div class="w-6 h-6 bg-outline rounded-full shadow-lg"></div>
+</div>
+</div>
+<!-- Language -->
+<div>
+<label class="text-sm font-semibold text-on-surface-variant block mb-4">Limba Interfeței</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-on-surface appearance-none focus:ring-2 focus:ring-primary/50 outline-none">
+<option>Română</option>
+<option>English</option>
+<option>Magyar</option>
+<option>Deutsch</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-3 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/5">
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">Asigurați-vă că ați verificat toate modificările înainte de salvare. Informațiile vor fi actualizate imediat în întregul sistem.</p>
+<div class="flex flex-col gap-4">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary-fixed font-extrabold py-4 rounded-xl shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98]">
+                                Salvează Modificările
+                            </button>
+<button class="w-full text-on-surface-variant font-medium py-3 hover:text-error transition-colors">
+                                Revocă toate schimbările
+                            </button>
+</div>
+</div>
+</section>
+</div>
+<!-- Danger Zone -->
+<section class="mt-12 p-8 bg-surface-container-lowest rounded-xl border border-error/20 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex gap-6 items-center">
+<div class="w-16 h-16 rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h3 class="text-xl font-bold text-error">Zonă de Pericol</h3>
+<p class="text-on-surface-variant">Odată ce ștergeți contul, toate datele dvs. și istoricul tichetelor vor fi eliminate definitiv.</p>
+</div>
+</div>
+<button class="px-8 py-3 rounded-xl border border-error/40 text-error font-bold hover:bg-error/10 transition-colors whitespace-nowrap">
+                    Șterge Contul
+                </button>
+</section>
+</div>
+</main>
+<!-- BottomNavBar for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-xl flex justify-around py-4 z-50 px-4">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="text-[10px] font-bold">Asistent</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-bold">Istoric</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="text-[10px] font-bold">Tichete</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-[10px] font-bold text-primary">Setări</span>
+</a>
+</nav>
+</body></html>

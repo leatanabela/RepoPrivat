@@ -29,6 +29,7 @@ import {
   UserPlus,
   Copy,
   Check,
+  FolderOpen,
 } from 'lucide-react';
 import type { Document, Department, Analytics, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -162,7 +163,6 @@ export function MentenantaPage() {
       toast.success('Document încărcat! Se procesează automat...');
       setShowUpload(false);
       form.reset();
-      // Auto-process the uploaded document for AI
       if (result.document?.id) {
         triggerProcessing(result.document.id).then((procResult) => {
           if (procResult.error) {
@@ -260,7 +260,6 @@ export function MentenantaPage() {
           failed++;
         } else {
           success++;
-          // Auto-process each document for AI
           if (result.document?.id) {
             triggerProcessing(result.document.id).catch(() => {});
           }
@@ -295,7 +294,7 @@ export function MentenantaPage() {
     : documents;
 
   const statCards = [
-    { label: 'Total Tichete', value: analytics?.totalTickets, icon: Package, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Total Tichete', value: analytics?.totalTickets, icon: Package, color: 'text-primary dark:text-dm-primary', bg: 'bg-primary/10 dark:bg-dm-primary/15' },
     { label: 'Tichete Deschise', value: analytics?.openTickets, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
     { label: 'Tichete Rezolvate', value: analytics?.resolvedTickets, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
     { label: 'Utilizatori', value: analytics?.totalUsers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
@@ -307,31 +306,28 @@ export function MentenantaPage() {
 
         {/* Header */}
         <div className="mb-10">
-          <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
-            Mentenanță
+          <h2 className="text-4xl font-black text-slate-900 dark:text-dm-on-surface mb-2 leading-tight">
+            Gestiune Documente
           </h2>
-          <p className="text-xl text-slate-500 dark:text-slate-400">
-            Administrare sistem, documente și monitorizare activitate.
-          </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-10 border-b-2 border-slate-200 dark:border-slate-800">
+        <div className="flex gap-1 mb-10">
           {([
-            { id: 'documente', label: 'Gestionare Documente', icon: FileText },
+            { id: 'documente', label: 'Documente', icon: FileText },
             { id: 'angajati', label: 'Angajați', icon: Users },
             { id: 'statistici', label: 'Statistici', icon: BarChart3 },
           ] as const).map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3.5 text-lg font-bold rounded-t-xl transition-all -mb-0.5 border-b-2 ${
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-xl transition-all ${
                 activeTab === tab.id
-                  ? 'bg-primary text-white border-primary'
-                  : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-primary dark:bg-dm-primary/15 text-white dark:text-dm-primary'
+                  : 'text-slate-500 dark:text-dm-on-surface-variant hover:bg-slate-100 dark:hover:bg-dm-surface-high'
               }`}
             >
-              <tab.icon size={20} />
+              <tab.icon size={18} />
               {tab.label}
             </button>
           ))}
@@ -340,82 +336,98 @@ export function MentenantaPage() {
         {/* ── DOCUMENTE TAB ── */}
         {activeTab === 'documente' && (
           <div>
-            {/* Add document button */}
-            <div className="mb-8">
+            {/* Stat card + Add button row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <div className="bg-white dark:bg-dm-surface-high/50 rounded-2xl p-5 border border-slate-200 dark:border-dm-surface-bright/15">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dm-on-surface-variant mb-3">
+                  Total Documente
+                </p>
+                <p className="text-3xl font-black text-slate-900 dark:text-dm-on-surface">
+                  {docTotal}
+                  <span className="text-sm font-medium text-slate-400 dark:text-dm-on-surface-variant ml-2">{docTotal === 1 ? 'fișier' : 'fișiere'}</span>
+                </p>
+              </div>
               <button
                 onClick={() => setShowUpload(true)}
-                className="h-14 px-8 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+                className="bg-gradient-to-br from-primary to-primary/80 dark:from-dm-primary dark:to-dm-primary-container text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-primary/20 dark:shadow-dm-primary/10"
               >
-                <Plus size={22} />
-                Adaugă Document
+                <FolderOpen size={24} />
+                <span className="text-sm font-bold">Adaugă Document</span>
               </button>
-              <p className="text-sm text-slate-400 mt-2">
-                Documentele încărcate sunt procesate automat pentru AI.
-              </p>
             </div>
 
             {/* Search */}
             <div className="relative mb-6">
-              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dm-on-surface-variant" />
               <input
-                className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400"
-                placeholder="Caută documente după titlu sau nume fișier..."
+                className="w-full h-14 pl-12 pr-4 text-base rounded-xl bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-dm-primary/10 transition-all placeholder:text-slate-400 dark:placeholder:text-dm-on-surface-variant dark:text-dm-on-surface"
+                placeholder="Caută după nume document, tip sau status..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            {/* Document list */}
-            <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            {/* Document table */}
+            <div className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200 dark:border-dm-surface-bright/15 overflow-hidden">
               {docLoading ? (
-                <div className="p-16 text-center text-slate-400 text-xl">Se încarcă...</div>
+                <div className="p-16 text-center text-slate-400 dark:text-dm-on-surface-variant text-lg">Se încarcă...</div>
               ) : filteredDocs.length === 0 ? (
                 <div className="p-16 text-center">
-                  <FileText size={56} className="mx-auto text-slate-200 dark:text-slate-700 mb-4" />
-                  <p className="text-xl font-bold text-slate-400">Nu există documente încărcate.</p>
-                  <p className="text-slate-400 mt-1">
-                    Apasă <strong>"Adaugă Document"</strong> pentru a începe.
+                  <FileText size={56} className="mx-auto text-slate-200 dark:text-dm-surface-bright mb-4" />
+                  <p className="text-xl font-bold text-slate-400 dark:text-dm-on-surface-variant">Nu există documente încărcate.</p>
+                  <p className="text-slate-400 dark:text-dm-on-surface-variant mt-1">
+                    Apasă <strong>&quot;Adaugă Document&quot;</strong> pentru a începe.
                   </p>
                 </div>
               ) : (
-                <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
+                <>
+                  {/* Table header */}
+                  <div className="grid grid-cols-[1fr_160px_80px] gap-4 px-6 py-3 border-b border-slate-100 dark:border-dm-surface-bright/10">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dm-on-surface-variant">
+                      Nume Fișier
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dm-on-surface-variant">
+                      Data Încărcării
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dm-on-surface-variant text-right">
+                      Acțiuni
+                    </p>
+                  </div>
+
+                  {/* Table rows */}
                   {filteredDocs.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center gap-4 px-6 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      className="grid grid-cols-[1fr_160px_80px] gap-4 items-center px-6 py-4 border-b border-slate-50 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50/50 dark:hover:bg-dm-surface-high/50 transition-colors"
                     >
-                      <div className="size-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <FileText size={24} className="text-primary" />
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="size-10 rounded-xl bg-primary/10 dark:bg-dm-primary/15 flex items-center justify-center flex-shrink-0">
+                          <FileText size={20} className="text-primary dark:text-dm-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-900 dark:text-dm-on-surface truncate">
+                            {doc.title || doc.file_name}
+                          </p>
+                          <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant mt-0.5">
+                            {formatFileSize(doc.file_size)} &bull; {doc.file_type || 'Document'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 dark:text-slate-100 text-lg truncate">
-                          {doc.title || doc.file_name}
-                        </p>
-                        <p className="text-sm text-slate-400 mt-0.5">
-                          {doc.file_name} &bull; {formatFileSize(doc.file_size)} &bull; {formatDate(doc.created_at)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        {doc.is_processed ? (
-                          <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            ✓ {doc.chunk_count} chunks
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500">
-                            În așteptare
-                          </span>
-                        )}
+                      <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant">
+                        {formatDate(doc.created_at)}
+                      </p>
+                      <div className="flex justify-end">
                         <button
                           onClick={() => handleDelete(doc.id)}
                           title="Șterge"
-                          className="size-11 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                          className="size-9 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
                   ))}
-                </div>
+                </>
               )}
               {totalPages > 1 && (
                 <Pagination
@@ -427,24 +439,23 @@ export function MentenantaPage() {
                 />
               )}
             </div>
+
           </div>
         )}
 
         {/* ── ANGAJAȚI TAB ── */}
         {activeTab === 'angajati' && (
           <div>
-            {/* Create button */}
             <button
               onClick={() => { setShowEmpForm(!showEmpForm); setCreatedAccount(null); }}
-              className="mb-8 h-16 w-full sm:w-auto px-8 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+              className="mb-8 h-14 w-full sm:w-auto px-8 bg-primary dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 dark:shadow-dm-primary/10 flex items-center justify-center gap-3"
             >
-              {showEmpForm ? <X size={22} /> : <UserPlus size={22} />}
+              {showEmpForm ? <X size={20} /> : <UserPlus size={20} />}
               {showEmpForm ? 'Anulează' : 'Creează Cont Angajat'}
             </button>
 
-            {/* Created account credentials */}
             {createdAccount && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-8">
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-8">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-200 mb-3">
@@ -456,13 +467,13 @@ export function MentenantaPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="text-emerald-700 dark:text-emerald-300 font-bold w-16">Email:</span>
-                        <code className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 text-sm">
+                        <code className="bg-white dark:bg-dm-surface-high px-3 py-1.5 rounded-lg text-slate-700 dark:text-dm-on-surface text-sm">
                           {createdAccount.email}
                         </code>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-emerald-700 dark:text-emerald-300 font-bold w-16">Parolă:</span>
-                        <code className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 text-sm font-mono">
+                        <code className="bg-white dark:bg-dm-surface-high px-3 py-1.5 rounded-lg text-slate-700 dark:text-dm-on-surface text-sm font-mono">
                           {createdAccount.tempPassword}
                         </code>
                         <button
@@ -489,36 +500,35 @@ export function MentenantaPage() {
               </div>
             )}
 
-            {/* Create form */}
             {showEmpForm && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6 mb-8">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200 dark:border-dm-surface-bright/15 p-6 mb-8">
                 <form onSubmit={handleCreateEmployee} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nume complet</label>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-dm-on-surface mb-1">Nume complet</label>
                     <input
                       name="fullName"
                       type="text"
                       required
                       placeholder="Ion Popescu"
-                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                      className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/10 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-dm-on-surface mb-1">Email</label>
                     <input
                       name="email"
                       type="email"
                       required
                       placeholder="ion.popescu@companie.ro"
-                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                      className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/10 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Departament</label>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-dm-on-surface mb-1">Departament</label>
                     <select
                       name="departmentId"
                       required
-                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                      className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/10 transition-all"
                     >
                       <option value="">Selectează departament</option>
                       {empDepartments.map((dept) => (
@@ -530,7 +540,7 @@ export function MentenantaPage() {
                     <button
                       type="submit"
                       disabled={empSubmitting}
-                      className="h-12 px-6 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="h-12 px-6 bg-primary dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {empSubmitting ? (
                         <>
@@ -549,38 +559,37 @@ export function MentenantaPage() {
                     </button>
                   </div>
                 </form>
-                <p className="mt-3 text-xs text-slate-400">
+                <p className="mt-3 text-xs text-slate-400 dark:text-dm-on-surface-variant">
                   Parola temporară va fi afișată după creare. Angajatul o poate schimba din Setări.
                 </p>
               </div>
             )}
 
-            {/* Employees list */}
-            <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-              <div className="px-6 py-4 border-b-2 border-slate-100 dark:border-slate-800">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+            <div className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200 dark:border-dm-surface-bright/15 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100 dark:border-dm-surface-bright/10">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface flex items-center gap-2">
                   <Users size={20} />
                   {empTotal} angajați în sistem
                 </h3>
               </div>
               {empLoading ? (
-                <div className="p-16 text-center text-slate-400 text-xl">Se încarcă...</div>
+                <div className="p-16 text-center text-slate-400 dark:text-dm-on-surface-variant text-lg">Se încarcă...</div>
               ) : employees.length === 0 ? (
                 <div className="p-16 text-center">
-                  <Users size={56} className="mx-auto text-slate-200 dark:text-slate-700 mb-4" />
-                  <p className="text-xl font-bold text-slate-400">Nu există angajați.</p>
-                  <p className="text-slate-400 mt-1">Apasă <strong>"Creează Cont Angajat"</strong> pentru a începe.</p>
+                  <Users size={56} className="mx-auto text-slate-200 dark:text-dm-surface-bright mb-4" />
+                  <p className="text-xl font-bold text-slate-400 dark:text-dm-on-surface-variant">Nu există angajați.</p>
+                  <p className="text-slate-400 dark:text-dm-on-surface-variant mt-1">Apasă <strong>&quot;Creează Cont Angajat&quot;</strong> pentru a începe.</p>
                 </div>
               ) : (
-                <div className="divide-y-2 divide-slate-100 dark:divide-slate-800">
+                <div>
                   {employees.map((emp) => (
-                    <div key={emp.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+                    <div key={emp.id} className="flex items-center gap-4 px-6 py-4 border-b border-slate-50 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50/50 dark:hover:bg-dm-surface-high/50 transition-colors">
+                      <div className="size-10 rounded-full bg-primary/10 dark:bg-dm-primary/15 flex items-center justify-center text-primary dark:text-dm-primary font-bold text-sm flex-shrink-0">
                         {emp.full_name?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 dark:text-slate-100 truncate">{emp.full_name}</p>
-                        <p className="text-sm text-slate-400">{emp.email}</p>
+                        <p className="font-bold text-slate-900 dark:text-dm-on-surface truncate">{emp.full_name}</p>
+                        <p className="text-sm text-slate-400 dark:text-dm-on-surface-variant">{emp.email}</p>
                       </div>
                       <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex-shrink-0">
                         {emp.departments?.name || '—'}
@@ -596,90 +605,56 @@ export function MentenantaPage() {
         {/* ── STATISTICI TAB ── */}
         {activeTab === 'statistici' && (
           <div className="space-y-8">
-            {/* Stat cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {statCards.map((card) => (
                 <div
                   key={card.label}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6"
+                  className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200 dark:border-dm-surface-bright/15 p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-semibold text-slate-500">{card.label}</p>
+                    <p className="text-sm font-semibold text-slate-500 dark:text-dm-on-surface-variant">{card.label}</p>
                     <div className={`size-10 rounded-xl ${card.bg} flex items-center justify-center`}>
                       <card.icon size={20} className={card.color} />
                     </div>
                   </div>
-                  <p className={`text-5xl font-black ${card.color}`}>
+                  <p className={`text-4xl font-black ${card.color}`}>
                     {analyticsLoading ? '—' : (card.value ?? 0)}
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* Knowledge base summary */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <BookOpen size={20} className="text-primary" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Knowledge Base</h3>
-              </div>
-              <div className="flex gap-10">
-                <div>
-                  <p className="text-sm font-semibold text-slate-500 mb-1">Total documente</p>
-                  <p className="text-4xl font-black text-primary">
-                    {analyticsLoading ? '—' : (analytics?.totalDocuments ?? 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-500 mb-1">Procesate RAG</p>
-                  <p className="text-4xl font-black text-emerald-500">
-                    {analyticsLoading ? '—' : (analytics?.processedDocuments ?? 0)}
-                  </p>
-                </div>
-                {analytics && analytics.totalDocuments > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500 mb-1">Rată procesare</p>
-                    <p className="text-4xl font-black text-blue-500">
-                      {Math.round((analytics.processedDocuments / analytics.totalDocuments) * 100)}%
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Placeholder charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200 dark:border-dm-surface-bright/15 p-6">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-dm-on-surface mb-4">
                   Distribuție pe Departamente
                 </h3>
-                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 gap-2">
-                  <BarChart3 size={36} className="text-slate-300 dark:text-slate-600" />
-                  <p className="text-slate-400 font-medium">Date insuficiente momentan</p>
-                  <p className="text-sm text-slate-400">Disponibil după acumularea de tichete</p>
+                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/15 gap-2">
+                  <BarChart3 size={36} className="text-slate-300 dark:text-dm-surface-bright" />
+                  <p className="text-slate-400 dark:text-dm-on-surface-variant font-medium">Date insuficiente momentan</p>
+                  <p className="text-sm text-slate-400 dark:text-dm-on-surface-variant">Disponibil după acumularea de tichete</p>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200 dark:border-dm-surface-bright/15 p-6">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-dm-on-surface mb-4">
                   Timp Mediu Rezolvare
                 </h3>
-                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 gap-2">
-                  <Clock size={36} className="text-slate-300 dark:text-slate-600" />
-                  <p className="text-slate-400 font-medium">Date insuficiente momentan</p>
-                  <p className="text-sm text-slate-400">Disponibil după rezolvarea primelor tichete</p>
+                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/15 gap-2">
+                  <Clock size={36} className="text-slate-300 dark:text-dm-surface-bright" />
+                  <p className="text-slate-400 dark:text-dm-on-surface-variant font-medium">Date insuficiente momentan</p>
+                  <p className="text-sm text-slate-400 dark:text-dm-on-surface-variant">Disponibil după rezolvarea primelor tichete</p>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-6 lg:col-span-2">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-dm-on-surface mb-4">
                   Cele mai Frecvente Întrebări AI
                 </h3>
-                <div className="h-36 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 gap-2">
-                  <MessageSquare size={36} className="text-slate-300 dark:text-slate-600" />
-                  <p className="text-slate-400 font-medium">Date insuficiente momentan</p>
-                  <p className="text-sm text-slate-400">Disponibil după acumularea de conversații</p>
+                <div className="h-36 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/15 gap-2">
+                  <MessageSquare size={36} className="text-slate-300 dark:text-dm-surface-bright" />
+                  <p className="text-slate-400 dark:text-dm-on-surface-variant font-medium">Date insuficiente momentan</p>
+                  <p className="text-sm text-slate-400 dark:text-dm-on-surface-variant">Disponibil după acumularea de conversații</p>
                 </div>
               </div>
             </div>
@@ -687,24 +662,23 @@ export function MentenantaPage() {
         )}
       </div>
 
-      {/* Upload Modal — Bulk / Drag & Drop */}
+      {/* Upload Modal */}
       {showUpload && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-dm-surface-bright rounded-2xl shadow-2xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-dm-on-surface">
                 Încarcă Documente
               </h3>
               <button
                 onClick={() => { setShowUpload(false); setBulkFiles([]); }}
                 disabled={uploading}
-                className="size-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors disabled:opacity-50"
+                className="size-10 rounded-xl hover:bg-slate-100 dark:hover:bg-dm-surface-high flex items-center justify-center text-slate-400 transition-colors disabled:opacity-50"
               >
                 <X size={22} />
               </button>
             </div>
 
-            {/* Drop zone inside modal */}
             <div
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
@@ -717,16 +691,16 @@ export function MentenantaPage() {
               }}
               className={`rounded-xl border-2 border-dashed p-6 text-center transition-all mb-6 ${
                 dragOver
-                  ? 'border-primary bg-primary/10'
-                  : 'border-slate-300 dark:border-slate-700'
+                  ? 'border-primary dark:border-dm-primary bg-primary/10 dark:bg-dm-primary/10'
+                  : 'border-slate-300 dark:border-dm-surface-bright/30'
               }`}
             >
-              <Upload size={32} className={`mx-auto mb-3 ${dragOver ? 'text-primary' : 'text-slate-400'}`} />
-              <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">
+              <Upload size={32} className={`mx-auto mb-3 ${dragOver ? 'text-primary dark:text-dm-primary' : 'text-slate-400 dark:text-dm-on-surface-variant'}`} />
+              <p className="font-bold text-slate-700 dark:text-dm-on-surface mb-1">
                 Trage fișierele aici
               </p>
-              <p className="text-sm text-slate-400 mb-3">sau</p>
-              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary rounded-xl font-bold cursor-pointer hover:bg-primary/20 transition-colors">
+              <p className="text-sm text-slate-400 dark:text-dm-on-surface-variant mb-3">sau</p>
+              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 dark:bg-dm-primary/15 text-primary dark:text-dm-primary rounded-xl font-bold cursor-pointer hover:bg-primary/20 dark:hover:bg-dm-primary/25 transition-colors">
                 <Plus size={18} />
                 Selectează Fișiere
                 <input
@@ -737,22 +711,21 @@ export function MentenantaPage() {
                   onChange={handleBulkFileSelect}
                 />
               </label>
-              <p className="text-xs text-slate-400 mt-3">PDF, DOCX, TXT — max 20MB per fișier</p>
+              <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant mt-3">PDF, DOCX, TXT — max 20MB per fișier</p>
             </div>
 
-            {/* File list */}
             {bulkFiles.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-3">
+                <p className="text-sm font-bold text-slate-600 dark:text-dm-on-surface-variant mb-3">
                   {bulkFiles.length} fișier{bulkFiles.length > 1 ? 'e' : ''} selectat{bulkFiles.length > 1 ? 'e' : ''}
                 </p>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {bulkFiles.map((file, i) => (
-                    <div key={`${file.name}-${i}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                      <FileText size={18} className="text-primary flex-shrink-0" />
+                    <div key={`${file.name}-${i}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high">
+                      <FileText size={18} className="text-primary dark:text-dm-primary flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{file.name}</p>
-                        <p className="text-xs text-slate-400">{(file.size / 1024).toFixed(0)} KB</p>
+                        <p className="text-sm font-medium text-slate-800 dark:text-dm-on-surface truncate">{file.name}</p>
+                        <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant">{(file.size / 1024).toFixed(0)} KB</p>
                       </div>
                       {!uploading && (
                         <button
@@ -768,35 +741,33 @@ export function MentenantaPage() {
               </div>
             )}
 
-            {/* Progress bar */}
             {bulkProgress && (
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="font-medium text-slate-700 dark:text-slate-300">
+                  <span className="font-medium text-slate-700 dark:text-dm-on-surface">
                     Se încarcă: {bulkProgress.fileName}
                   </span>
-                  <span className="text-slate-500">
+                  <span className="text-slate-500 dark:text-dm-on-surface-variant">
                     {bulkProgress.current} / {bulkProgress.total}
                   </span>
                 </div>
-                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-3 bg-slate-200 dark:bg-dm-surface-high rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    className="h-full bg-primary dark:bg-dm-primary rounded-full transition-all duration-300"
                     style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
                   />
                 </div>
               </div>
             )}
 
-            {/* Department selector + upload button */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">
+                <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-dm-on-surface">
                   Departament (pentru toate fișierele)
                 </label>
                 <select
                   id="bulk-department"
-                  className="w-full h-12 px-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                  className="w-full h-12 px-4 border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl bg-white dark:bg-dm-surface-high dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/10 transition-all"
                 >
                   <option value="">General (toate departamentele)</option>
                   {departments.map((d) => (
@@ -812,7 +783,7 @@ export function MentenantaPage() {
                     handleBulkUpload(select?.value || '');
                   }}
                   disabled={uploading || bulkFiles.length === 0}
-                  className="flex-1 h-14 bg-primary text-white rounded-xl text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all hover:bg-primary/90"
+                  className="flex-1 h-14 bg-gradient-to-br from-primary to-primary/80 dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all hover:opacity-90"
                 >
                   {uploading ? (
                     <>
@@ -833,7 +804,7 @@ export function MentenantaPage() {
                   type="button"
                   onClick={() => { setShowUpload(false); setBulkFiles([]); }}
                   disabled={uploading}
-                  className="px-6 h-14 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-lg font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-50"
+                  className="px-6 h-14 border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl text-lg font-bold text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high transition-all disabled:opacity-50"
                 >
                   Anulează
                 </button>

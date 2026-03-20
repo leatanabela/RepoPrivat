@@ -151,7 +151,7 @@ export default function TicketDetailPage() {
         </button>
 
         {/* Ticket header */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mb-6">
+        <div className="bg-white dark:bg-dm-surface rounded-xl border border-slate-200 dark:border-dm-surface-high p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{ticket.title}</h1>
@@ -168,7 +168,7 @@ export default function TicketDetailPage() {
                   <select
                     value={editPriority}
                     onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
-                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none"
+                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg outline-none"
                   >
                     {Object.entries(PRIORITY_LABELS).map(([val, label]) => (
                       <option key={val} value={val}>{label}</option>
@@ -210,7 +210,7 @@ export default function TicketDetailPage() {
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={6}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+                className="w-full bg-slate-50 dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"
               />
               <div className="flex gap-2">
                 <button
@@ -230,7 +230,7 @@ export default function TicketDetailPage() {
             </div>
           ) : (
             <div className="group relative">
-              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{ticket.description}</p>
+              <p className="text-slate-700 dark:text-dm-on-surface whitespace-pre-wrap">{ticket.description}</p>
               {isAdmin && (
                 <button
                   onClick={() => {
@@ -245,7 +245,7 @@ export default function TicketDetailPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500">
+          <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-dm-surface-high text-sm text-slate-500">
             {/* Department - editable for admin */}
             <span>
               Departament:{' '}
@@ -254,7 +254,7 @@ export default function TicketDetailPage() {
                   <select
                     value={editDepartmentId}
                     onChange={(e) => setEditDepartmentId(e.target.value)}
-                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none font-semibold"
+                    className="text-xs px-2 py-1 bg-slate-50 dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg outline-none font-semibold"
                   >
                     <option value="">-- Niciun departament --</option>
                     {departments.map((d) => (
@@ -293,7 +293,7 @@ export default function TicketDetailPage() {
 
           {/* Admin status change */}
           {isAdmin && (
-            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-dm-surface-high">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Schimbă status</p>
               <div className="flex gap-2 flex-wrap">
                 {(['atribuit', 'in_lucru', 'asteptare_utilizator', 'rezolvat', 'inchis'] as TicketStatus[]).map((s) => (
@@ -301,7 +301,7 @@ export default function TicketDetailPage() {
                     key={s}
                     onClick={() => handleStatusChange(s)}
                     disabled={ticket.status === s}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-primary/5 hover:border-primary/30 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-dm-surface-bright/15 hover:bg-primary/5 hover:border-primary/30 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
                     {STATUS_LABELS[s]}
                   </button>
@@ -312,9 +312,9 @@ export default function TicketDetailPage() {
         </div>
 
         {/* Messages */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-            <h3 className="font-semibold text-slate-800 dark:text-slate-200">Mesaje ({messages.length})</h3>
+        <div className="bg-white dark:bg-dm-surface rounded-xl border border-slate-200 dark:border-dm-surface-high overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-dm-surface-high">
+            <h3 className="font-semibold text-slate-800 dark:text-dm-on-surface">Mesaje ({messages.length})</h3>
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -330,7 +330,7 @@ export default function TicketDetailPage() {
                     <User size={16} className="text-primary" />
                   </div>
                   <div>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <span className="text-sm font-semibold text-slate-900 dark:text-dm-on-surface">
                       {msg.profiles?.full_name || 'Utilizator'}
                     </span>
                     <span className="text-xs text-slate-400 ml-2">
@@ -341,15 +341,15 @@ export default function TicketDetailPage() {
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Intern</span>
                   )}
                 </div>
-                <p className="text-slate-700 dark:text-slate-300 pl-11 whitespace-pre-wrap">{msg.message}</p>
+                <p className="text-slate-700 dark:text-dm-on-surface pl-11 whitespace-pre-wrap">{msg.message}</p>
               </div>
             ))}
           </div>
 
           {/* New message form */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+          <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-100 dark:border-dm-surface-high flex gap-3">
             <input
-              className="flex-1 h-12 px-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 outline-none"
+              className="flex-1 h-12 px-4 bg-slate-50 dark:bg-dm-surface-high border-none rounded-lg focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 outline-none"
               placeholder="Scrie un mesaj..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}

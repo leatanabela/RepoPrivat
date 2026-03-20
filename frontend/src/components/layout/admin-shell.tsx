@@ -19,7 +19,7 @@ export function AdminShell({
   }, [profile, setUser]);
 
   return (
-    <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
+    <div className="flex min-h-screen bg-background-light dark:bg-dm-surface text-slate-900 dark:text-dm-on-surface">
       <AdminSidebar />
       <main className="flex-1 ml-0 lg:ml-64">{children}</main>
     </div>

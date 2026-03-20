@@ -42,7 +42,7 @@ export default function AdminReportsPage() {
     <div className="max-w-7xl mx-auto w-full p-6 md:p-10">
       <div className="mb-10">
         <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-2">Rapoarte și Analitice</h2>
-        <p className="text-xl text-slate-600 dark:text-slate-400">Monitorizarea performanței și a solicitărilor.</p>
+        <p className="text-xl text-slate-600 dark:text-dm-on-surface-variant">Monitorizarea performanței și a solicitărilor.</p>
       </div>
 
       {/* KPI Cards */}
@@ -55,8 +55,8 @@ export default function AdminReportsPage() {
           </>
         ) : (
           <>
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <p className="text-lg font-medium text-slate-500 dark:text-slate-400 mb-1">Total Solicitări</p>
+            <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm">
+              <p className="text-lg font-medium text-slate-500 dark:text-dm-on-surface-variant mb-1">Total Solicitări</p>
               <div className="flex items-end gap-3">
                 <p className="text-4xl font-bold text-slate-900 dark:text-white">{analytics.totalTickets.toLocaleString()}</p>
                 <p className="text-green-600 font-bold text-lg mb-1 flex items-center">
@@ -65,15 +65,15 @@ export default function AdminReportsPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <p className="text-lg font-medium text-slate-500 dark:text-slate-400 mb-1">Deschise / Rezolvate</p>
+            <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm">
+              <p className="text-lg font-medium text-slate-500 dark:text-dm-on-surface-variant mb-1">Deschise / Rezolvate</p>
               <div className="flex items-end gap-3">
                 <p className="text-4xl font-bold text-slate-900 dark:text-white">{analytics.openTickets} / {analytics.resolvedTickets}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <p className="text-lg font-medium text-slate-500 dark:text-slate-400 mb-1">Rata de Rezolvare</p>
+            <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm">
+              <p className="text-lg font-medium text-slate-500 dark:text-dm-on-surface-variant mb-1">Rata de Rezolvare</p>
               <div className="flex items-end gap-3">
                 <p className="text-4xl font-bold text-slate-900 dark:text-white">{resolutionRate}%</p>
                 <p className="text-green-600 font-bold text-lg mb-1 flex items-center">
@@ -87,7 +87,7 @@ export default function AdminReportsPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+        <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm flex flex-col">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Documente procesate</h3>
@@ -120,7 +120,7 @@ export default function AdminReportsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+        <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm flex flex-col">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Sesiuni Chat AI</h3>
@@ -137,8 +137,8 @@ export default function AdminReportsPage() {
       </div>
 
       {/* Recent Tickets Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800">
+      <div className="bg-white dark:bg-dm-surface rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm overflow-hidden">
+        <div className="px-8 py-6 border-b border-slate-100 dark:border-dm-surface-high">
           <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Solicitări Recente</h3>
         </div>
         {loading ? (
@@ -147,12 +147,12 @@ export default function AdminReportsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50">
-                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">ID</th>
-                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">Utilizator</th>
-                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">Subiect</th>
-                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">Status</th>
-                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300 text-right">Dată</th>
+                <tr className="bg-slate-50 dark:bg-dm-surface-high/50">
+                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-dm-on-surface">ID</th>
+                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-dm-on-surface">Utilizator</th>
+                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-dm-on-surface">Subiect</th>
+                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-dm-on-surface">Status</th>
+                  <th className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-dm-on-surface text-right">Dată</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -160,7 +160,7 @@ export default function AdminReportsPage() {
                   <tr key={ticket.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-8 py-6 text-sm font-medium text-slate-600">#{ticket.id.slice(0, 6)}</td>
                     <td className="px-8 py-6 text-sm font-bold text-slate-900 dark:text-white">{ticket.profiles?.full_name || '—'}</td>
-                    <td className="px-8 py-6 text-sm text-slate-600 dark:text-slate-400">{ticket.title}</td>
+                    <td className="px-8 py-6 text-sm text-slate-600 dark:text-dm-on-surface-variant">{ticket.title}</td>
                     <td className="px-8 py-6">
                       <StatusBadge status={ticket.status} />
                     </td>

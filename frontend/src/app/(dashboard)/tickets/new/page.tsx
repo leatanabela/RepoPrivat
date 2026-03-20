@@ -50,18 +50,18 @@ export default function NewTicketPage() {
           <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
             Sesizare Noua
           </h2>
-          <p className="text-xl text-slate-500 dark:text-slate-400">
+          <p className="text-xl text-slate-500 dark:text-dm-on-surface-variant">
             Te rugam sa completezi formularul de mai jos pentru asistenta tehnica.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-3">
-            <label className="text-xl font-bold text-slate-800 dark:text-slate-200 block" htmlFor="title">
+            <label className="text-xl font-bold text-slate-800 dark:text-dm-on-surface block" htmlFor="title">
               Subiect
             </label>
             <input
-              className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400"
+              className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400"
               id="title"
               name="title"
               placeholder="Ex: Eroare conectare imprimanta"
@@ -71,11 +71,11 @@ export default function NewTicketPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xl font-bold text-slate-800 dark:text-slate-200 block" htmlFor="departmentId">
+            <label className="text-xl font-bold text-slate-800 dark:text-dm-on-surface block" htmlFor="departmentId">
               Departament
             </label>
             <select
-              className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+              className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
               id="departmentId"
               name="departmentId"
             >
@@ -87,7 +87,7 @@ export default function NewTicketPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-200">Urgenta</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-dm-on-surface">Urgenta</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {priorityOptions.map((opt) => (
                 <label key={opt.value} className="relative flex items-center cursor-pointer">
@@ -98,7 +98,7 @@ export default function NewTicketPage() {
                     value={opt.value}
                     defaultChecked={opt.value === 'scazuta'}
                   />
-                  <div className={`w-full py-5 px-6 text-center rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 ${opt.color} transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50`}>
+                  <div className={`w-full py-5 px-6 text-center rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface ${opt.color} transition-all hover:bg-slate-50 dark:hover:bg-dm-surface-high/50`}>
                     <span className="text-lg font-bold">{opt.label}</span>
                   </div>
                 </label>
@@ -107,11 +107,11 @@ export default function NewTicketPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xl font-bold text-slate-800 dark:text-slate-200 block" htmlFor="description">
+            <label className="text-xl font-bold text-slate-800 dark:text-dm-on-surface block" htmlFor="description">
               Descriere
             </label>
             <textarea
-              className="w-full p-6 text-xl rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 resize-none"
+              className="w-full p-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 resize-none"
               id="description"
               name="description"
               placeholder="Descrieti problema cat mai detaliat..."
@@ -143,7 +143,7 @@ export default function NewTicketPage() {
               <span>{loading ? 'Se trimite...' : 'Trimite Tichet'}</span>
             </button>
             <button
-              className="sm:w-1/3 h-16 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xl font-bold transition-all"
+              className="sm:w-1/3 h-16 bg-slate-200 hover:bg-slate-300 dark:bg-dm-surface-high dark:hover:bg-dm-surface-bright text-slate-700 dark:text-dm-on-surface rounded-xl text-xl font-bold transition-all"
               type="button"
               onClick={() => router.back()}
             >

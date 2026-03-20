@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ro"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prezentare Generală - Centru de Suport</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#071e27",
+                        "on-primary-fixed-variant": "#004881",
+                        "primary-fixed": "#d3e4ff",
+                        "on-tertiary": "#20333b",
+                        "on-primary-container": "#a0c8ff",
+                        "inverse-primary": "#0060a8",
+                        "background": "#131313",
+                        "surface-tint": "#a2c9ff",
+                        "secondary-fixed": "#cfe6f2",
+                        "secondary-container": "#374c56",
+                        "primary-container": "#005494",
+                        "on-tertiary-container": "#b5c9d3",
+                        "on-secondary": "#1e333c",
+                        "tertiary": "#b5cad4",
+                        "outline": "#8c919c",
+                        "on-secondary-fixed-variant": "#354a53",
+                        "surface-container-highest": "#353534",
+                        "on-primary": "#00315b",
+                        "tertiary-fixed-dim": "#b5cad4",
+                        "on-tertiary-fixed-variant": "#374952",
+                        "tertiary-fixed": "#d1e6f0",
+                        "on-primary-fixed": "#001c38",
+                        "outline-variant": "#424751",
+                        "on-background": "#e5e2e1",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#a2c9ff",
+                        "on-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface": "#131313",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#42555e",
+                        "secondary": "#b4cad6",
+                        "inverse-on-surface": "#313030",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#a6bcc7",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#0a1e26",
+                        "surface-container-low": "#1c1b1b",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#c2c6d3",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed-dim": "#b4cad6",
+                        "primary-fixed-dim": "#a2c9ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #131313;
+        }
+    </style>
+</head>
+<body class="text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/80 backdrop-blur-md flex justify-between items-center h-16 px-8 w-full shadow-[0_40px_0_0_rgba(229,226,225,0.06)]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-[#E5E2E1]">Centru de Suport</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-surface-container-high rounded-full px-4 py-1.5 gap-2 border border-outline-variant/15">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-48 p-0 placeholder:text-on-surface-variant" placeholder="Caută tichete..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#C2C6D3] hover:bg-[#393939] transition-all duration-300 rounded-full active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-[#C2C6D3] hover:bg-[#393939] transition-all duration-300 rounded-full active:scale-95">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-primary/20">
+<img alt="Profil utilizator" class="w-full h-full object-cover" data-alt="User profile avatar photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBumuHCHx56eLviUULpMTgPISWifb-9chFFOjODjW4EqMa_1p2eaWeJynzI2jkhyKN6Xdp7IaaCWTJF7NES2hct-2dqtm4YaDr8lchS-jUoQODfik2fzHA9Fy9LYHKluy_AmBpKNbNQrQLnnamktPZ8LCUwTWz87JYBFb3_XQfoMpkaar0DUNaX82RCqrncRDB2GZrSSGSr3u-mofGma6fg_iBw7lpwxVTJU0P8FpK3neA9HPbcXxO3-EiIuqw8PgkLvqHpToW17MM"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="h-full w-72 fixed left-0 top-0 z-40 bg-[#1C1B1B] flex flex-col pt-20 pb-8 px-4 gap-2 border-r border-outline-variant/10">
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-[#E5E2E1] leading-none">Suport Cetățeni</h2>
+<p class="text-xs text-on-surface-variant mt-1">Serviciu Digital</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="bg-[#2A2A2A] text-[#A2C9FF] rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer transition-all">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-medium">Asistent AI</span>
+</div>
+<div class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-medium">Istoric Tichete</span>
+</div>
+<div class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-medium">Tichetele Mele</span>
+</div>
+<div class="text-[#C2C6D3] px-4 py-3 flex items-center gap-3 hover:bg-[#2A2A2A] hover:text-[#E5E2E1] transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Setări</span>
+</div>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full py-3 px-4 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                Solicitare Nouă
+            </button>
+</div>
+</aside>
+<!-- Main Canvas Content -->
+<main class="ml-72 pt-24 px-12 pb-12 min-h-screen bg-surface">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-[2.75rem] font-extrabold text-on-surface tracking-tight leading-tight">Prezentare Generală</h1>
+<p class="text-on-surface-variant text-lg mt-2 max-w-2xl">Monitorizarea în timp real a solicitărilor primite prin centrul digital de asistență.</p>
+</header>
+<!-- Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Total Tickets Card -->
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between group hover:bg-surface-container-high transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="all_inbox">all_inbox</span>
+</div>
+<span class="text-xs font-bold text-primary px-2 py-1 bg-primary/10 rounded">LUNA ACEASTA</span>
+</div>
+<div class="mt-8">
+<span class="text-4xl font-extrabold text-on-surface">1,248</span>
+<p class="text-on-surface-variant font-medium mt-1">Total Tichete</p>
+</div>
+</div>
+<!-- In Progress Card -->
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between group hover:bg-surface-container-high transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+</div>
+<span class="text-xs font-bold text-secondary px-2 py-1 bg-secondary/10 rounded">ACTIV</span>
+</div>
+<div class="mt-8">
+<span class="text-4xl font-extrabold text-on-surface">342</span>
+<p class="text-on-surface-variant font-medium mt-1">În Lucru</p>
+</div>
+</div>
+<!-- Resolved Card -->
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between group hover:bg-surface-container-high transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary-fixed-dim/10 rounded-lg flex items-center justify-center text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+</div>
+<span class="text-xs font-bold text-primary-fixed-dim px-2 py-1 bg-primary-fixed-dim/10 rounded">FINALIZAT</span>
+</div>
+<div class="mt-8">
+<span class="text-4xl font-extrabold text-on-surface">894</span>
+<p class="text-on-surface-variant font-medium mt-1">Soluționate</p>
+</div>
+</div>
+</section>
+<!-- Recent Tickets Table Section -->
+<section class="bg-surface-container-low rounded-xl overflow-hidden">
+<div class="px-8 py-6 flex justify-between items-center border-b border-outline-variant/5">
+<h3 class="text-xl font-bold text-on-surface">Tichete Recente</h3>
+<button class="text-primary text-sm font-semibold hover:underline">Vezi Toate</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-on-surface-variant text-sm font-semibold uppercase tracking-wider">
+<th class="px-8 py-4 font-medium">ID Tichet</th>
+<th class="px-8 py-4 font-medium">Subiect</th>
+<th class="px-8 py-4 font-medium text-center">Status</th>
+<th class="px-8 py-4 font-medium text-right">Dată</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5 text-on-surface font-mono text-sm">#TK-8429</td>
+<td class="px-8 py-5">
+<p class="text-on-surface font-medium">Probleme iluminat public - Sector 4</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Raportat de: Andrei Ionescu</p>
+</td>
+<td class="px-8 py-5 text-center">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold rounded-full">În Lucru</span>
+</td>
+<td class="px-8 py-5 text-right text-on-surface-variant text-sm">Azi, 10:45</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5 text-on-surface font-mono text-sm">#TK-8427</td>
+<td class="px-8 py-5">
+<p class="text-on-surface font-medium">Cerere eliberare certificat urbanism</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Raportat de: Maria Popa</p>
+</td>
+<td class="px-8 py-5 text-center">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container text-xs font-bold rounded-full">Finalizat</span>
+</td>
+<td class="px-8 py-5 text-right text-on-surface-variant text-sm">Ieri, 16:20</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5 text-on-surface font-mono text-sm">#TK-8425</td>
+<td class="px-8 py-5">
+<p class="text-on-surface font-medium">Sesizare colectare deșeuri menajere</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Raportat de: Dan Georgescu</p>
+</td>
+<td class="px-8 py-5 text-center">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold rounded-full">În Lucru</span>
+</td>
+<td class="px-8 py-5 text-right text-on-surface-variant text-sm">22 Oct, 11:30</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5 text-on-surface font-mono text-sm">#TK-8421</td>
+<td class="px-8 py-5">
+<p class="text-on-surface font-medium">Programare audiență primar</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Raportat de: Elena Stan</p>
+</td>
+<td class="px-8 py-5 text-center">
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded-full">În Așteptare</span>
+</td>
+<td class="px-8 py-5 text-right text-on-surface-variant text-sm">21 Oct, 09:15</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-6 bg-surface-container-lowest/50 text-center">
+<p class="text-xs text-on-surface-variant">Ultima actualizare: 24 Octombrie 2023, 12:00 PM</p>
+</div>
+</section>
+<!-- Decorative Action Cards (Asymmetric Layout) -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="md:col-span-8 bg-gradient-to-r from-primary-container/20 to-transparent p-10 rounded-xl flex flex-col justify-center border border-primary/10">
+<h4 class="text-2xl font-bold text-on-surface mb-2">Eficiența departamentului a crescut cu 14%</h4>
+<p class="text-on-surface-variant max-w-lg mb-6">Analiza automată a indicat o reducere a timpului de răspuns pentru sesizările de infrastructură urbană.</p>
+<div class="flex gap-4">
+<button class="px-6 py-2 bg-primary text-on-primary font-bold rounded-lg text-sm hover:opacity-90 active:scale-95 transition-all">Descarcă Raport</button>
+<button class="px-6 py-2 border border-outline-variant text-primary font-bold rounded-lg text-sm hover:bg-surface-bright active:scale-95 transition-all">Detalii Analiză</button>
+</div>
+</div>
+<div class="md:col-span-4 bg-surface-container-high p-8 rounded-xl flex flex-col items-center text-center justify-center">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<h4 class="text-xl font-bold text-on-surface">Asistent Inteligent</h4>
+<p class="text-sm text-on-surface-variant mt-2 mb-6">AI-ul a clasificat automat 85 de tichete noi în ultima oră.</p>
+<button class="w-full py-2 bg-surface-bright text-on-surface font-medium rounded-lg hover:text-primary transition-colors">Configurare AI</button>
+</div>
+</section>
+</main>
+</body></html>

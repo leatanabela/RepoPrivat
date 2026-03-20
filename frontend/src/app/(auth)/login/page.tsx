@@ -20,9 +20,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display antialiased flex flex-col min-h-screen">
+    <div className="bg-background-light dark:bg-dm-surface font-display antialiased flex flex-col min-h-screen">
       <div className="flex-grow flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 shadow-xl rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800">
+        <div className="max-w-md w-full bg-white dark:bg-dm-surface shadow-xl rounded-xl overflow-hidden border border-slate-200/60 dark:border-dm-surface-high">
           <div className="p-8 sm:p-10">
             <div className="flex flex-col items-center mb-10">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
@@ -35,8 +35,8 @@ export default function LoginPage() {
                   </defs>
                 </svg>
               </div>
-              <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Autentificare</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-2 text-center text-sm leading-relaxed">
+              <h1 className="text-3xl font-black text-slate-900 dark:text-dm-on-surface tracking-tight">Autentificare</h1>
+              <p className="text-slate-500 dark:text-dm-on-surface-variant mt-2 text-center text-sm leading-relaxed">
                 Accesați platforma de suport instituțional folosind contul dumneavoastră.
               </p>
             </div>
@@ -49,11 +49,11 @@ export default function LoginPage() {
 
             <form action={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" htmlFor="email">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-2" htmlFor="email">
                   Adresă Email
                 </label>
                 <input
-                  className="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                  className="w-full h-14 bg-slate-50 dark:bg-dm-surface-high/50 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg px-4 py-3 text-slate-900 dark:text-dm-on-surface placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                   id="email"
                   name="email"
                   placeholder="nume.prenume@institutie.ro"
@@ -64,13 +64,13 @@ export default function LoginPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="password">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface" htmlFor="password">
                     Parolă
                   </label>
                 </div>
                 <div className="relative flex items-center">
                   <input
-                    className="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 pr-12 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                    className="w-full h-14 bg-slate-50 dark:bg-dm-surface-high/50 border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg px-4 py-3 pr-12 text-slate-900 dark:text-dm-on-surface placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                     id="password"
                     name="password"
                     placeholder="********"
@@ -96,8 +96,8 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-dm-surface-high text-center">
+              <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant">
                 Aveți nevoie de asistență? Contactați administratorul IT
               </p>
             </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
       <footer className="w-full py-8 px-6 text-center">
         <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant font-medium">
             &copy; 2024 Portal HelpDesk Instituțional
           </p>
         </div>
