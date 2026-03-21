@@ -43,3 +43,9 @@ yarn-error.log*
 coverage/
 .pytest_cache/
 htmlcov/
+
+# Next.js
+.next/
+
+# Claude Code
+.claude/
