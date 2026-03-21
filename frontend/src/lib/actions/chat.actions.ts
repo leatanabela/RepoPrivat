@@ -81,18 +81,26 @@ export async function saveUserMessage(sessionId: string, content: string) {
 
   if (error) throw new Error(error.message);
 
-  // Update session title from first message
-  const { data: messages } = await supabase
-    .from('chat_messages')
-    .select('id')
-    .eq('session_id', sessionId);
+  // Update session title from first relevant message (skip greetings/vague)
+  const greetingPattern = /^\s*(bun[aă]|salut|hey|hello|hi|ce faci|cum e[sș]ti|noroc|servus|hei|neata|zi[- ]?mi ceva|spune[- ]?mi ceva|ce (stii|știi|poti|poți)|ajuta[- ]?ma|ajută[- ]?mă|cu ce (ma|mă) (poti|poți) ajuta|am nevoie de ajutor|cine esti|cine ești|prezinta[- ]?te|prezintă[- ]?te)\s*[?!.,]*\s*$/i;
+  const isGreetingOrVague = greetingPattern.test(content.trim());
 
-  if (messages && messages.length <= 1) {
-    const title = content.length > 60 ? content.substring(0, 57) + '...' : content;
-    await supabase
+  if (!isGreetingOrVague) {
+    // Check if session still has default title
+    const { data: session } = await supabase
       .from('chat_sessions')
-      .update({ title })
-      .eq('id', sessionId);
+      .select('title')
+      .eq('id', sessionId)
+      .single();
+
+    const isDefaultTitle = !session?.title || session.title === 'Conversație nouă' || /^\d{2}\.\d{2}\.\d{4}/.test(session.title);
+    if (session && isDefaultTitle) {
+      const title = content.length > 60 ? content.substring(0, 57) + '...' : content;
+      await supabase
+        .from('chat_sessions')
+        .update({ title })
+        .eq('id', sessionId);
+    }
   }
 
   return data;

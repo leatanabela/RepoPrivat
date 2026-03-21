@@ -13,6 +13,7 @@ def generate_response(prompt: str, system_prompt: str | None = None) -> str:
     response = ollama.chat(
         model=settings.LLM_MODEL,
         messages=messages,
+        keep_alive="30m",
     )
     return response["message"]["content"]
 
@@ -30,6 +31,7 @@ async def generate_response_stream(
         model=settings.LLM_MODEL,
         messages=messages,
         stream=True,
+        keep_alive="30m",
     )
     for chunk in stream:
         content = chunk["message"]["content"]

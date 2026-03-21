@@ -66,13 +66,42 @@ export default function ChatPage() {
   const [modalLoading, setModalLoading] = useState(false);
   const [ticketSubmitting, setTicketSubmitting] = useState(false);
 
+  const userScrolledUpRef = useRef(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!userScrolledUpRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, []);
 
+  // Detect if user scrolled up
   useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      // If user is more than 100px from bottom, they scrolled up
+      userScrolledUpRef.current = scrollHeight - scrollTop - clientHeight > 100;
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Reset scroll lock when streaming ends or new messages arrive
+  useEffect(() => {
+    if (!streaming) {
+      userScrolledUpRef.current = false;
+    }
     scrollToBottom();
-  }, [messages, streamingContent, scrollToBottom]);
+  }, [messages, scrollToBottom, streaming]);
+
+  // Auto-scroll during streaming only if user hasn't scrolled up
+  useEffect(() => {
+    if (streaming && streamingContent) {
+      scrollToBottom();
+    }
+  }, [streamingContent, streaming, scrollToBottom]);
 
   useEffect(() => {
     if (loadedRef.current) return;
@@ -239,13 +268,20 @@ export default function ChatPage() {
         }
       }
 
+      // Clear streaming content BEFORE adding saved message to prevent duplicate flash
+      setStreamingContent('');
+      setStreaming(false);
+
       // Save assistant message
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
 
       // If no chunks were used OR AI response indicates it couldn't find info, mark as ticketable
-      const couldNotAnswer = noChunksRef.current ||
-        /nu am găsit|nu am gasit|nu s-au găsit|nu conțin|nu am mai multe informații/i.test(fullContent);
+      // But NOT for greetings or friendly responses
+      const isGreeting = /^(bun[aă]|salut|hey|hello|hi|ce faci|cum e[sș]ti|noroc|servus|hei|neata)\s*[?!.,]*\s*$/i.test(lastQuestionRef.current.trim());
+      const isFriendlyResponse = /😊|cu ce te pot ajuta|te pot ajuta|sunt asistentul|nu pot ajuta cu acest subiect|sunt specializat doar|pune-mi o întrebare/i.test(fullContent);
+      const couldNotAnswer = !isGreeting && !isFriendlyResponse && (noChunksRef.current ||
+        /nu am găsit|nu am gasit|nu s-au găsit|nu conțin|nu am mai multe informații/i.test(fullContent));
       if (couldNotAnswer) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }
@@ -255,7 +291,6 @@ export default function ChatPage() {
       setSessions(updatedSessions);
     } catch {
       toast.error('Eroare la comunicarea cu asistentul AI');
-    } finally {
       setStreaming(false);
       setStreamingContent('');
     }
@@ -345,7 +380,7 @@ export default function ChatPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Chat area */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-10">
             <div className="max-w-5xl mx-auto flex flex-col gap-10">
               <div className="flex items-start gap-4">
                 <div className="size-8 rounded-full bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
