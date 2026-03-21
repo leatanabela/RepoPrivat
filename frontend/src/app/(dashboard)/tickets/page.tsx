@@ -17,10 +17,9 @@ import toast from 'react-hot-toast';
 
 const statusFilters: Array<{ value: TicketStatus | 'all'; label: string }> = [
   { value: 'all', label: 'Toate' },
-  { value: 'nou', label: 'Nou' },
+  { value: 'in_asteptare', label: 'În așteptare' },
   { value: 'in_lucru', label: 'În lucru' },
   { value: 'rezolvat', label: 'Rezolvat' },
-  { value: 'inchis', label: 'Închis' },
 ];
 
 export default function TicketsPage() {

@@ -48,7 +48,7 @@ export async function createTicket(formData: FormData) {
     department_id: departmentId || null,
     category_id: categoryId || null,
     user_id: user.id,
-    status: 'nou',
+    status: 'in_asteptare',
   };
 
   if (aiSuggestions) {
@@ -212,7 +212,7 @@ export async function createTicketFromChat(
   const insertData: Record<string, unknown> = {
     title,
     description: userDescription || `Întrebare din chat AI:\n${question}\n\nRăspuns AI:\n${aiResponse}`,
-    status: 'nou',
+    status: 'in_asteptare',
     priority: priorityMap[priority] || 'medie',
     department_id: departmentId || null,
     user_id: user.id,

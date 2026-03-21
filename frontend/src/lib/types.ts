@@ -1,4 +1,4 @@
-export type TicketStatus = 'nou' | 'atribuit' | 'in_lucru' | 'asteptare_utilizator' | 'rezolvat' | 'inchis';
+export type TicketStatus = 'in_asteptare' | 'in_lucru' | 'rezolvat';
 export type TicketPriority = 'scazuta' | 'medie' | 'ridicata' | 'urgenta';
 export type UserRole = 'admin' | 'employee';
 
@@ -98,7 +98,7 @@ export interface ChatMessage {
 
 export interface Analytics {
   totalTickets: number;
-  openTickets: number;
+  inProgressTickets: number;
   resolvedTickets: number;
   totalDocuments: number;
   processedDocuments: number;

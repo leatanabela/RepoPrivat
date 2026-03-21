@@ -13,7 +13,7 @@ import {
   deleteChatSession,
 } from '@/lib/actions/chat.actions';
 import { createTicketFromChat, getAiTicketSuggestions, getDepartments } from '@/lib/actions/ticket.actions';
-import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send } from 'lucide-react';
+import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatSkeleton } from '@/components/ui/loading-skeleton';
 import { PRIORITY_LABELS } from '@/lib/constants';
@@ -38,13 +38,9 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
-  // Track which assistant message IDs should show the "Create Ticket" button
   const [ticketableMessages, setTicketableMessages] = useState<Set<string>>(new Set());
-  // Track the last user question for ticket creation
   const lastQuestionRef = useRef<string>('');
-  // Track if current stream had no chunks
   const noChunksRef = useRef(false);
-  // Ticket creation modal state
   const [ticketModal, setTicketModal] = useState<{
     messageId: string;
     question: string;
@@ -75,20 +71,17 @@ export default function ChatPage() {
     }
   }, []);
 
-  // Detect if user scrolled up
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      // If user is more than 100px from bottom, they scrolled up
       userScrolledUpRef.current = scrollHeight - scrollTop - clientHeight > 100;
     };
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Reset scroll lock when streaming ends or new messages arrive
   useEffect(() => {
     if (!streaming) {
       userScrolledUpRef.current = false;
@@ -96,7 +89,6 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages, scrollToBottom, streaming]);
 
-  // Auto-scroll during streaming only if user hasn't scrolled up
   useEffect(() => {
     if (streaming && streamingContent) {
       scrollToBottom();
@@ -109,7 +101,6 @@ export default function ChatPage() {
     loadSessions();
   }, []);
 
-  // When currentSessionId changes (e.g. from sidebar history), load messages
   useEffect(() => {
     if (currentSessionId) {
       getChatMessages(currentSessionId).then(setMessages).catch(() => {});
@@ -121,11 +112,8 @@ export default function ChatPage() {
       const data = await getChatSessions();
       setSessions(data);
       if (currentSessionId) {
-        // Load messages for session selected from history
         const msgs = await getChatMessages(currentSessionId);
         setMessages(msgs);
-      } else if (data.length > 0) {
-        selectSession(data[0].id);
       }
     } catch {
       toast.error('Eroare la încărcarea conversațiilor');
@@ -173,7 +161,6 @@ export default function ChatPage() {
 
   async function handleSend(message: string) {
     if (!currentSessionId) {
-      // Create a new session first
       try {
         const session = await createChatSession();
         setSessions([session, ...sessions]);
@@ -193,7 +180,6 @@ export default function ChatPage() {
     lastQuestionRef.current = message;
     noChunksRef.current = false;
 
-    // Save user message
     try {
       const userMsg = await saveUserMessage(sessionId, message);
       addMessage(userMsg);
@@ -202,12 +188,10 @@ export default function ChatPage() {
       return;
     }
 
-    // Build chat history for context
     const history = [...messages, { role: 'user' as const, content: message }]
       .slice(-10)
       .map((m) => ({ role: m.role, content: m.content }));
 
-    // Start streaming
     setStreaming(true);
     setStreamingContent('');
 
@@ -259,7 +243,6 @@ export default function ChatPage() {
                   fullContent = parsed.answer;
                 }
               } catch {
-                // Plain text token
                 fullContent += data;
                 appendStreamingContent(data);
               }
@@ -268,16 +251,12 @@ export default function ChatPage() {
         }
       }
 
-      // Clear streaming content BEFORE adding saved message to prevent duplicate flash
       setStreamingContent('');
       setStreaming(false);
 
-      // Save assistant message
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
 
-      // If no chunks were used OR AI response indicates it couldn't find info, mark as ticketable
-      // But NOT for greetings or friendly responses
       const isGreeting = /^(bun[aă]|salut|hey|hello|hi|ce faci|cum e[sș]ti|noroc|servus|hei|neata)\s*[?!.,]*\s*$/i.test(lastQuestionRef.current.trim());
       const isFriendlyResponse = /😊|cu ce te pot ajuta|te pot ajuta|sunt asistentul|nu pot ajuta cu acest subiect|sunt specializat doar|pune-mi o întrebare/i.test(fullContent);
       const couldNotAnswer = !isGreeting && !isFriendlyResponse && (noChunksRef.current ||
@@ -286,7 +265,6 @@ export default function ChatPage() {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }
 
-      // Refresh sessions to update title
       const updatedSessions = await getChatSessions();
       setSessions(updatedSessions);
     } catch {
@@ -362,104 +340,105 @@ export default function ChatPage() {
   return (
     <>
       {/* Header */}
-      <header className="h-16 flex items-center justify-between px-8 border-b border-slate-100 dark:border-transparent bg-white dark:bg-dm-surface-low shrink-0">
-        <h2 className="text-lg font-semibold text-slate-800 dark:text-dm-on-surface">
-          Asistent AI
-        </h2>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleNewSession}
-            className="flex items-center gap-2 px-3 py-1.5 bg-primary dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
-          >
-            <Plus size={16} />
-            <span className="hidden sm:inline">Conversație Nouă</span>
-          </button>
+      <header className="h-14 flex items-center justify-between px-6 border-b border-slate-100/80 dark:border-dm-surface-bright/10 bg-white dark:bg-dm-surface-low shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="size-7 rounded-lg bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center">
+            <Bot size={14} className="text-primary dark:text-dm-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-dm-on-surface">
+            Asistent AI
+          </h2>
         </div>
+        <button
+          onClick={handleNewSession}
+          className="flex items-center gap-2 px-3.5 py-2 bg-primary dark:bg-dm-primary-container text-white rounded-xl text-xs font-semibold hover:bg-primary-hover dark:hover:bg-dm-primary-container/80 transition-all duration-180 active:scale-[0.98]"
+        >
+          <Plus size={14} />
+          <span className="hidden sm:inline">Conversație Nouă</span>
+        </button>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Chat area */}
-        <div className="flex-1 flex flex-col">
-          <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-10">
-            <div className="max-w-5xl mx-auto flex flex-col gap-10">
-              <div className="flex items-start gap-4">
-                <div className="size-8 rounded-full bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                  <MessageSquare size={18} className="text-white dark:text-dm-primary" />
-                </div>
-                <div className="flex flex-col gap-1.5 max-w-[85%]">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-dm-on-surface-variant px-1">
-                    Asistent AI
-                  </span>
-                  <div className="bg-slate-100 dark:bg-dm-surface-high p-6 rounded-2xl rounded-tl-none shadow-sm">
-                    <p className="text-[17px] leading-relaxed text-slate-700 dark:text-dm-on-surface">
-                      Bună ziua! Sunt asistentul tău virtual. Cu ce te pot ajuta astăzi? Putem discuta despre tichete, setări sau alte informații tehnice.
-                    </p>
+        <div className="flex-1 flex flex-col min-w-0">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col gap-6 py-8">
+                {/* Welcome message */}
+                <div className="flex gap-3 justify-start">
+                  <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <Bot size={16} className="text-white dark:text-dm-primary" />
+                  </div>
+                  <div className="flex flex-col gap-1 max-w-[75%]">
+                    <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
+                      <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
+                        Bună ziua! Sunt asistentul tău virtual. Cu ce te pot ajuta astăzi? Putem discuta despre tichete, setări sau alte informații tehnice.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {messages.map((msg) => (
-                <div key={msg.id}>
-                  <ChatMessage role={msg.role} content={msg.content} />
-                  {msg.role === 'assistant' && ticketableMessages.has(msg.id) && (
-                    <div className="flex justify-center mt-4">
-                      <div className="relative bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl p-5 w-full max-w-md shadow-sm">
-                        <button
-                          onClick={() => setTicketableMessages((prev) => { const next = new Set(prev); next.delete(msg.id); return next; })}
-                          className="absolute top-3 right-3 text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                        <div className="flex flex-col items-center text-center gap-2 pr-0">
-                          <div className="size-10 rounded-xl bg-primary/10 dark:bg-dm-primary/15 flex items-center justify-center">
-                            <TicketPlus size={20} className="text-primary dark:text-dm-primary" />
+                {/* Messages */}
+                  {messages.map((msg) => (
+                    <div key={msg.id}>
+                      <ChatMessage role={msg.role} content={msg.content} />
+                      {msg.role === 'assistant' && ticketableMessages.has(msg.id) && (
+                        <div className="flex justify-start pl-11 mt-3">
+                          <div className="relative bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-2xl p-5 w-full max-w-sm">
+                            <button
+                              onClick={() => setTicketableMessages((prev) => { const next = new Set(prev); next.delete(msg.id); return next; })}
+                              className="absolute top-3 right-3 text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors duration-180"
+                            >
+                              <X size={14} />
+                            </button>
+                            <div className="flex items-start gap-3">
+                              <div className="size-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
+                                <TicketPlus size={18} className="text-amber-600 dark:text-amber-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-slate-800 dark:text-dm-on-surface">
+                                  Nu am găsit un răspuns complet
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant mt-0.5">
+                                  Trimite întrebarea către un administrator.
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => openTicketModal(msg.id, msg.content)}
+                              className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-slate-900 dark:bg-dm-primary-container text-white rounded-xl text-sm font-semibold hover:bg-slate-800 dark:hover:bg-dm-primary-container/80 transition-all duration-180 active:scale-[0.98]"
+                            >
+                              <Send size={13} />
+                              Creează Sesizare
+                            </button>
                           </div>
-                          <p className="text-sm font-semibold text-slate-800 dark:text-dm-on-surface">
-                            Nu am găsit un răspuns
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant">
-                            Trimite întrebarea către un administrator pentru asistență.
-                          </p>
                         </div>
-                        <button
-                          onClick={() => openTicketModal(msg.id, msg.content)}
-                          className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#1e293b] dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-all"
-                        >
-                          <Send size={15} />
-                          Creează Sesizare
-                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Typing indicator */}
+                  {streaming && !streamingContent && (
+                    <div className="flex gap-3 justify-start">
+                      <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
+                        <Bot size={16} className="text-white dark:text-dm-primary" />
+                      </div>
+                      <div className="bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10 px-5 py-4 rounded-2xl rounded-tl-md">
+                        <div className="flex items-center gap-1.5">
+                          <span className="size-1.5 bg-slate-400 dark:bg-dm-on-surface-variant rounded-full animate-bounce [animation-delay:0ms]" />
+                          <span className="size-1.5 bg-slate-400 dark:bg-dm-on-surface-variant rounded-full animate-bounce [animation-delay:150ms]" />
+                          <span className="size-1.5 bg-slate-400 dark:bg-dm-on-surface-variant rounded-full animate-bounce [animation-delay:300ms]" />
+                        </div>
                       </div>
                     </div>
                   )}
+
+                  {streaming && streamingContent && (
+                    <ChatMessage role="assistant" content={streamingContent} isStreaming />
+                  )}
+
+                  <div ref={messagesEndRef} />
                 </div>
-              ))}
-
-              {/* AI Thinking Indicator */}
-              {streaming && !streamingContent && (
-                <div className="flex items-start gap-4">
-                  <div className="size-8 rounded-full bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                    <MessageSquare size={18} className="text-white dark:text-dm-primary" />
-                  </div>
-                  <div className="flex flex-col gap-1.5 max-w-[85%]">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-dm-on-surface-variant px-1">
-                      Asistent AI
-                    </span>
-                    <div className="bg-slate-100 dark:bg-dm-surface-high px-6 py-4 rounded-2xl rounded-tl-none shadow-sm">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                        <span className="size-2 bg-slate-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                        <span className="size-2 bg-slate-400 rounded-full animate-bounce [animation-delay:300ms]" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {streaming && streamingContent && (
-                <ChatMessage role="assistant" content={streamingContent} isStreaming />
-              )}
-
-              <div ref={messagesEndRef} />
             </div>
           </div>
 
@@ -467,59 +446,65 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Ticket Creation Modal — Stitch design */}
+      {/* Ticket Creation Modal */}
       {ticketModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-[#f8fafc] dark:bg-dm-surface-bright rounded-2xl shadow-2xl w-full max-w-[540px] overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => !ticketSubmitting && setTicketModal(null)}>
+          <div className="bg-white dark:bg-dm-surface-bright rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="px-8 pt-8 pb-1">
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-dm-on-surface tracking-tight">
-                Sesizare Nouă
-              </h3>
-              <p className="text-[15px] text-slate-500 dark:text-dm-on-surface-variant mt-1.5">
-                Te rugăm să completezi formularul de mai jos pentru asistență tehnică.
-              </p>
+            <div className="px-7 pt-7 pb-1 flex items-start justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-dm-on-surface">
+                  Sesizare Nouă
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-1">
+                  Completează formularul pentru asistență.
+                </p>
+              </div>
+              <button
+                onClick={() => setTicketModal(null)}
+                className="size-8 rounded-lg hover:bg-slate-100 dark:hover:bg-dm-surface-high flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all duration-180"
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            <div className="px-8 py-6 space-y-6">
+            <div className="px-7 py-6 space-y-5">
               {modalLoading ? (
                 <div className="flex flex-col items-center gap-3 py-10">
-                  <Loader2 size={28} className="animate-spin text-primary" />
-                  <p className="text-sm text-slate-500">AI analizează întrebarea...</p>
+                  <Loader2 size={24} className="animate-spin text-primary dark:text-dm-primary" />
+                  <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant">AI analizează întrebarea...</p>
                 </div>
               ) : (
                 <>
                   {aiSuggestions?.reasoning && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3.5">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-3.5">
                       <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Sugestie AI</p>
                       <p className="text-sm text-blue-700 dark:text-blue-300">{aiSuggestions.reasoning}</p>
                     </div>
                   )}
 
-                  {/* Subiect */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
                       Subiect
                     </label>
                     <input
                       type="text"
                       value={ticketForm.subject || ticketModal.question}
                       onChange={(e) => setTicketForm((f) => ({ ...f, subject: e.target.value }))}
-                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none transition-all duration-180"
                       placeholder="Ex: Eroare conectare imprimantă"
                     />
                   </div>
 
-                  {/* Categorie */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
                       Categorie
                     </label>
                     <div className="relative">
                       <select
                         value={ticketForm.departmentId}
                         onChange={(e) => setTicketForm((f) => ({ ...f, departmentId: e.target.value }))}
-                        className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none pr-10"
+                        className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none transition-all duration-180 appearance-none pr-10"
                       >
                         <option value="">Alegeți o categorie...</option>
                         {departments.map((d) => (
@@ -530,12 +515,11 @@ export default function ChatPage() {
                     </div>
                   </div>
 
-                  {/* Urgență */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2.5">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-2">
                       Urgență
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-2.5">
                       {([
                         { value: 'scazuta' as TicketPriority, label: 'Mică' },
                         { value: 'medie' as TicketPriority, label: 'Medie' },
@@ -546,10 +530,10 @@ export default function ChatPage() {
                           type="button"
                           onClick={() => setTicketForm((f) => ({ ...f, priority: opt.value }))}
                           className={cn(
-                            'py-4 rounded-xl text-sm font-semibold transition-all border',
+                            'py-3 rounded-xl text-sm font-semibold transition-all duration-180 border',
                             ticketForm.priority === opt.value
-                              ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-400 dark:border-orange-500 text-orange-600 dark:text-orange-400'
-                              : 'bg-white dark:bg-dm-surface-high border-slate-200 dark:border-dm-surface-bright/15 text-slate-600 dark:text-dm-on-surface-variant hover:border-orange-300 hover:text-orange-500'
+                              ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-500 text-amber-700 dark:text-amber-400'
+                              : 'bg-white dark:bg-dm-surface-high border-slate-200 dark:border-dm-surface-bright/20 text-slate-600 dark:text-dm-on-surface-variant hover:border-amber-300 hover:text-amber-600'
                           )}
                         >
                           {opt.label}
@@ -558,16 +542,15 @@ export default function ChatPage() {
                     </div>
                   </div>
 
-                  {/* Descriere */}
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 dark:text-dm-on-surface mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
                       Descriere
                     </label>
                     <textarea
                       value={ticketForm.description}
                       onChange={(e) => setTicketForm((f) => ({ ...f, description: e.target.value }))}
-                      rows={5}
-                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none transition-all"
+                      rows={4}
+                      className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none resize-none transition-all duration-180"
                       placeholder="Descrieți problema cât mai detaliat..."
                     />
                   </div>
@@ -575,23 +558,23 @@ export default function ChatPage() {
               )}
             </div>
 
-            {/* Bottom buttons — side by side */}
-            <div className="px-8 pb-8 pt-2 flex gap-3">
+            {/* Bottom buttons */}
+            <div className="px-7 pb-7 pt-1 flex gap-3">
               <button
                 onClick={handleSubmitTicket}
                 disabled={ticketSubmitting || modalLoading || !ticketForm.description.trim()}
-                className="flex-[3] flex items-center justify-center gap-2.5 py-4 bg-[#1e293b] dark:bg-gradient-to-br dark:from-dm-primary dark:to-dm-primary-container text-white rounded-xl text-[15px] font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-dm-primary-container text-white rounded-xl text-sm font-semibold hover:bg-slate-800 dark:hover:bg-dm-primary-container/80 transition-all duration-180 disabled:opacity-50 active:scale-[0.98]"
               >
                 {ticketSubmitting ? (
-                  <Loader2 size={18} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  <Send size={16} />
+                  <Send size={14} />
                 )}
                 Trimite Tichet
               </button>
               <button
                 onClick={() => setTicketModal(null)}
-                className="flex-[2] py-4 bg-slate-200/60 dark:bg-dm-surface-high text-slate-600 dark:text-dm-on-surface-variant rounded-xl text-[15px] font-medium hover:bg-slate-200 dark:hover:bg-dm-surface-bright transition-colors"
+                className="px-5 py-3 border border-slate-200 dark:border-dm-surface-bright/20 text-slate-600 dark:text-dm-on-surface-variant rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-dm-surface-high transition-all duration-180"
               >
                 Anulează
               </button>

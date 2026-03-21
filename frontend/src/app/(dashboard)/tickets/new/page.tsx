@@ -8,7 +8,7 @@ import type { TicketPriority, Department } from '@/lib/types';
 import toast from 'react-hot-toast';
 
 const priorityOptions: Array<{ value: TicketPriority; label: string; color: string }> = [
-  { value: 'scazuta', label: 'Mica', color: 'peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 peer-checked:text-green-700' },
+  { value: 'scazuta', label: 'Mică', color: 'peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 peer-checked:text-green-700' },
   { value: 'medie', label: 'Medie', color: 'peer-checked:border-orange-500 peer-checked:bg-orange-50 dark:peer-checked:bg-orange-900/20 peer-checked:text-orange-700' },
   { value: 'ridicata', label: 'Mare', color: 'peer-checked:border-red-600 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 peer-checked:text-red-700' },
 ];
@@ -36,7 +36,7 @@ export default function NewTicketPage() {
     }
 
     if (result.aiSuggestions) {
-      toast.success('Tichet creat! AI a sugerat clasificarea automata.');
+      toast.success('Tichet creat! AI a sugerat clasificarea automată.');
     } else {
       toast.success('Tichet creat cu succes!');
     }
@@ -48,10 +48,10 @@ export default function NewTicketPage() {
       <div className="max-w-[800px] mx-auto px-6 py-10">
         <div className="mb-10">
           <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
-            Sesizare Noua
+            Sesizare Nouă
           </h2>
           <p className="text-xl text-slate-500 dark:text-dm-on-surface-variant">
-            Te rugam sa completezi formularul de mai jos pentru asistenta tehnica.
+            Te rugăm să completezi formularul de mai jos pentru asistență tehnică.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function NewTicketPage() {
               className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400"
               id="title"
               name="title"
-              placeholder="Ex: Eroare conectare imprimanta"
+              placeholder="Ex: Eroare conectare imprimantă"
               type="text"
               required
             />
@@ -79,7 +79,7 @@ export default function NewTicketPage() {
               id="departmentId"
               name="departmentId"
             >
-              <option value="">Alegeti un departament...</option>
+              <option value="">Alegeți un departament...</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
@@ -87,7 +87,7 @@ export default function NewTicketPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xl font-bold text-slate-800 dark:text-dm-on-surface">Urgenta</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-dm-on-surface">Urgență</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {priorityOptions.map((opt) => (
                 <label key={opt.value} className="relative flex items-center cursor-pointer">
@@ -114,7 +114,7 @@ export default function NewTicketPage() {
               className="w-full p-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 resize-none"
               id="description"
               name="description"
-              placeholder="Descrieti problema cat mai detaliat..."
+              placeholder="Descrieți problema cât mai detaliat..."
               rows={5}
               required
             />
@@ -147,7 +147,7 @@ export default function NewTicketPage() {
               type="button"
               onClick={() => router.back()}
             >
-              Anuleaza
+              Anulează
             </button>
           </div>
         </form>

@@ -1,5 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
@@ -10,42 +13,77 @@ interface ChatMessageProps {
 
 export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
   const isAI = role === 'assistant';
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
-    <div className={cn('flex items-start gap-4', !isAI && 'flex-row-reverse')}>
-      <div
-        className={cn(
-          'size-8 rounded-full flex items-center justify-center shrink-0 mt-1 shadow-sm',
-          isAI ? 'bg-primary dark:bg-dm-primary/20 text-white dark:text-dm-primary' : 'bg-slate-200 dark:bg-dm-surface-bright text-slate-600 dark:text-dm-on-surface-variant'
-        )}
-      >
-        {isAI ? <Bot size={18} /> : <User size={18} />}
-      </div>
+    <div
+      className={cn(
+        'group flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300',
+        isAI ? 'justify-start' : 'justify-end'
+      )}
+    >
+      {/* AI Avatar */}
+      {isAI && (
+        <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
+          <Bot size={16} className="text-white dark:text-dm-primary" />
+        </div>
+      )}
 
-      <div className={cn('flex flex-col gap-1.5 max-w-[85%]', !isAI && 'items-end')}>
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-dm-on-surface-variant px-1">
-          {isAI ? 'Asistent AI' : 'Utilizator'}
-        </span>
+      <div className={cn('flex flex-col gap-1 max-w-[75%]', !isAI && 'items-end')}>
+        {/* Message bubble */}
         <div
           className={cn(
-            'p-6 rounded-2xl shadow-sm',
+            'relative px-5 py-4 rounded-2xl transition-shadow duration-180',
             isAI
-              ? 'bg-slate-100 dark:bg-dm-surface-high rounded-tl-none'
-              : 'bg-primary dark:bg-dm-primary/15 text-white dark:text-dm-primary rounded-tr-none shadow-md'
+              ? 'bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10 rounded-tl-md'
+              : 'bg-primary dark:bg-dm-primary-container text-white rounded-tr-md'
           )}
         >
           {isAI ? (
-            <div className="prose prose-slate dark:prose-invert prose-sm max-w-none [&>p]:text-[17px] [&>p]:leading-relaxed [&>ul]:text-[17px] [&>ol]:text-[17px] dark:[&>p]:text-dm-on-surface dark:[&>ul]:text-dm-on-surface dark:[&>ol]:text-dm-on-surface">
+            <div className="prose prose-slate dark:prose-invert prose-base max-w-none [&>p]:text-base [&>p]:leading-[1.75] [&>ul]:text-base [&>ol]:text-base [&>p:last-child]:mb-0 dark:[&>p]:text-dm-on-surface dark:[&>ul]:text-dm-on-surface dark:[&>ol]:text-dm-on-surface [&>ul]:leading-[1.75] [&>ol]:leading-[1.75]">
               <ReactMarkdown>{content}</ReactMarkdown>
               {isStreaming && (
-                <span className="inline-block w-2 h-5 bg-primary/60 dark:bg-dm-primary/60 animate-pulse ml-0.5" />
+                <span className="inline-block w-1.5 h-5 bg-primary/50 dark:bg-dm-primary/50 animate-pulse rounded-sm ml-0.5 align-middle" />
               )}
             </div>
           ) : (
-            <p className="text-[17px] leading-relaxed">{content}</p>
+            <p className="text-base leading-[1.75]">{content}</p>
           )}
         </div>
+
+        {/* Copy button — only on AI messages, visible on hover */}
+        {isAI && !isStreaming && content && (
+          <button
+            onClick={handleCopy}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-180 flex items-center gap-1.5 px-2 py-1 text-xs text-slate-400 dark:text-dm-on-surface-variant hover:text-slate-600 dark:hover:text-dm-on-surface rounded-lg"
+          >
+            {copied ? (
+              <>
+                <Check size={12} />
+                <span>Copiat</span>
+              </>
+            ) : (
+              <>
+                <Copy size={12} />
+                <span>Copiază</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
+
+      {/* User Avatar */}
+      {!isAI && (
+        <div className="size-8 rounded-xl bg-slate-200 dark:bg-dm-surface-bright flex items-center justify-center shrink-0 mt-1">
+          <User size={16} className="text-slate-600 dark:text-dm-on-surface-variant" />
+        </div>
+      )}
     </div>
   );
 }

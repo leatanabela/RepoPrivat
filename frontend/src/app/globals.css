@@ -6,17 +6,22 @@
 
 :root {
   --primary: #1c385f;
+  --primary-hover: #162d4d;
   --background: #f6f7f8;
+  --transition-fast: 180ms;
 }
 
 .dark {
   --primary: #A2C9FF;
+  --primary-hover: #b8d6ff;
   --background: #131313;
 }
 
 body {
   font-family: 'Public Sans', sans-serif;
   background-color: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar */
@@ -30,6 +35,37 @@ body {
   background: #cbd5e1;
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 .dark ::-webkit-scrollbar-thumb {
   background: #393939;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+/* Focus ring utility */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Message animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-in-from-bottom-2 {
+  from { transform: translateY(8px); }
+  to { transform: translateY(0); }
+}
+.animate-in {
+  animation: fade-in 300ms ease-out, slide-in-from-bottom-2 300ms ease-out;
+}
+.fade-in {
+  animation-name: fade-in;
+}
+.slide-in-from-bottom-2 {
+  animation-name: slide-in-from-bottom-2;
 }

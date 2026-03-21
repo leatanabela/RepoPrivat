@@ -7,6 +7,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: '#1c385f',
+        'primary-hover': '#162d4d',
         'background-light': '#f6f7f8',
         // Dark mode design tokens from "Digital Monolith"
         'dm-surface': '#131313',
@@ -26,7 +27,14 @@ const config: Config = {
         DEFAULT: '0.25rem',
         lg: '0.5rem',
         xl: '0.75rem',
+        '2xl': '1rem',
         full: '9999px',
+      },
+      spacing: {
+        '18': '4.5rem',
+      },
+      transitionDuration: {
+        '180': '180ms',
       },
     },
   },

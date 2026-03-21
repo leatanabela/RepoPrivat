@@ -296,7 +296,7 @@ export default function TicketDetailPage() {
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-dm-surface-high">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Schimbă status</p>
               <div className="flex gap-2 flex-wrap">
-                {(['atribuit', 'in_lucru', 'asteptare_utilizator', 'rezolvat', 'inchis'] as TicketStatus[]).map((s) => (
+                {(['in_asteptare', 'in_lucru', 'rezolvat'] as TicketStatus[]).map((s) => (
                   <button
                     key={s}
                     onClick={() => handleStatusChange(s)}
