@@ -46,11 +46,11 @@ export async function createTicket(data: CreateTicketData) {
   const insertData: Record<string, unknown> = {
     title: data.title,
     description: data.description,
-    priority: data.priority || 'medium',
+    priority: data.priority || 'medie',
     department_id: data.departmentId || null,
     category_id: data.categoryId || null,
     user_id: data.userId,
-    status: 'new',
+    status: 'nou',
   };
 
   if (aiSuggestions) {
@@ -62,7 +62,7 @@ export async function createTicket(data: CreateTicketData) {
   const { data: ticket, error } = await supabaseAdmin
     .from('tickets')
     .insert(insertData)
-    .select('*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name)')
+    .select('*, departments!tickets_department_id_fkey(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name)')
     .single();
 
   if (error) throw new Error(error.message);
@@ -77,7 +77,7 @@ export async function getTickets(filters: TicketFilters = {}) {
   let query = supabaseAdmin
     .from('tickets')
     .select(
-      '*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
+      '*, departments!tickets_department_id_fkey(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -99,7 +99,7 @@ export async function getTicketById(id: string) {
   const { data, error } = await supabaseAdmin
     .from('tickets')
     .select(
-      '*, departments(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)'
+      '*, departments!tickets_department_id_fkey(name), ticket_categories(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)'
     )
     .eq('id', id)
     .single();
@@ -130,7 +130,7 @@ export async function updateTicket(
 }
 
 export async function assignTicket(id: string, adminId: string) {
-  return updateTicket(id, { assigned_to: adminId, status: 'assigned' });
+  return updateTicket(id, { assigned_to: adminId, status: 'atribuit' });
 }
 
 export async function addMessage(
@@ -195,7 +195,7 @@ export async function getTicketStats() {
   const { count: openCount } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .in('status', ['new', 'assigned', 'in_progress', 'waiting_user']);
+    .in('status', ['nou', 'atribuit', 'in_lucru', 'asteptare_utilizator']);
 
   return {
     total: total || 0,

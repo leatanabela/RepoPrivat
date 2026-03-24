@@ -105,7 +105,7 @@ async def process_document(document_id: str, file_path: str | None = None):
 async def _download_from_storage(file_url: str, file_name: str) -> str:
     """Download a file from Supabase storage to a temp location."""
     ext = os.path.splitext(file_name)[1]
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext, mode='wb')
 
     # Extract the storage path from the URL
     # URL format: .../storage/v1/object/public/documents/filename

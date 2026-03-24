@@ -3,7 +3,7 @@ import { STATUS_COLORS, STATUS_LABELS } from '@/lib/constants';
 import type { TicketStatus } from '@/lib/types';
 
 export function StatusBadge({ status }: { status: TicketStatus }) {
-  const colors = STATUS_COLORS[status] || { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400' };
+  const colors = STATUS_COLORS[status] || STATUS_COLORS.nou;
   const label = STATUS_LABELS[status] || status;
 
   return (

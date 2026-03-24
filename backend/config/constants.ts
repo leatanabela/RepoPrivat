@@ -1,15 +1,15 @@
 export const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 export const TICKET_STATUSES = [
-  'new',
-  'assigned',
-  'in_progress',
-  'waiting_user',
-  'resolved',
-  'closed',
+  'nou',
+  'atribuit',
+  'in_lucru',
+  'asteptare_utilizator',
+  'rezolvat',
+  'inchis',
 ] as const;
 
-export const TICKET_PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;
+export const TICKET_PRIORITIES = ['scazuta', 'medie', 'ridicata', 'urgenta'] as const;
 
 export const USER_ROLES = ['admin', 'employee'] as const;
 

@@ -7,7 +7,7 @@ Analizează descrierea tichetului de mai jos și sugerează:
 1. Un titlu scurt și clar pentru tichet (maxim 10 cuvinte, stil administrativ)
 2. Departamentul cel mai potrivit
 3. Categoria cea mai potrivită
-4. Nivelul de prioritate (low, medium, high, urgent)
+4. Nivelul de prioritate (scazuta, medie, ridicata, urgenta)
 
 Departamente disponibile:
 {departments}
@@ -19,7 +19,7 @@ Descrierea tichetului:
 {description}
 
 Răspunde DOAR cu un obiect JSON valid în acest format exact, fără alt text:
-{{"title": "titlu scurt și clar", "department": "numele departamentului", "category": "numele categoriei", "priority": "low|medium|high|urgent", "reasoning": "explicație scurtă în română"}}"""
+{{"title": "titlu scurt și clar", "department": "numele departamentului", "category": "numele categoriei", "priority": "scazuta|medie|ridicata|urgenta", "reasoning": "explicație scurtă în română"}}"""
 
 
 def suggest_ticket_metadata(
@@ -61,26 +61,38 @@ def suggest_ticket_metadata(
         result = {
             "department": departments[0]["name"] if departments else None,
             "category": categories[0]["name"] if categories else None,
-            "priority": "medium",
+            "priority": "medie",
             "reasoning": "Nu s-a putut determina automat",
         }
 
-    # Map names back to IDs
+    # Map names back to IDs (exact match first, then fuzzy/contains fallback)
     dept_id = None
+    dept_name_lower = result.get("department", "").lower().strip()
     for d in departments:
-        if d["name"].lower() == result.get("department", "").lower():
+        if d["name"].lower() == dept_name_lower:
             dept_id = d["id"]
             break
+    if not dept_id and dept_name_lower:
+        for d in departments:
+            if dept_name_lower in d["name"].lower() or d["name"].lower() in dept_name_lower:
+                dept_id = d["id"]
+                break
 
     cat_id = None
+    cat_name_lower = result.get("category", "").lower().strip()
     for c in categories:
-        if c["name"].lower() == result.get("category", "").lower():
+        if c["name"].lower() == cat_name_lower:
             cat_id = c["id"]
             break
+    if not cat_id and cat_name_lower:
+        for c in categories:
+            if cat_name_lower in c["name"].lower() or c["name"].lower() in cat_name_lower:
+                cat_id = c["id"]
+                break
 
-    priority = result.get("priority", "medium")
-    if priority not in ("low", "medium", "high", "urgent"):
-        priority = "medium"
+    priority = result.get("priority", "medie")
+    if priority not in ("scazuta", "medie", "ridicata", "urgenta"):
+        priority = "medie"
 
     return {
         "title": result.get("title", ""),

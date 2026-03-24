@@ -15,7 +15,10 @@ def generate_response(prompt: str, system_prompt: str | None = None) -> str:
         messages=messages,
         keep_alive="30m",
     )
-    return response["message"]["content"]
+    message = response.get("message")
+    if not message or "content" not in message:
+        raise ValueError("Invalid response from LLM model")
+    return message["content"]
 
 
 async def generate_response_stream(

@@ -3,19 +3,10 @@
   "configurations": [
     {
       "name": "frontend",
-      "runtimeExecutable": "/Users/HP/IdeaProjects/RepoPrivat/.claude/worktrees/flamboyant-elion/frontend/node_modules/.bin/next",
-      "runtimeArgs": ["dev", "--port", "3000"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
       "port": 3000,
-      "autoPort": true,
-      "cwd": "/Users/HP/IdeaProjects/RepoPrivat/.claude/worktrees/flamboyant-elion/frontend"
-    },
-    {
-      "name": "ai-service",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "uvicorn", "ai.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"],
-      "port": 8000,
-      "autoPort": true,
-      "cwd": "/Users/HP/IdeaProjects/RepoPrivat/.claude/worktrees/flamboyant-elion"
+      "cwd": "C:/Users/Brigitte/Desktop/RepoPrivat/frontend"
     }
   ]
 }

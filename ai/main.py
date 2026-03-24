@@ -146,7 +146,7 @@ async def suggest_ticket(request: TicketSuggestRequest):
             {
                 "id": c["id"],
                 "name": c["name"],
-                "department_name": c.get("departments", {}).get("name", ""),
+                "department_name": (c.get("departments") or {}).get("name", ""),
             }
             for c in (categories.data or [])
         ]

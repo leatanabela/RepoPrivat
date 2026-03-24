@@ -257,10 +257,14 @@ export default function ChatPage() {
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
 
-      const isGreeting = /^(bun[aă]|salut|hey|hello|hi|ce faci|cum e[sș]ti|noroc|servus|hei|neata)\s*[?!.,]*\s*$/i.test(lastQuestionRef.current.trim());
-      const isFriendlyResponse = /😊|cu ce te pot ajuta|te pot ajuta|sunt asistentul|nu pot ajuta cu acest subiect|sunt specializat doar|pune-mi o întrebare/i.test(fullContent);
-      const couldNotAnswer = !isGreeting && !isFriendlyResponse && (noChunksRef.current ||
-        /nu am găsit|nu am gasit|nu s-au găsit|nu conțin|nu am mai multe informații/i.test(fullContent));
+      // Only show ticket card if:
+      // 1. No chunks were found AND response is short (generic refusal), OR
+      // 2. The response is PRIMARILY a "can't help" message (not a real answer with the phrase embedded)
+      const trimmedContent = fullContent.trim();
+      const isRefusalResponse = /^(îmi pare rău|nu am găsit|nu am gasit|nu s-au găsit|nu pot ajuta)/i.test(trimmedContent);
+      const isShortNoInfo = trimmedContent.length < 200 &&
+        /nu am găsit|nu am gasit|nu s-au găsit|nu conțin informații|nu pot ajuta/i.test(trimmedContent);
+      const couldNotAnswer = (noChunksRef.current && isShortNoInfo) || isRefusalResponse;
       if (couldNotAnswer) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }

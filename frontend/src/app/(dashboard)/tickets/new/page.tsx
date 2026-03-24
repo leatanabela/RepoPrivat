@@ -11,6 +11,7 @@ const priorityOptions: Array<{ value: TicketPriority; label: string; color: stri
   { value: 'scazuta', label: 'Mică', color: 'peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 peer-checked:text-green-700' },
   { value: 'medie', label: 'Medie', color: 'peer-checked:border-orange-500 peer-checked:bg-orange-50 dark:peer-checked:bg-orange-900/20 peer-checked:text-orange-700' },
   { value: 'ridicata', label: 'Mare', color: 'peer-checked:border-red-600 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 peer-checked:text-red-700' },
+  { value: 'urgenta', label: 'Urgentă', color: 'peer-checked:border-red-800 peer-checked:bg-red-100 dark:peer-checked:bg-red-900/30 peer-checked:text-red-800' },
 ];
 
 export default function NewTicketPage() {
@@ -88,7 +89,7 @@ export default function NewTicketPage() {
 
           <div className="space-y-3">
             <p className="text-xl font-bold text-slate-800 dark:text-dm-on-surface">Urgență</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {priorityOptions.map((opt) => (
                 <label key={opt.value} className="relative flex items-center cursor-pointer">
                   <input

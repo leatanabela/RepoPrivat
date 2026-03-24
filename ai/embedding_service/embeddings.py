@@ -8,7 +8,10 @@ def generate_embedding(text: str) -> list[float]:
         model=settings.EMBEDDING_MODEL,
         input=text,
     )
-    return response["embeddings"][0]
+    embeddings = response.get("embeddings")
+    if not embeddings:
+        raise ValueError(f"No embeddings returned from model {settings.EMBEDDING_MODEL}")
+    return embeddings[0]
 
 
 def generate_embeddings(texts: list[str]) -> list[list[float]]:
@@ -17,4 +20,7 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
         model=settings.EMBEDDING_MODEL,
         input=texts,
     )
-    return response["embeddings"]
+    embeddings = response.get("embeddings")
+    if not embeddings:
+        raise ValueError(f"No embeddings returned from model {settings.EMBEDDING_MODEL}")
+    return embeddings

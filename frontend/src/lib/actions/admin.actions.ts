@@ -13,12 +13,12 @@ export async function getAnalytics(): Promise<Analytics> {
   const { count: inProgressTickets } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'in_lucru');
+    .in('status', ['nou', 'atribuit', 'in_lucru', 'asteptare_utilizator']);
 
   const { count: resolvedTickets } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'rezolvat');
+    .in('status', ['rezolvat', 'inchis']);
 
   const { count: totalDocuments } = await supabaseAdmin
     .from('documents')
@@ -70,7 +70,7 @@ export async function getAllTickets(filters: {
   let query = supabaseAdmin
     .from('tickets')
     .select(
-      '*, departments(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
+      '*, departments!tickets_department_id_fkey(name), profiles!tickets_user_id_fkey(full_name, email), assigned:profiles!tickets_assigned_to_fkey(full_name, email)',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -113,7 +113,7 @@ export async function assignTicketToAdmin(ticketId: string) {
 
   const { error } = await supabaseAdmin
     .from('tickets')
-    .update({ assigned_to: user.id, status: 'assigned' })
+    .update({ assigned_to: user.id, status: 'atribuit' })
     .eq('id', ticketId);
 
   if (error) return { error: error.message };

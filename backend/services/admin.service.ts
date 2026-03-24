@@ -119,13 +119,13 @@ export async function getAnalytics() {
   const { count: openTickets } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .in('status', ['new', 'assigned', 'in_progress', 'waiting_user']);
+    .in('status', ['nou', 'atribuit', 'in_lucru', 'asteptare_utilizator']);
 
   // Resolved tickets
   const { count: resolvedTickets } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .in('status', ['resolved', 'closed']);
+    .in('status', ['rezolvat', 'inchis']);
 
   // Total documents
   const { count: totalDocuments } = await supabaseAdmin
