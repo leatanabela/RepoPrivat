@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MessageSquare, History, Ticket, Settings, LogOut, Menu, X, Wrench, ChevronDown, Trash2 } from 'lucide-react';
+import { MessageSquare, History, Ticket, Settings, LogOut, Menu, X, Wrench, ChevronDown, Trash2, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useChatStore } from '@/stores/chat-store';
 import { signOut } from '@/lib/actions/auth.actions';
 import { getChatSessions, deleteChatSession } from '@/lib/actions/chat.actions';
+import { getTicketNotifications } from '@/lib/actions/ticket.actions';
 import type { ChatSession } from '@/lib/types';
 import toast from 'react-hot-toast';
 
@@ -34,6 +35,23 @@ export function Sidebar() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const loadedRef = useRef(false);
+  const [notifCount, setNotifCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: string; created_at: string }>>([]);
+
+  // Load notifications on mount and every 60s
+  useEffect(() => {
+    async function loadNotifs() {
+      try {
+        const result = await getTicketNotifications();
+        setNotifications(result.notifications);
+        setNotifCount(result.notifications.length);
+      } catch { /* ignore */ }
+    }
+    loadNotifs();
+    const interval = setInterval(loadNotifs, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (historicOpen && !loadedRef.current) {
@@ -113,6 +131,46 @@ export function Sidebar() {
                   {user?.departments?.name || 'Management cont'}
                 </p>
               </div>
+            </div>
+
+            {/* Notifications */}
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen(!notifOpen)}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180 w-full',
+                  notifOpen
+                    ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary'
+                    : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
+                )}
+              >
+                <div className="relative">
+                  <Bell size={20} />
+                  {notifCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 size-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                      {notifCount > 9 ? '9+' : notifCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-medium">Notificări</span>
+              </button>
+              {notifOpen && (
+                <div className="ml-3 pl-4 border-l-2 border-slate-100 dark:border-dm-surface-high flex flex-col gap-0.5 max-h-48 overflow-y-auto py-1">
+                  {notifications.length === 0 ? (
+                    <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant py-2 px-2">Nicio notificare</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className="px-2.5 py-2 rounded-lg text-xs text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high cursor-pointer transition-colors duration-180"
+                        onClick={() => { router.push(`/tickets/${n.id}`); setNotifOpen(false); }}
+                      >
+                        {n.message}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             <nav className="flex flex-col gap-0.5">

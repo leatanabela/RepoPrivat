@@ -266,6 +266,56 @@ export async function deleteTicket(ticketId: string) {
   return { success: true };
 }
 
+export async function getTicketNotifications() {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { notifications: [] };
+
+  // Check if admin
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('roles(name)')
+    .eq('id', user.id)
+    .single();
+
+  const isAdmin = (profile?.roles as any)?.name === 'admin';
+
+  if (isAdmin) {
+    // Admin: get new/unassigned tickets (in_asteptare)
+    const { data } = await supabase
+      .from('tickets')
+      .select('id, title, created_at')
+      .eq('status', 'in_asteptare')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    return {
+      notifications: (data || []).map((t) => ({
+        id: t.id,
+        message: `Tichet nou: ${t.title?.substring(0, 40) || 'Fără titlu'}`,
+        type: 'new_ticket' as const,
+        created_at: t.created_at,
+      })),
+    };
+  } else {
+    // User: get recently resolved tickets
+    const { data } = await supabase
+      .from('tickets')
+      .select('id, title, updated_at')
+      .eq('user_id', user.id)
+      .eq('status', 'rezolvat')
+      .order('updated_at', { ascending: false })
+      .limit(5);
+    return {
+      notifications: (data || []).map((t) => ({
+        id: t.id,
+        message: `Tichetul "${t.title?.substring(0, 30) || 'Fără titlu'}" a fost rezolvat`,
+        type: 'resolved' as const,
+        created_at: t.updated_at,
+      })),
+    };
+  }
+}
+
 export async function getCategories(departmentId?: string) {
   const supabase = await createServerSupabaseClient();
   let query = supabase
