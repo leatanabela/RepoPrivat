@@ -11,10 +11,15 @@ export async function getAnalytics(): Promise<Analytics> {
     .from('tickets')
     .select('*', { count: 'exact', head: true });
 
+  const { count: pendingTickets } = await supabaseAdmin
+    .from('tickets')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'in_asteptare');
+
   const { count: inProgressTickets } = await supabaseAdmin
     .from('tickets')
     .select('*', { count: 'exact', head: true })
-    .in('status', ['nou', 'atribuit', 'in_lucru', 'asteptare_utilizator']);
+    .in('status', ['in_lucru', 'atribuit']);
 
   const { count: resolvedTickets } = await supabaseAdmin
     .from('tickets')
@@ -46,6 +51,7 @@ export async function getAnalytics(): Promise<Analytics> {
 
   return {
     totalTickets: totalTickets || 0,
+    pendingTickets: pendingTickets || 0,
     inProgressTickets: inProgressTickets || 0,
     resolvedTickets: resolvedTickets || 0,
     totalDocuments: totalDocuments || 0,

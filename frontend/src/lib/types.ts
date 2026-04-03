@@ -98,6 +98,7 @@ export interface ChatMessage {
 
 export interface Analytics {
   totalTickets: number;
+  pendingTickets: number;
   inProgressTickets: number;
   resolvedTickets: number;
   totalDocuments: number;

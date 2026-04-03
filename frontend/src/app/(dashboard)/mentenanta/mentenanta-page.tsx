@@ -307,8 +307,8 @@ export function MentenantaPage() {
     : documents;
 
   const statCards = [
-    { label: 'Total Tichete', value: analytics?.totalTickets, icon: Package, color: 'text-primary dark:text-dm-primary', bg: 'bg-primary/10 dark:bg-dm-primary/15' },
-    { label: 'Tichete În Lucru', value: analytics?.inProgressTickets, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+    { label: 'Tichete în Așteptare', value: analytics?.pendingTickets, icon: Package, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20' },
+    { label: 'Tichete în Lucru', value: analytics?.inProgressTickets, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20' },
     { label: 'Tichete Rezolvate', value: analytics?.resolvedTickets, icon: CheckCircle, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
     { label: 'Utilizatori', value: analytics?.totalUsers, icon: Users, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20' },
   ];
