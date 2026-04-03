@@ -7,20 +7,11 @@ export async function createChatSession(title?: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Neautentificat');
 
-  const now = new Date();
-  const defaultTitle = now.toLocaleString('ro-RO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
   const { data, error } = await supabase
     .from('chat_sessions')
     .insert({
       user_id: user.id,
-      title: title || defaultTitle,
+      title: title || 'Conversație nouă',
     })
     .select()
     .single();

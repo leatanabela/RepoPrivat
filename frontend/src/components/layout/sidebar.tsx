@@ -165,7 +165,7 @@ export function Sidebar() {
                       Nicio conversație
                     </p>
                   ) : (
-                    sessions.map((session) => (
+                    sessions.filter((s) => s.title && s.title !== 'Conversație nouă' && !/^\d{2}\.\d{2}\.\d{4}/.test(s.title)).map((session) => (
                       <div
                         key={session.id}
                         className="group flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer text-xs text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high transition-colors duration-180"
