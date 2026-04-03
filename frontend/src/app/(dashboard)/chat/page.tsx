@@ -381,7 +381,7 @@ export default function ChatPage() {
                   <div className="flex flex-col gap-1 max-w-[75%]">
                     <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
                       <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
-                        Bună ziua! Sunt asistentul tău virtual. Cu ce te pot ajuta astăzi? Putem discuta despre tichete, setări sau alte informații tehnice.
+                        Bună ziua! Sunt asistentul virtual al primăriei. Te pot ajuta cu informații despre proceduri administrative, legislație, concesiuni, acte necesare și multe altele. Cu ce te pot ajuta?
                       </p>
                     </div>
                   </div>
