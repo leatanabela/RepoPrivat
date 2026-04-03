@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
                 <p className="text-sm font-medium text-slate-500">În lucru</p>
                 <Clock size={20} className="text-amber-400/60" />
               </div>
-              <p className="text-3xl font-bold text-primary">{analytics.openTickets}</p>
+              <p className="text-3xl font-bold text-primary">{analytics.inProgressTickets}</p>
               <p className="mt-2 text-[11px] text-slate-400">tichete deschise</p>
             </div>
 

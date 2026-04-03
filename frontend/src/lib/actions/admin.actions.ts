@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { revalidatePath } from 'next/cache';
 import type { Analytics } from '@/lib/types';
 
 export async function getAnalytics(): Promise<Analytics> {
@@ -103,6 +104,9 @@ export async function adminUpdateTicketStatus(ticketId: string, status: string) 
     .eq('id', ticketId);
 
   if (error) return { error: error.message };
+  revalidatePath('/admin');
+  revalidatePath('/tickets');
+  revalidatePath('/mentenanta');
   return { success: true };
 }
 
@@ -117,5 +121,8 @@ export async function assignTicketToAdmin(ticketId: string) {
     .eq('id', ticketId);
 
   if (error) return { error: error.message };
+  revalidatePath('/admin');
+  revalidatePath('/tickets');
+  revalidatePath('/mentenanta');
   return { success: true };
 }

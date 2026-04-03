@@ -92,11 +92,24 @@ export function MentenantaPage() {
     getDepartments().then(setDepartments);
   }, [loadDocuments]);
 
-  useEffect(() => {
-    getAnalytics()
-      .then(setAnalytics)
-      .finally(() => setAnalyticsLoading(false));
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const data = await getAnalytics();
+      setAnalytics(data);
+    } finally {
+      setAnalyticsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
+
+  // Reload analytics when switching to statistici tab
+  useEffect(() => {
+    if (activeTab === 'statistici') loadAnalytics();
+  }, [activeTab, loadAnalytics]);
 
   const loadEmployees = useCallback(async () => {
     setEmpLoading(true);

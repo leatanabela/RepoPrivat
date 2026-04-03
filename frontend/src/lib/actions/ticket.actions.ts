@@ -1,6 +1,7 @@
 'use server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 import { AI_SERVICE_URL } from '@/lib/constants';
 import type { TicketStatus, TicketPriority } from '@/lib/types';
 
@@ -150,6 +151,9 @@ export async function updateTicket(
     .single();
 
   if (error) return { error: error.message };
+  revalidatePath('/admin');
+  revalidatePath('/tickets');
+  revalidatePath('/mentenanta');
   return { ticket: data };
 }
 
