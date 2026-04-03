@@ -86,7 +86,18 @@ export async function saveUserMessage(sessionId: string, content: string) {
 
     const isDefaultTitle = !session?.title || session.title === 'Conversație nouă' || /^\d{2}\.\d{2}\.\d{4}/.test(session.title);
     if (session && isDefaultTitle) {
-      const title = content.length > 60 ? content.substring(0, 57) + '...' : content;
+      // Generate a short descriptive title from the question
+      let title = content.trim();
+      // Use first sentence if available
+      const sentenceEnd = title.search(/[.!?]\s/);
+      if (sentenceEnd > 0 && sentenceEnd < 50) {
+        title = title.substring(0, sentenceEnd + 1);
+      } else if (title.length > 40) {
+        // Truncate at last word boundary before 40 chars
+        const truncated = title.substring(0, 40);
+        const lastSpace = truncated.lastIndexOf(' ');
+        title = (lastSpace > 15 ? truncated.substring(0, lastSpace) : truncated) + '...';
+      }
       await supabase
         .from('chat_sessions')
         .update({ title })
