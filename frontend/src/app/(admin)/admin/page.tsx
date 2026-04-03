@@ -22,10 +22,11 @@ export default function AdminDashboardPage() {
   const limit = 10;
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    // Only show loading skeleton on first load, not on refreshes
+    if (tickets.length === 0) setLoading(true);
     try {
       const [analyticsData, ticketsData] = await Promise.all([
-        page === 1 ? getAnalytics() : Promise.resolve(analytics),
+        getAnalytics(),
         getAllTickets({ page, limit, status: statusFilter || undefined }),
       ]);
       if (analyticsData) setAnalytics(analyticsData);

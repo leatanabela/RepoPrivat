@@ -38,7 +38,7 @@ export default function TicketsPage() {
   }, [isAdmin]);
 
   const loadTickets = useCallback(async () => {
-    setLoading(true);
+    if (tickets.length === 0) setLoading(true);
     try {
       const filters: Record<string, unknown> = { page, limit };
       if (statusFilter !== 'all') filters.status = statusFilter;
