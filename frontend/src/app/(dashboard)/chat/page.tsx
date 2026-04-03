@@ -40,6 +40,7 @@ export default function ChatPage() {
   const loadedRef = useRef(false);
   const [ticketableMessages, setTicketableMessages] = useState<Set<string>>(new Set());
   const lastQuestionRef = useRef<string>('');
+  const questionForMessageRef = useRef<Map<string, string>>(new Map());
   const noChunksRef = useRef(false);
   const [ticketModal, setTicketModal] = useState<{
     messageId: string;
@@ -257,14 +258,17 @@ export default function ChatPage() {
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
 
-      // Only show ticket card if:
-      // 1. No chunks were found AND response is short (generic refusal), OR
-      // 2. The response is PRIMARILY a "can't help" message (not a real answer with the phrase embedded)
+      // Only show ticket card if the AI truly could not help.
+      // Exclude: greetings, vague helper intros, emoji responses, and real answers.
       const trimmedContent = fullContent.trim();
+      const isGreeting = /😊|cu ce te pot ajuta|te pot ajuta|sunt asistentul|pune-mi o întrebare/i.test(trimmedContent);
+      const isVagueHelper = /subiecte:|proceduri administrative|legislație|administrație publică/i.test(trimmedContent);
       const isRefusalResponse = /^(îmi pare rău|nu am găsit|nu am gasit|nu s-au găsit|nu pot ajuta)/i.test(trimmedContent);
       const isShortNoInfo = trimmedContent.length < 200 &&
         /nu am găsit|nu am gasit|nu s-au găsit|nu conțin informații|nu pot ajuta/i.test(trimmedContent);
-      const couldNotAnswer = (noChunksRef.current && isShortNoInfo) || isRefusalResponse;
+      const couldNotAnswer = !isGreeting && !isVagueHelper && ((noChunksRef.current && isShortNoInfo) || isRefusalResponse);
+      // Store which question triggered this assistant message
+      questionForMessageRef.current.set(assistantMsg.id, lastQuestionRef.current);
       if (couldNotAnswer) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }
@@ -279,15 +283,16 @@ export default function ChatPage() {
   }
 
   async function openTicketModal(messageId: string, assistantContent: string) {
-    setTicketModal({ messageId, question: lastQuestionRef.current, aiResponse: assistantContent });
-    setTicketForm({ subject: lastQuestionRef.current, description: lastQuestionRef.current, priority: 'medie', departmentId: '' });
+    const originalQuestion = questionForMessageRef.current.get(messageId) || lastQuestionRef.current;
+    setTicketModal({ messageId, question: originalQuestion, aiResponse: assistantContent });
+    setTicketForm({ subject: originalQuestion, description: originalQuestion, priority: 'medie', departmentId: '' });
     setAiSuggestions(null);
     setModalLoading(true);
 
     try {
       const [depts, suggestions] = await Promise.all([
         getDepartments(),
-        getAiTicketSuggestions(lastQuestionRef.current),
+        getAiTicketSuggestions(originalQuestion),
       ]);
       setDepartments(depts);
       if (suggestions) {
@@ -493,7 +498,7 @@ export default function ChatPage() {
                     </label>
                     <input
                       type="text"
-                      value={ticketForm.subject || ticketModal.question}
+                      value={ticketForm.subject}
                       onChange={(e) => setTicketForm((f) => ({ ...f, subject: e.target.value }))}
                       className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none transition-all duration-180"
                       placeholder="Ex: Eroare conectare imprimantă"
