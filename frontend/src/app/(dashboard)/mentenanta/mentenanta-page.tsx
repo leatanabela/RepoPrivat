@@ -9,7 +9,7 @@ import {
 } from '@/lib/actions/document.actions';
 import { getAnalytics } from '@/lib/actions/admin.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
-import { createEmployee, getEmployees, getDepartments as getEmployeeDepartments } from '@/lib/actions/employee.actions';
+import { createEmployee, getEmployees, getDepartments as getEmployeeDepartments, updateEmployee, deleteEmployee, getRoles } from '@/lib/actions/employee.actions';
 import { Pagination } from '@/components/ui/pagination';
 import { formatDate, formatFileSize } from '@/lib/utils';
 import {
@@ -30,6 +30,9 @@ import {
   Copy,
   Check,
   FolderOpen,
+  Pencil,
+  Shield,
+  Loader2,
 } from 'lucide-react';
 import type { Document, Department, Analytics, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -71,6 +74,11 @@ export function MentenantaPage() {
   const [createdAccount, setCreatedAccount] = useState<CreatedAccount | null>(null);
   const [copied, setCopied] = useState(false);
   const [empDepartments, setEmpDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+  const [editingEmp, setEditingEmp] = useState<Profile | null>(null);
+  const [editForm, setEditForm] = useState({ full_name: '', email: '', department_id: '', role_id: '' });
+  const [editSaving, setEditSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const limit = 10;
 
@@ -114,13 +122,15 @@ export function MentenantaPage() {
   const loadEmployees = useCallback(async () => {
     setEmpLoading(true);
     try {
-      const [empData, deptData] = await Promise.all([
+      const [empData, deptData, rolesData] = await Promise.all([
         getEmployees({ limit: 100 }),
         empDepartments.length === 0 ? getEmployeeDepartments() : Promise.resolve(empDepartments),
+        roles.length === 0 ? getRoles() : Promise.resolve(roles),
       ]);
       setEmployees(empData.employees);
       setEmpTotal(empData.total);
       if (deptData !== empDepartments) setEmpDepartments(deptData as Department[]);
+      if (rolesData !== roles) setRoles(rolesData);
     } catch {
       toast.error('Eroare la încărcarea angajaților');
     } finally {
@@ -131,6 +141,43 @@ export function MentenantaPage() {
   useEffect(() => {
     if (activeTab === 'angajati') loadEmployees();
   }, [activeTab, loadEmployees]);
+
+  function openEditModal(emp: Profile) {
+    setEditingEmp(emp);
+    setEditForm({
+      full_name: emp.full_name || '',
+      email: emp.email || '',
+      department_id: emp.department_id || '',
+      role_id: emp.role_id || '',
+    });
+  }
+
+  async function handleSaveEdit() {
+    if (!editingEmp) return;
+    setEditSaving(true);
+    const result = await updateEmployee(editingEmp.id, editForm);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success('Contul a fost actualizat');
+      setEditingEmp(null);
+      loadEmployees();
+    }
+    setEditSaving(false);
+  }
+
+  async function handleDeleteEmployee(id: string) {
+    if (!confirm('Sigur doriți să ștergeți acest cont? Toate datele asociate vor fi afectate.')) return;
+    setDeletingId(id);
+    const result = await deleteEmployee(id);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success('Contul a fost șters');
+      loadEmployees();
+    }
+    setDeletingId(null);
+  }
 
   async function handleCreateEmployee(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -608,20 +655,52 @@ export function MentenantaPage() {
                 </div>
               ) : (
                 <div>
-                  {employees.map((emp) => (
-                    <div key={emp.id} className="flex items-center gap-4 px-6 py-4 border-b border-slate-100/80 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50 dark:hover:bg-dm-surface-high/50 transition-colors duration-180">
-                      <div className="size-10 rounded-full bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center text-primary dark:text-dm-primary font-bold text-sm flex-shrink-0">
-                        {emp.full_name?.charAt(0)?.toUpperCase() || '?'}
+                  {employees.map((emp) => {
+                    const isEmpAdmin = (emp.roles as any)?.name === 'admin';
+                    return (
+                      <div key={emp.id} className="flex items-center gap-4 px-6 py-4 border-b border-slate-100/80 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50 dark:hover:bg-dm-surface-high/50 transition-colors duration-180">
+                        <div className={`size-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${
+                          isEmpAdmin
+                            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                            : 'bg-primary/10 dark:bg-dm-primary/10 text-primary dark:text-dm-primary'
+                        }`}>
+                          {emp.full_name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate">{emp.full_name}</p>
+                            {isEmpAdmin && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex-shrink-0">
+                                <Shield size={10} />
+                                Admin
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant">{emp.email}</p>
+                        </div>
+                        <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 flex-shrink-0">
+                          {emp.departments?.name || '—'}
+                        </span>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={() => openEditModal(emp)}
+                            title="Editează"
+                            className="size-9 rounded-lg hover:bg-slate-100 dark:hover:bg-dm-surface-high text-slate-400 hover:text-primary dark:hover:text-dm-primary flex items-center justify-center transition-all duration-180"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEmployee(emp.id)}
+                            title="Șterge cont"
+                            disabled={deletingId === emp.id}
+                            className="size-9 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 flex items-center justify-center transition-all duration-180 disabled:opacity-50"
+                          >
+                            {deletingId === emp.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate">{emp.full_name}</p>
-                        <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant">{emp.email}</p>
-                      </div>
-                      <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 flex-shrink-0">
-                        {emp.departments?.name || '—'}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -837,6 +916,80 @@ export function MentenantaPage() {
                   Anulează
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Employee Modal */}
+      {editingEmp && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => !editSaving && setEditingEmp(null)}>
+          <div className="bg-white dark:bg-dm-surface-bright rounded-2xl shadow-2xl w-full max-w-md p-7" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-dm-on-surface">Editează Cont</h3>
+              <button onClick={() => setEditingEmp(null)} className="size-8 rounded-lg hover:bg-slate-100 dark:hover:bg-dm-surface-high flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all duration-180">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">Nume complet</label>
+                <input
+                  type="text"
+                  value={editForm.full_name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, full_name: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/20 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/20 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">Departament</label>
+                <select
+                  value={editForm.department_id}
+                  onChange={(e) => setEditForm((f) => ({ ...f, department_id: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/20 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none"
+                >
+                  <option value="">Fără departament</option>
+                  {empDepartments.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">Rol</label>
+                <select
+                  value={editForm.role_id}
+                  onChange={(e) => setEditForm((f) => ({ ...f, role_id: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/20 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none"
+                >
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name === 'admin' ? 'Administrator' : 'Angajat'}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleSaveEdit}
+                disabled={editSaving}
+                className="flex-1 h-11 bg-primary dark:bg-dm-primary-container text-white rounded-xl font-semibold hover:bg-primary-hover dark:hover:bg-dm-primary-container/80 transition-all duration-180 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {editSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                Salvează
+              </button>
+              <button
+                onClick={() => setEditingEmp(null)}
+                className="px-5 h-11 border border-slate-200 dark:border-dm-surface-bright/20 text-slate-600 dark:text-dm-on-surface-variant rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-dm-surface-high transition-all duration-180"
+              >
+                Anulează
+              </button>
             </div>
           </div>
         </div>

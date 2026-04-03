@@ -143,6 +143,62 @@ export async function getEmployees(filters: {
   return { employees: data || [], total: count || 0 };
 }
 
+export async function updateEmployee(
+  employeeId: string,
+  updates: { full_name?: string; email?: string; department_id?: string; role_id?: string }
+) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  const isAdmin = await verifyAdmin(user.id);
+  if (!isAdmin) return { error: 'Acces neautorizat' };
+
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update(updates)
+    .eq('id', employeeId);
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function deleteEmployee(employeeId: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  const isAdmin = await verifyAdmin(user.id);
+  if (!isAdmin) return { error: 'Acces neautorizat' };
+
+  // Don't allow deleting yourself
+  if (employeeId === user.id) return { error: 'Nu îți poți șterge propriul cont' };
+
+  // Delete profile first (cascades should handle related data)
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .delete()
+    .eq('id', employeeId);
+
+  if (profileError) return { error: profileError.message };
+
+  // Delete auth user
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(employeeId);
+  if (authError) return { error: authError.message };
+
+  return { success: true };
+}
+
+export async function getRoles() {
+  const { data, error } = await supabaseAdmin
+    .from('roles')
+    .select('id, name')
+    .order('name');
+
+  if (error) return [];
+  return data || [];
+}
+
 export async function getDepartments() {
   const { data, error } = await supabaseAdmin
     .from('departments')
