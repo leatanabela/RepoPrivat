@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getTicketById, getTicketMessages, addTicketMessage, updateTicket, getDepartments } from '@/lib/actions/ticket.actions';
+import { getTicketById, getTicketMessages, addTicketMessage, updateTicket, getDepartments, deleteTicket } from '@/lib/actions/ticket.actions';
 import { adminUpdateTicketStatus } from '@/lib/actions/admin.actions';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { PriorityBadge } from '@/components/ui/priority-badge';
 import { formatDateTime, formatRelativeDate } from '@/lib/utils';
-import { ArrowLeft, Send, User, Pencil, Check, X } from 'lucide-react';
+import { ArrowLeft, Send, User, Pencil, Check, X, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { STATUS_LABELS, PRIORITY_LABELS } from '@/lib/constants';
 import type { Ticket, TicketMessage, TicketStatus, TicketPriority } from '@/lib/types';
@@ -63,6 +63,17 @@ export default function TicketDetailPage() {
 
     setMessages([...messages, result.message]);
     setNewMessage('');
+  }
+
+  async function handleDeleteTicket() {
+    if (!confirm('Sigur doriți să ștergeți acest tichet? Acțiunea este ireversibilă.')) return;
+    const result = await deleteTicket(params.id as string);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success('Tichet șters');
+    router.push('/tickets');
   }
 
   async function handleStatusChange(status: TicketStatus) {
@@ -142,13 +153,24 @@ export default function TicketDetailPage() {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto p-6 lg:p-10">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-slate-500 hover:text-primary mb-6 transition-colors"
-        >
-          <ArrowLeft size={18} />
-          <span className="text-sm font-medium">Inapoi</span>
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm font-medium">Inapoi</span>
+          </button>
+          {isAdmin && (
+            <button
+              onClick={handleDeleteTicket}
+              className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-180"
+            >
+              <Trash2 size={14} />
+              Șterge Tichet
+            </button>
+          )}
+        </div>
 
         {/* Ticket header */}
         <div className="bg-white dark:bg-dm-surface rounded-xl border border-slate-200 dark:border-dm-surface-high p-6 mb-6">

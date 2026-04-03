@@ -239,6 +239,33 @@ export async function createTicketFromChat(
   return { ticket };
 }
 
+export async function deleteTicket(ticketId: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  // Verify admin
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('roles(name)')
+    .eq('id', user.id)
+    .single();
+
+  if ((profile?.roles as any)?.name !== 'admin') return { error: 'Acces neautorizat' };
+
+  // Delete messages first
+  await supabase.from('ticket_messages').delete().eq('ticket_id', ticketId);
+
+  // Delete ticket
+  const { error } = await supabase.from('tickets').delete().eq('id', ticketId);
+  if (error) return { error: error.message };
+
+  revalidatePath('/admin');
+  revalidatePath('/tickets');
+  revalidatePath('/mentenanta');
+  return { success: true };
+}
+
 export async function getCategories(departmentId?: string) {
   const supabase = await createServerSupabaseClient();
   let query = supabase
