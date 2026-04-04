@@ -68,7 +68,7 @@ export default function AdminReportsPage() {
             <div className="bg-white dark:bg-dm-surface p-8 rounded-xl border border-slate-200 dark:border-dm-surface-high shadow-sm">
               <p className="text-lg font-medium text-slate-500 dark:text-dm-on-surface-variant mb-1">Deschise / Rezolvate</p>
               <div className="flex items-end gap-3">
-                <p className="text-4xl font-bold text-slate-900 dark:text-white">{analytics.openTickets} / {analytics.resolvedTickets}</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white">{analytics.pendingTickets} / {analytics.resolvedTickets}</p>
               </div>
             </div>
 

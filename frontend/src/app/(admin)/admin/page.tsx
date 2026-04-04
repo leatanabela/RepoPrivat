@@ -173,7 +173,7 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">{formatRelativeDate(ticket.created_at)}</td>
                     <td className="px-6 py-4">
-                      {ticket.status === 'nou' && (
+                      {(ticket.status === 'in_asteptare' || (ticket.status as string) === 'nou') && (
                         <button
                           onClick={() => handleAssign(ticket.id)}
                           className="text-xs text-primary font-medium hover:underline"
