@@ -258,8 +258,10 @@ export default function ChatPage() {
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
 
-      // Only show ticket card if the AI truly could not help.
-      // Exclude: greetings, vague helper intros, emoji responses, and real answers.
+      // Check if user explicitly asked for a ticket
+      const userAskedForTicket = /tichet|sesizare|reclama[tț]ie|f[aă][\s-]?mi un|genereaz[aă]|vreau s[aă] (fac|creez|deschid|trimit)/i.test(lastQuestionRef.current);
+
+      // Show ticket card if: user explicitly asked, OR AI truly could not help
       const trimmedContent = fullContent.trim();
       const isGreeting = /😊|cu ce te pot ajuta|te pot ajuta|sunt asistentul|pune-mi o întrebare/i.test(trimmedContent);
       const isVagueHelper = /subiecte:|proceduri administrative|legislație|administrație publică/i.test(trimmedContent);
@@ -268,9 +270,10 @@ export default function ChatPage() {
         /nu am găsit|nu am gasit|nu s-au găsit|nu conțin informații|nu pot ajuta/i.test(trimmedContent);
       const isLongAnswer = trimmedContent.length > 300;
       const couldNotAnswer = !isGreeting && !isVagueHelper && !isLongAnswer && ((noChunksRef.current && isShortNoInfo) || isRefusalResponse);
+
       // Store which question triggered this assistant message
       questionForMessageRef.current.set(assistantMsg.id, lastQuestionRef.current);
-      if (couldNotAnswer) {
+      if (userAskedForTicket || couldNotAnswer) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }
 
