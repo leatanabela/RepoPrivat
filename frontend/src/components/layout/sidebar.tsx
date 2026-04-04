@@ -34,7 +34,6 @@ export function Sidebar() {
   const [historicOpen, setHistoricOpen] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
-  const loadedRef = useRef(false);
   const [notifCount, setNotifCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: string; created_at: string }>>([]);
@@ -53,9 +52,9 @@ export function Sidebar() {
     return () => clearInterval(interval);
   }, []);
 
+  // Reload sessions every time the user opens the historic panel
   useEffect(() => {
-    if (historicOpen && !loadedRef.current) {
-      loadedRef.current = true;
+    if (historicOpen) {
       loadSessions();
     }
   }, [historicOpen]);
@@ -163,7 +162,11 @@ export function Sidebar() {
                       <div
                         key={n.id}
                         className="px-2.5 py-2 rounded-lg text-xs text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high cursor-pointer transition-colors duration-180"
-                        onClick={() => { router.push(`/tickets/${n.id}`); setNotifOpen(false); }}
+                        onClick={() => {
+                          setNotifOpen(false);
+                          if (sidebarOpen) toggleSidebar();
+                          router.push(`/tickets/${n.id}`);
+                        }}
                       >
                         {n.message}
                       </div>

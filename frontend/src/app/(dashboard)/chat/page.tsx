@@ -266,7 +266,8 @@ export default function ChatPage() {
       const isRefusalResponse = /^(îmi pare rău|nu am găsit|nu am gasit|nu s-au găsit|nu pot ajuta)/i.test(trimmedContent);
       const isShortNoInfo = trimmedContent.length < 200 &&
         /nu am găsit|nu am gasit|nu s-au găsit|nu conțin informații|nu pot ajuta/i.test(trimmedContent);
-      const couldNotAnswer = !isGreeting && !isVagueHelper && ((noChunksRef.current && isShortNoInfo) || isRefusalResponse);
+      const isLongAnswer = trimmedContent.length > 300;
+      const couldNotAnswer = !isGreeting && !isVagueHelper && !isLongAnswer && ((noChunksRef.current && isShortNoInfo) || isRefusalResponse);
       // Store which question triggered this assistant message
       questionForMessageRef.current.set(assistantMsg.id, lastQuestionRef.current);
       if (couldNotAnswer) {
