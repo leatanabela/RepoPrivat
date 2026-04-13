@@ -67,7 +67,7 @@ def suggest_ticket_metadata(
 
     # Map names back to IDs (exact match first, then fuzzy/contains fallback)
     dept_id = None
-    dept_name_lower = result.get("department", "").lower().strip()
+    dept_name_lower = (result.get("department") or "").lower().strip()
     for d in departments:
         if d["name"].lower() == dept_name_lower:
             dept_id = d["id"]
@@ -79,7 +79,7 @@ def suggest_ticket_metadata(
                 break
 
     cat_id = None
-    cat_name_lower = result.get("category", "").lower().strip()
+    cat_name_lower = (result.get("category") or "").lower().strip()
     for c in categories:
         if c["name"].lower() == cat_name_lower:
             cat_id = c["id"]
