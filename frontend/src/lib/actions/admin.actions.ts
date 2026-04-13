@@ -7,47 +7,34 @@ import type { Analytics } from '@/lib/types';
 
 export async function getAnalytics(): Promise<Analytics> {
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const { count: totalTickets } = await supabaseAdmin
-    .from('tickets')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: pendingTickets } = await supabaseAdmin
-    .from('tickets')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'in_asteptare');
-
-  const { count: inProgressTickets } = await supabaseAdmin
-    .from('tickets')
-    .select('*', { count: 'exact', head: true })
-    .in('status', ['in_lucru', 'atribuit']);
-
-  const { count: resolvedTickets } = await supabaseAdmin
-    .from('tickets')
-    .select('*', { count: 'exact', head: true })
-    .in('status', ['rezolvat', 'inchis']);
-
-  const { count: totalDocuments } = await supabaseAdmin
-    .from('documents')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: processedDocuments } = await supabaseAdmin
-    .from('documents')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_processed', true);
-
-  const { count: totalUsers } = await supabaseAdmin
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: totalChats } = await supabaseAdmin
-    .from('chat_sessions')
-    .select('*', { count: 'exact', head: true });
-
-  const { data: recentTickets } = await supabaseAdmin
-    .from('tickets')
-    .select('id, title, status, priority, created_at, profiles!tickets_user_id_fkey(full_name)')
-    .order('created_at', { ascending: false })
-    .limit(10);
+  const [
+    { count: totalTickets },
+    { count: pendingTickets },
+    { count: inProgressTickets },
+    { count: resolvedTickets },
+    { count: totalDocuments },
+    { count: processedDocuments },
+    { count: totalUsers },
+    { count: totalChats },
+    { data: recentTickets },
+  ] = await Promise.all([
+    supabaseAdmin.from('tickets').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('tickets').select('id', { count: 'exact', head: true })
+      .eq('status', 'in_asteptare'),
+    supabaseAdmin.from('tickets').select('id', { count: 'exact', head: true })
+      .in('status', ['in_lucru', 'atribuit']),
+    supabaseAdmin.from('tickets').select('id', { count: 'exact', head: true })
+      .in('status', ['rezolvat', 'inchis']),
+    supabaseAdmin.from('documents').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('documents').select('id', { count: 'exact', head: true })
+      .eq('is_processed', true),
+    supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('chat_sessions').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('tickets')
+      .select('id, title, status, priority, created_at, profiles!tickets_user_id_fkey(full_name)')
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ]);
 
   return {
     totalTickets: totalTickets || 0,

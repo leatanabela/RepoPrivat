@@ -9,8 +9,8 @@ def get_supabase():
 
 def retrieve_relevant_chunks(
     query: str,
-    top_k: int = 5,
-    threshold: float = 0.5,
+    top_k: int | None = None,
+    threshold: float | None = None,
 ) -> list[dict]:
     """
     Retrieve document chunks relevant to a query using vector similarity.
@@ -19,6 +19,9 @@ def retrieve_relevant_chunks(
     2. Call Supabase match_documents RPC function
     3. Return ranked results with content and metadata
     """
+    top_k = top_k or settings.RETRIEVAL_TOP_K
+    threshold = threshold or settings.RETRIEVAL_THRESHOLD
+
     # Generate query embedding
     query_embedding = generate_embedding(query)
 

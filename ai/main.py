@@ -1,19 +1,35 @@
 import json
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from supabase import create_client
+import ollama
 
 from ai.config import settings
 from ai.rag_pipeline.rag_chain import ask_question, ask_question_stream
 from ai.document_processing.pipeline import process_document, process_all_unprocessed
 from ai.ticket_service.classifier import suggest_ticket_metadata
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Warmup: pre-load models into Ollama memory
+    try:
+        ollama.chat(model=settings.LLM_MODEL, messages=[{"role": "user", "content": "test"}], keep_alive="30m")
+        ollama.embed(model=settings.EMBEDDING_MODEL, input="warmup")
+        print(f"Models warmed up: {settings.LLM_MODEL}, {settings.EMBEDDING_MODEL}")
+    except Exception as e:
+        print(f"Warmup failed (Ollama may not be running): {e}")
+    yield
+
+
 app = FastAPI(
     title="AI HelpDesk - AI Service",
     description="RAG pipeline and AI services for the HelpDesk platform",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
