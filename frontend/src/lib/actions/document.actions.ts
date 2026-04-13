@@ -22,7 +22,29 @@ export async function getDocuments(filters: {
 
   const { data, error, count } = await query;
   if (error) return { documents: [], total: 0, page, limit };
-  return { documents: data || [], total: count || 0, page, limit };
+
+  // Generate signed URLs so users can download even from private buckets
+  const documents = await Promise.all(
+    (data || []).map(async (doc) => {
+      if (doc.file_url) {
+        try {
+          const url = new URL(doc.file_url);
+          const storagePath = url.pathname.split(`/storage/v1/object/public/${BUCKETS.DOCUMENTS}/`)[1];
+          if (storagePath) {
+            const { data: signedData } = await supabaseAdmin.storage
+              .from(BUCKETS.DOCUMENTS)
+              .createSignedUrl(storagePath, 86400); // 24h expiry
+            if (signedData?.signedUrl) {
+              return { ...doc, file_url: signedData.signedUrl };
+            }
+          }
+        } catch { /* fallback to original URL */ }
+      }
+      return doc;
+    })
+  );
+
+  return { documents, total: count || 0, page, limit };
 }
 
 export async function uploadDocument(formData: FormData) {

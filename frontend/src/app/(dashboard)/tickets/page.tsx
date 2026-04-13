@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { getTickets } from '@/lib/actions/ticket.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -24,11 +25,14 @@ const statusFilters: Array<{ value: TicketStatus | 'all'; label: string }> = [
 
 export default function TicketsPage() {
   const { isAdmin } = useAuthStore();
+  const searchParams = useSearchParams();
+  const initialStatus = (searchParams.get('status') as TicketStatus) || 'all';
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>('all');
+  const [filtering, setFiltering] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>(initialStatus);
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [departments, setDepartments] = useState<Department[]>([]);
   const limit = 10;
@@ -39,6 +43,7 @@ export default function TicketsPage() {
 
   const loadTickets = useCallback(async () => {
     if (tickets.length === 0) setLoading(true);
+    setFiltering(true);
     try {
       const filters: Record<string, unknown> = { page, limit };
       if (statusFilter !== 'all') filters.status = statusFilter;
@@ -50,6 +55,7 @@ export default function TicketsPage() {
       toast.error('Eroare la încărcarea tichetelor');
     } finally {
       setLoading(false);
+      setFiltering(false);
     }
   }, [page, statusFilter, departmentFilter]);
 
@@ -99,7 +105,7 @@ export default function TicketsPage() {
                       : 'border-transparent text-slate-500 hover:text-primary'
                   }`}
                 >
-                  {f.label}{statusFilter === f.value ? ` (${total})` : ''}
+                  {f.label}{statusFilter === f.value ? ` (${filtering ? '…' : total})` : ''}
                 </button>
               ))}
             </div>

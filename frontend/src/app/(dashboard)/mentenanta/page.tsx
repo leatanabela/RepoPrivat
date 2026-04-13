@@ -5,6 +5,6 @@ import { MentenantaPage } from './mentenanta-page';
 export default async function Page() {
   const profile = await getProfile();
   if (!profile) redirect('/login');
-  if (profile.roles?.name !== 'admin') redirect('/chat');
+  if (profile.roles?.name !== 'admin') redirect('/dashboard');
   return <MentenantaPage />;
 }

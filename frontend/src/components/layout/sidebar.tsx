@@ -8,17 +8,12 @@ import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useChatStore } from '@/stores/chat-store';
+import { useNotificationStore } from '@/stores/notification-store';
 import { signOut } from '@/lib/actions/auth.actions';
 import { getChatSessions, deleteChatSession } from '@/lib/actions/chat.actions';
 import { getTicketNotifications } from '@/lib/actions/ticket.actions';
 import type { ChatSession } from '@/lib/types';
 import toast from 'react-hot-toast';
-
-const navItems = [
-  { href: '/chat', label: 'Asistent AI', icon: MessageSquare },
-  { href: '/tickets', label: 'Tichete', icon: Ticket },
-  { href: '/settings', label: 'Setări', icon: Settings },
-];
 
 const adminItems = [
   { href: '/mentenanta', label: 'Mentenanță', icon: Wrench },
@@ -30,13 +25,26 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const { user, isAdmin } = useAuthStore();
   const { currentSessionId, setCurrentSession, setMessages, reset } = useChatStore();
+  const { setNotifications, markAsRead, unreadCount, isRead, visibleNotifications } = useNotificationStore();
 
   const [historicOpen, setHistoricOpen] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
-  const [notifCount, setNotifCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: string; created_at: string }>>([]);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close notif popover on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    }
+    if (notifOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [notifOpen]);
 
   // Load notifications on mount and every 60s
   useEffect(() => {
@@ -44,13 +52,12 @@ export function Sidebar() {
       try {
         const result = await getTicketNotifications();
         setNotifications(result.notifications);
-        setNotifCount(result.notifications.length);
       } catch { /* ignore */ }
     }
     loadNotifs();
     const interval = setInterval(loadNotifs, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [setNotifications]);
 
   // Reload sessions every time the user opens the historic panel
   useEffect(() => {
@@ -91,6 +98,15 @@ export function Sidebar() {
     }
   }
 
+  function handleNotifClick(id: string) {
+    markAsRead(id);
+    setNotifOpen(false);
+    if (sidebarOpen) toggleSidebar();
+    router.push(`/tickets/${id}`);
+  }
+
+  const badgeCount = unreadCount();
+
   return (
     <>
       {/* Mobile toggle */}
@@ -117,8 +133,11 @@ export function Sidebar() {
       >
         <div className="p-6 flex flex-col h-full justify-between">
           <div className="flex flex-col gap-8">
-            {/* User profile */}
-            <div className="flex items-center gap-3">
+            {/* User profile — click to go to Dashboard */}
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-3 rounded-xl px-2 py-2 -mx-2 transition-colors duration-180 hover:bg-slate-50 dark:hover:bg-dm-surface-high"
+            >
               <div className="size-10 rounded-full bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center text-primary dark:text-dm-primary font-bold text-sm">
                 {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
@@ -130,10 +149,10 @@ export function Sidebar() {
                   {user?.departments?.name || 'Management cont'}
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
                 className={cn(
@@ -145,33 +164,64 @@ export function Sidebar() {
               >
                 <div className="relative">
                   <Bell size={20} />
-                  {notifCount > 0 && (
+                  {badgeCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 size-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                      {notifCount > 9 ? '9+' : notifCount}
+                      {badgeCount > 9 ? '9+' : badgeCount}
                     </span>
                   )}
                 </div>
                 <span className="text-sm font-medium">Notificări</span>
               </button>
               {notifOpen && (
-                <div className="ml-3 pl-4 border-l-2 border-slate-100 dark:border-dm-surface-high flex flex-col gap-0.5 max-h-48 overflow-y-auto py-1">
-                  {notifications.length === 0 ? (
-                    <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant py-2 px-2">Nicio notificare</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className="px-2.5 py-2 rounded-lg text-xs text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high cursor-pointer transition-colors duration-180"
-                        onClick={() => {
-                          setNotifOpen(false);
-                          if (sidebarOpen) toggleSidebar();
-                          router.push(`/tickets/${n.id}`);
-                        }}
-                      >
-                        {n.message}
-                      </div>
-                    ))
-                  )}
+                <div className="absolute left-full top-0 ml-2 w-72 bg-white dark:bg-dm-surface-low rounded-xl border border-slate-200/80 dark:border-dm-surface-bright/15 shadow-lg z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-100 dark:border-dm-surface-high flex items-center justify-between">
+                    <p className="text-sm font-bold text-slate-800 dark:text-dm-on-surface">Notificări</p>
+                    <Link
+                      href="/notifications"
+                      onClick={() => setNotifOpen(false)}
+                      className="text-xs font-medium text-primary dark:text-dm-primary hover:underline"
+                    >
+                      Vezi tot
+                    </Link>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {visibleNotifications().length === 0 ? (
+                      <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant py-6 text-center">Nicio notificare</p>
+                    ) : (
+                      visibleNotifications().map((n) => {
+                        const read = isRead(n.id);
+                        return (
+                          <div
+                            key={n.id}
+                            className={cn(
+                              'px-4 py-3 text-xs hover:bg-slate-50 dark:hover:bg-dm-surface-high cursor-pointer transition-colors duration-180 border-b border-slate-50 dark:border-dm-surface-high/50 last:border-b-0 flex items-start gap-2.5',
+                              read
+                                ? 'text-slate-400 dark:text-dm-on-surface-variant/60'
+                                : 'text-slate-600 dark:text-dm-on-surface-variant bg-primary/[0.03] dark:bg-dm-primary/[0.03]'
+                            )}
+                            onClick={() => handleNotifClick(n.id)}
+                          >
+                            {!read && (
+                              <span className="size-2 rounded-full bg-primary dark:bg-dm-primary shrink-0 mt-1.5" />
+                            )}
+                            <div className={cn('flex flex-col min-w-0', read && 'ml-[18px]')}>
+                              <p className={cn('truncate', !read && 'font-semibold text-slate-700 dark:text-dm-on-surface')}>
+                                {n.message}
+                              </p>
+                              <p className="text-slate-400 dark:text-dm-on-surface-variant mt-0.5">
+                                {new Date(n.created_at).toLocaleDateString('ro-RO', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -208,10 +258,6 @@ export function Sidebar() {
               >
                 <History size={20} />
                 <span className="text-sm font-medium flex-1 text-left">Istoric Conversații</span>
-                <ChevronDown
-                  size={14}
-                  className={cn('transition-transform duration-200', historicOpen && 'rotate-180')}
-                />
               </button>
 
               {/* Session list */}

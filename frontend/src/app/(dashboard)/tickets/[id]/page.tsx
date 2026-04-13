@@ -159,7 +159,7 @@ export default function TicketDetailPage() {
             className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors"
           >
             <ArrowLeft size={18} />
-            <span className="text-sm font-medium">Inapoi</span>
+            <span className="text-sm font-medium">Înapoi</span>
           </button>
           {isAdmin && (
             <button

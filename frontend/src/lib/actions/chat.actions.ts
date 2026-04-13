@@ -86,20 +86,49 @@ export async function saveUserMessage(sessionId: string, content: string) {
 
     const isDefaultTitle = !session?.title || session.title === 'Conversație nouă' || /^\d{2}\.\d{2}\.\d{4}/.test(session.title);
     if (session && isDefaultTitle) {
-      // Generate a short descriptive title — strip question prefixes to make it title-like
-      let title = content.trim()
-        .replace(/^\s*(care|ce|cum|de ce|cine|când|unde|cât|câte|câți|spune-mi|zi-mi|vreau să știu|aș vrea să)\s+/i, '')
-        .replace(/\?+$/, '');
-      // Capitalize first letter
+      // Generate a short topic-based title (max ~6 words) from the user's question
+      const stopWords = new Set([
+        'a', 'ai', 'al', 'ale', 'aș', 'au', 'avea', 'aș',
+        'ca', 'că', 'cel', 'cea', 'cele', 'ci', 'cu',
+        'da', 'dar', 'de', 'deci', 'din', 'doar', 'după',
+        'e', 'ea', 'ei', 'el', 'era', 'este', 'eu',
+        'fi', 'fie', 'fost',
+        'i', 'ia', 'iar', 'imi', 'îmi', 'in', 'în', 'și', 'si',
+        'la', 'le', 'li', 'lor', 'lui',
+        'ma', 'mă', 'mai', 'mea', 'mi', 'mie', 'meu',
+        'ne', 'ni', 'nimic', 'noi', 'nor', 'nu',
+        'o', 'ori',
+        'pe', 'pentru', 'pot', 'poti', 'poți', 'prin',
+        'sa', 'să', 'sau', 'se', 'sunt', 'sunt',
+        'ta', 'te', 'ti', 'ți', 'tot', 'tu',
+        'un', 'una', 'unde', 'unor', 'vă', 'vi', 'voi', 'vrea', 'vreau',
+        'care', 'ce', 'cum', 'cine', 'când', 'cât', 'câte', 'câți',
+        'asta', 'acest', 'această', 'aceste', 'acestea', 'aceasta',
+        'spune', 'spuneți', 'zice', 'știi', 'stii', 'rog',
+        'as', 'aș', 'fie', 'putea', 'trebui', 'trebuie',
+        'am', 'este', 'sunt', 'era', 'fie', 'fost', 'ar',
+      ]);
+
+      const cleaned = content.trim()
+        .replace(/[?!.,;:…"""''„"()[\]{}]/g, '')
+        .replace(/\s+/g, ' ');
+
+      const keywords = cleaned.split(' ')
+        .filter(w => w.length > 1 && !stopWords.has(w.toLowerCase()));
+
+      let title: string;
+      if (keywords.length === 0) {
+        // Fallback: use first few words from original
+        title = content.trim().split(/\s+/).slice(0, 5).join(' ');
+      } else {
+        title = keywords.slice(0, 6).join(' ');
+      }
+
       title = title.charAt(0).toUpperCase() + title.slice(1);
-      // Use first sentence if short enough
-      const sentenceEnd = title.search(/[.!?]\s/);
-      if (sentenceEnd > 0 && sentenceEnd < 45) {
-        title = title.substring(0, sentenceEnd + 1);
-      } else if (title.length > 35) {
-        const truncated = title.substring(0, 35);
+      if (title.length > 40) {
+        const truncated = title.substring(0, 40);
         const lastSpace = truncated.lastIndexOf(' ');
-        title = (lastSpace > 12 ? truncated.substring(0, lastSpace) : truncated) + '...';
+        title = (lastSpace > 10 ? truncated.substring(0, lastSpace) : truncated);
       }
       await supabase
         .from('chat_sessions')
