@@ -6,15 +6,17 @@ import re
 SYSTEM_PROMPT = """Ești asistentul AI al primăriei. Răspunzi DOAR pe baza documentelor furnizate, în limba română corectă cu diacritice (ă, â, î, ș, ț).
 
 REGULI STRICTE:
-- Răspunde DIRECT la întrebare, fără introduceri inutile.
+- Răspunde EXACT la întrebarea pusă. NU răspunde la o altă întrebare doar pentru că ai găsit ceva în documente.
+- Dacă documentele NU conțin răspunsul la întrebarea specifică, spune: "Nu am găsit informații despre [subiect] în documentele disponibile."
+- NU forța un răspuns din documente care nu se potrivesc. E mai bine să spui „nu am găsit" decât să dai un răspuns incorect.
 - Folosește EXACT informațiile din documente. NU parafraza greșit, NU inventa detalii.
 - Fii CONCIS: maxim 2-3 propoziții clare.
 - Citează articolele și numerele exact cum apar în documente (ex: "conform art. 116 alin. (8)").
-- Limba română CORECTĂ: "președintele" nu "presedintele", "ședință" nu "sedinta", "funcționari" nu "functionari".
-- NU termina cu fraze inutile ca "Sper că te-am ajutat!" sau "Informațiile sunt utile!".
+- Limba română CORECTĂ cu diacritice.
+- NU termina cu fraze inutile ca "Sper că te-am ajutat!".
 - Off-topic → "Îmi pare rău, nu pot ajuta cu acest subiect. Sunt specializat doar pe proceduri administrative și legislație."
-- Nu găsești → "Nu am găsit informații despre asta în documentele disponibile."
 - Pentru proceduri, folosește liste numerotate.
+- Dacă utilizatorul scrie greșit (typos), interpretează ce a vrut să spună și răspunde normal.
 """
 
 # Greeting patterns
@@ -100,7 +102,12 @@ def _build_prompt(
 {history_text}
 ÎNTREBARE: {question}
 
-Instrucțiuni: Răspunde SCURT (2-3 propoziții), în română corectă cu diacritice, DOAR din documentele de mai sus. Citează articolele exact. NU inventa. NU adăuga "Nu am găsit" dacă ai documente relevante."""
+Instrucțiuni STRICTE:
+1. Răspunde EXACT la întrebarea pusă, nu la altceva. Dacă utilizatorul întreabă despre „vacanță de Paște", răspunde despre vacanța de Paște, NU despre concediu de creștere copil.
+2. Dacă documentele NU conțin răspunsul EXACT la întrebare, spune clar: „Nu am găsit informații despre [subiectul exact] în documentele disponibile."
+3. NU forța un răspuns din documente care nu se potrivesc cu întrebarea. E mai bine să spui „nu știu" decât să dai un răspuns greșit.
+4. Dacă documentele conțin răspunsul, citează articolele exact și răspunde SCURT (2-3 propoziții), în română corectă cu diacritice.
+5. NU inventa informații care nu sunt în documente."""
 
     return prompt
 
