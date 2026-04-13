@@ -303,6 +303,7 @@ export default function ChatPage() {
         setAiSuggestions(suggestions);
         const priorityMap: Record<string, TicketPriority> = {
           low: 'scazuta', medium: 'medie', high: 'ridicata', urgent: 'urgenta',
+          scazuta: 'scazuta', medie: 'medie', ridicata: 'ridicata', urgenta: 'urgenta',
         };
         setTicketForm((prev) => ({
           ...prev,
@@ -511,7 +512,7 @@ export default function ChatPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
-                      Categorie
+                      Departament
                     </label>
                     <div className="relative">
                       <select
@@ -519,7 +520,7 @@ export default function ChatPage() {
                         onChange={(e) => setTicketForm((f) => ({ ...f, departmentId: e.target.value }))}
                         className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none transition-all duration-180 appearance-none pr-10"
                       >
-                        <option value="">Alegeți o categorie...</option>
+                        <option value="">Alegeți un departament...</option>
                         {departments.map((d) => (
                           <option key={d.id} value={d.id}>{d.name}</option>
                         ))}
