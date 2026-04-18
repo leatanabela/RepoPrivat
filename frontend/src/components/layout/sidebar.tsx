@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MessageSquare, History, Ticket, Settings, LogOut, Menu, X, Wrench, ChevronDown, Trash2, Bell } from 'lucide-react';
+import { MessageSquare, History, Ticket, Settings, LogOut, Menu, X, Wrench, ChevronDown, Trash2, Bell, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
@@ -98,11 +98,12 @@ export function Sidebar() {
     }
   }
 
-  function handleNotifClick(id: string) {
-    markAsRead(id);
+  function handleNotifClick(notif: { id: string; ticket_id?: string }) {
+    markAsRead(notif.id);
     setNotifOpen(false);
     if (sidebarOpen) toggleSidebar();
-    router.push(`/tickets/${id}`);
+    const ticketId = notif.ticket_id || notif.id;
+    router.push(`/tickets/${ticketId}`);
   }
 
   const badgeCount = unreadCount();
@@ -199,7 +200,7 @@ export function Sidebar() {
                                 ? 'text-slate-400 dark:text-dm-on-surface-variant/60'
                                 : 'text-slate-600 dark:text-dm-on-surface-variant bg-primary/[0.03] dark:bg-dm-primary/[0.03]'
                             )}
-                            onClick={() => handleNotifClick(n.id)}
+                            onClick={() => handleNotifClick(n)}
                           >
                             {!read && (
                               <span className="size-2 rounded-full bg-primary dark:bg-dm-primary shrink-0 mt-1.5" />
@@ -324,6 +325,19 @@ export function Sidebar() {
               >
                 <Settings size={20} />
                 <span className="text-sm font-medium">Setări</span>
+              </Link>
+
+              <Link
+                href="/faq"
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
+                  pathname.startsWith('/faq')
+                    ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary font-semibold'
+                    : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
+                )}
+              >
+                <HelpCircle size={20} />
+                <span className="text-sm font-medium">Întrebări Frecvente</span>
               </Link>
 
               {isAdmin && (

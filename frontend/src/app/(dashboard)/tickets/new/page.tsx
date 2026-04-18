@@ -36,11 +36,7 @@ export default function NewTicketPage() {
       return;
     }
 
-    if (result.aiSuggestions) {
-      toast.success('Tichet creat! AI a sugerat clasificarea automată.');
-    } else {
-      toast.success('Tichet creat cu succes!');
-    }
+    toast.success('Tichet creat cu succes!');
     router.push('/tickets');
   }
 
@@ -79,8 +75,9 @@ export default function NewTicketPage() {
               className="w-full h-16 px-6 text-xl rounded-xl border-2 border-slate-200 dark:border-dm-surface-bright/15 bg-white dark:bg-dm-surface appearance-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
               id="departmentId"
               name="departmentId"
+              defaultValue=""
             >
-              <option value="">Alegeți un departament...</option>
+              <option value="" disabled hidden>Selectează departament</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}

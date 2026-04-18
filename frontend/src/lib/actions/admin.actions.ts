@@ -36,6 +36,55 @@ export async function getAnalytics(): Promise<Analytics> {
       .limit(10),
   ]);
 
+  // Department distribution
+  const { data: ticketsWithDept } = await supabaseAdmin
+    .from('tickets')
+    .select('department_id, departments!tickets_department_id_fkey(name)');
+
+  const deptMap = new Map<string, { name: string; count: number }>();
+  for (const t of ticketsWithDept || []) {
+    const deptName = (t.departments as any)?.name || 'Neatribuit';
+    const existing = deptMap.get(deptName);
+    if (existing) existing.count++;
+    else deptMap.set(deptName, { name: deptName, count: 1 });
+  }
+  const departmentDistribution = Array.from(deptMap.values())
+    .sort((a, b) => b.count - a.count);
+
+  // Average resolution time (resolved/closed tickets)
+  const { data: resolvedTicketRows } = await supabaseAdmin
+    .from('tickets')
+    .select('created_at, updated_at')
+    .in('status', ['rezolvat', 'inchis']);
+
+  let avgResolutionHours: number | null = null;
+  if (resolvedTicketRows && resolvedTicketRows.length > 0) {
+    const totalMs = resolvedTicketRows.reduce((sum, t) => {
+      return sum + (new Date(t.updated_at).getTime() - new Date(t.created_at).getTime());
+    }, 0);
+    avgResolutionHours = Math.round((totalMs / resolvedTicketRows.length / 3600000) * 10) / 10;
+  }
+
+  // Frequent AI questions
+  const { data: allUserQuestions } = await supabaseAdmin
+    .from('chat_messages')
+    .select('content')
+    .eq('role', 'user')
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  const questionMap = new Map<string, number>();
+  for (const q of allUserQuestions || []) {
+    const normalized = q.content.trim().toLowerCase();
+    if (normalized.length < 5) continue;
+    questionMap.set(normalized, (questionMap.get(normalized) || 0) + 1);
+  }
+  const frequentQuestions = Array.from(questionMap.entries())
+    .map(([content, count]) => ({ content, count }))
+    .filter(({ count }) => count >= 2)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
   return {
     totalTickets: totalTickets || 0,
     pendingTickets: pendingTickets || 0,
@@ -49,6 +98,9 @@ export async function getAnalytics(): Promise<Analytics> {
       ...t,
       profiles: Array.isArray(t.profiles) ? t.profiles[0] : t.profiles,
     })),
+    departmentDistribution,
+    avgResolutionHours,
+    frequentQuestions,
   };
 }
 

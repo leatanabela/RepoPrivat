@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 interface NotificationItem {
   id: string;
+  ticket_id?: string;
   message: string;
   type: string;
   created_at: string;

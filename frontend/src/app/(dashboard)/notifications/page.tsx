@@ -23,9 +23,10 @@ export default function NotificationsPage() {
     load();
   }, [setNotifications]);
 
-  function handleClick(id: string) {
-    markAsRead(id);
-    router.push(`/tickets/${id}`);
+  function handleClick(notif: { id: string; ticket_id?: string }) {
+    markAsRead(notif.id);
+    const ticketId = notif.ticket_id || notif.id;
+    router.push(`/tickets/${ticketId}`);
   }
 
   function markAllAsRead() {
@@ -107,7 +108,7 @@ export default function NotificationsPage() {
                   >
                     <div
                       className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
-                      onClick={() => handleClick(n.id)}
+                      onClick={() => handleClick(n)}
                     >
                       <span className={cn(
                         'size-2.5 rounded-full shrink-0',

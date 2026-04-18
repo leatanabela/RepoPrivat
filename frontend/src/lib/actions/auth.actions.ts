@@ -12,7 +12,15 @@ export async function signIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: error.message };
+    const msg = error.message.toLowerCase();
+    let translated = 'Eroare la autentificare. Încercați din nou.';
+    if (msg.includes('invalid login credentials') || msg.includes('invalid credentials'))
+      translated = 'Email sau parolă incorectă.';
+    else if (msg.includes('email not confirmed'))
+      translated = 'Adresa de email nu a fost confirmată.';
+    else if (msg.includes('too many requests') || msg.includes('rate limit'))
+      translated = 'Prea multe încercări. Așteptați câteva minute.';
+    return { error: translated };
   }
 
   redirect('/dashboard');

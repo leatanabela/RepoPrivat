@@ -288,13 +288,35 @@ export async function getTicketNotifications() {
       .eq('status', 'in_asteptare')
       .order('created_at', { ascending: false })
       .limit(5);
+
+    const ticketNotifs = (data || []).map((t) => ({
+      id: t.id,
+      message: `Tichet nou: ${t.title?.substring(0, 40) || 'Fără titlu'}`,
+      type: 'new_ticket' as const,
+      created_at: t.created_at,
+    }));
+
+    // Admin: get recent messages from users on tickets
+    const { data: userMessages } = await supabase
+      .from('ticket_messages')
+      .select('id, message, created_at, ticket_id, sender_id, profiles(full_name), tickets(title)')
+      .neq('sender_id', user.id)
+      .eq('is_internal', false)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const messageNotifs = (userMessages || []).map((m) => ({
+      id: `msg-${m.id}`,
+      ticket_id: m.ticket_id,
+      message: `${(m.profiles as any)?.full_name || 'Utilizator'} a scris în "${(m.tickets as any)?.title?.substring(0, 25) || 'tichet'}": ${m.message.substring(0, 40)}${m.message.length > 40 ? '...' : ''}`,
+      type: 'ticket_message' as const,
+      created_at: m.created_at,
+    }));
+
     return {
-      notifications: (data || []).map((t) => ({
-        id: t.id,
-        message: `Tichet nou: ${t.title?.substring(0, 40) || 'Fără titlu'}`,
-        type: 'new_ticket' as const,
-        created_at: t.created_at,
-      })),
+      notifications: [...ticketNotifs, ...messageNotifs].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ),
     };
   } else {
     // User: get recently resolved tickets
@@ -305,13 +327,46 @@ export async function getTicketNotifications() {
       .eq('status', 'rezolvat')
       .order('updated_at', { ascending: false })
       .limit(5);
+
+    const resolvedNotifs = (data || []).map((t) => ({
+      id: t.id,
+      message: `Tichetul "${t.title?.substring(0, 30) || 'Fără titlu'}" a fost rezolvat`,
+      type: 'resolved' as const,
+      created_at: t.updated_at,
+    }));
+
+    // User: get recent admin replies on their tickets
+    const { data: userTickets } = await supabase
+      .from('tickets')
+      .select('id')
+      .eq('user_id', user.id);
+
+    const ticketIds = (userTickets || []).map((t) => t.id);
+
+    let messageNotifs: Array<{ id: string; message: string; type: string; created_at: string }> = [];
+    if (ticketIds.length > 0) {
+      const { data: adminMessages } = await supabase
+        .from('ticket_messages')
+        .select('id, message, created_at, ticket_id, sender_id, profiles(full_name), tickets(title)')
+        .in('ticket_id', ticketIds)
+        .neq('sender_id', user.id)
+        .eq('is_internal', false)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      messageNotifs = (adminMessages || []).map((m) => ({
+        id: `msg-${m.id}`,
+        ticket_id: m.ticket_id,
+        message: `Răspuns la "${(m.tickets as any)?.title?.substring(0, 25) || 'tichet'}": ${m.message.substring(0, 40)}${m.message.length > 40 ? '...' : ''}`,
+        type: 'ticket_message' as const,
+        created_at: m.created_at,
+      }));
+    }
+
     return {
-      notifications: (data || []).map((t) => ({
-        id: t.id,
-        message: `Tichetul "${t.title?.substring(0, 30) || 'Fără titlu'}" a fost rezolvat`,
-        type: 'resolved' as const,
-        created_at: t.updated_at,
-      })),
+      notifications: [...resolvedNotifs, ...messageNotifs].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ),
     };
   }
 }

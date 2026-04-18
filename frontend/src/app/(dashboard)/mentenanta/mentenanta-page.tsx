@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   getDocuments,
   uploadDocument,
@@ -37,6 +38,21 @@ import {
 import type { Document, Department, Analytics, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
 
+const QUESTION_PREFIXES = /^(buna ziua[,!]?\s*|salut[,!]?\s*|hei[,!]?\s*|hello[,!]?\s*|hi[,!]?\s*|hey[,!]?\s*)?(as vrea sa (stiu|știu|aflu|intreb|întreb)\s*|vreau sa (stiu|știu|aflu)\s*|imi (poti|poți) spune\s*|spune-mi\s*|ma intereseaza\s*|mă interesează\s*)?(cum (pot|as putea|aș putea|sa|să|se|este|e)\s*|care (este|sunt|e)\s*|ce (este|sunt|e|fel de|tip de|inseamna|însemnă)\s*|unde (pot|este|sunt|e|se|gasesc|găsesc)\s*|(cand|când) (pot|este|sunt|e|se)\s*|de ce (este|sunt|e|se|nu)\s*|cine (este|sunt|e|se)\s*|cat (costa|costă|este|e)\s*|câte?\s*)/i;
+
+function summarizeQuestion(raw: string): string {
+  let text = raw
+    .replace(/[?!"""''„"]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  text = text.replace(QUESTION_PREFIXES, '').trim();
+
+  if (text.length === 0) return raw.slice(0, 60);
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 interface CreatedAccount {
   fullName: string;
   email: string;
@@ -46,7 +62,15 @@ interface CreatedAccount {
 type Tab = 'documente' | 'angajati' | 'statistici';
 
 export function MentenantaPage() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('documente');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as Tab;
+    if (tab && ['documente', 'angajati', 'statistici'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Documents state
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -463,19 +487,24 @@ export function MentenantaPage() {
                       key={doc.id}
                       className="flex items-center gap-4 sm:grid sm:grid-cols-[1fr_180px_100px] sm:gap-6 px-6 py-5 border-b border-slate-100/80 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50 dark:hover:bg-dm-surface-high/50 transition-colors duration-180"
                     >
-                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <a
+                        href={doc.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 min-w-0 flex-1 cursor-pointer"
+                      >
                         <div className="size-11 rounded-xl bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center flex-shrink-0">
                           <FileText size={20} className="text-primary dark:text-dm-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate text-[15px]">
+                          <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate text-[15px] hover:text-primary dark:hover:text-dm-primary transition-colors duration-180">
                             {doc.title || doc.file_name}
                           </p>
                           <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant mt-1">
                             {formatFileSize(doc.file_size)} &bull; {doc.file_type || 'Document'}
                           </p>
                         </div>
-                      </div>
+                      </a>
                       <p className="hidden sm:block text-sm text-slate-600 dark:text-dm-on-surface-variant">
                         {formatDate(doc.created_at)}
                       </p>
@@ -591,9 +620,10 @@ export function MentenantaPage() {
                     <select
                       name="departmentId"
                       required
+                      defaultValue=""
                       className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-dm-surface-bright/20 bg-white dark:bg-dm-surface-high text-sm dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none"
                     >
-                      <option value="">Selectează departament</option>
+                      <option value="" disabled hidden>Selectează departament</option>
                       {empDepartments.map((dept) => (
                         <option key={dept.id} value={dept.id}>{dept.name}</option>
                       ))}
@@ -730,37 +760,136 @@ export function MentenantaPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Distribuție pe Departamente */}
               <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Distribuție pe Departamente
+                  Distribuția Tichetelor pe Departamente
                 </h3>
-                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                  <BarChart3 size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Date insuficiente momentan</p>
-                  <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant">Disponibil după acumularea de tichete</p>
-                </div>
+                {analyticsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse space-y-1.5">
+                        <div className="h-3 bg-slate-200 dark:bg-dm-surface-bright/30 rounded w-1/3" />
+                        <div className="h-6 bg-slate-100 dark:bg-dm-surface-bright/20 rounded-lg" />
+                      </div>
+                    ))}
+                  </div>
+                ) : !analytics?.departmentDistribution?.length ? (
+                  <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
+                    <BarChart3 size={32} className="text-slate-300 dark:text-dm-surface-bright" />
+                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun tichet înregistrat</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {analytics.departmentDistribution.map((dept) => {
+                      const max = analytics.departmentDistribution[0].count;
+                      const pct = max > 0 ? (dept.count / max) * 100 : 0;
+                      return (
+                        <div key={dept.name}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-slate-700 dark:text-dm-on-surface">{dept.name}</span>
+                            <span className="text-sm font-bold text-slate-500 dark:text-dm-on-surface-variant">{dept.count}</span>
+                          </div>
+                          <div className="h-6 bg-slate-100 dark:bg-dm-surface-high rounded-lg overflow-hidden">
+                            <div
+                              className="h-full bg-primary/80 dark:bg-dm-primary/60 rounded-lg transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
+              {/* Timp mediu de rezolvare */}
               <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Timp Mediu Rezolvare
+                  Timp mediu de rezolvare
                 </h3>
-                <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                  <Clock size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Date insuficiente momentan</p>
-                  <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant">Disponibil după rezolvarea primelor tichete</p>
-                </div>
+                {analyticsLoading ? (
+                  <div className="h-48 flex items-center justify-center">
+                    <div className="animate-pulse size-32 rounded-full bg-slate-100 dark:bg-dm-surface-bright/20" />
+                  </div>
+                ) : analytics?.avgResolutionHours == null ? (
+                  <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
+                    <Clock size={32} className="text-slate-300 dark:text-dm-surface-bright" />
+                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun tichet rezolvat încă</p>
+                  </div>
+                ) : (
+                  <div className="h-48 flex flex-col items-center justify-center">
+                    <div className="relative size-36 flex items-center justify-center">
+                      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-100 dark:text-dm-surface-high" />
+                        <circle
+                          cx="50" cy="50" r="42" fill="none" strokeWidth="8"
+                          strokeLinecap="round"
+                          className="text-emerald-500 dark:text-emerald-400"
+                          stroke="currentColor"
+                          strokeDasharray={`${Math.min((analytics.avgResolutionHours / 72) * 264, 264)} 264`}
+                        />
+                      </svg>
+                      <div className="text-center z-10">
+                        <p className="text-3xl font-black text-slate-800 dark:text-dm-on-surface">
+                          {analytics.avgResolutionHours < 1
+                            ? `${Math.round(analytics.avgResolutionHours * 60)}m`
+                            : analytics.avgResolutionHours < 24
+                              ? `${analytics.avgResolutionHours}h`
+                              : `${Math.round(analytics.avgResolutionHours / 24 * 10) / 10}z`}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant font-medium">
+                          {analytics.avgResolutionHours < 1 ? 'minute' : analytics.avgResolutionHours < 24 ? 'ore' : 'zile'}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-3">
+                      Bazat pe {analytics.resolvedTickets} tichet{analytics.resolvedTickets !== 1 ? 'e' : ''} rezolvat{analytics.resolvedTickets !== 1 ? 'e' : ''}
+                    </p>
+                  </div>
+                )}
               </div>
 
+              {/* Întrebări Frecvente AI */}
               <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Cele mai Frecvente Întrebări AI
+                  Întrebări Frecvente
                 </h3>
-                <div className="h-36 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                  <MessageSquare size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Date insuficiente momentan</p>
-                  <p className="text-xs text-slate-400 dark:text-dm-on-surface-variant">Disponibil după acumularea de conversații</p>
-                </div>
+                {analyticsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high/20">
+                        <div className="size-8 rounded-lg bg-slate-200 dark:bg-dm-surface-bright/30 shrink-0" />
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-3.5 bg-slate-200 dark:bg-dm-surface-bright/30 rounded w-3/4" />
+                          <div className="h-2.5 bg-slate-100 dark:bg-dm-surface-bright/20 rounded w-1/4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : !analytics?.frequentQuestions?.length ? (
+                  <div className="h-36 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
+                    <MessageSquare size={32} className="text-slate-300 dark:text-dm-surface-bright" />
+                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Nicio conversație încă</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {analytics.frequentQuestions.map((q, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high/30 border border-slate-100 dark:border-dm-surface-bright/10"
+                      >
+                        <div className="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
+                          <MessageSquare size={14} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <p className="text-sm font-medium text-slate-700 dark:text-dm-on-surface flex-1 min-w-0 truncate">{summarizeQuestion(q.content)}</p>
+                        <span className="shrink-0 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-xs font-bold text-blue-600 dark:text-blue-400">
+                          {q.count}x
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -868,26 +997,10 @@ export function MentenantaPage() {
             )}
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-dm-on-surface">
-                  Departament (pentru toate fișierele)
-                </label>
-                <select
-                  id="bulk-department"
-                  className="w-full h-11 px-4 border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl bg-white dark:bg-dm-surface-high dark:text-dm-on-surface focus:border-primary dark:focus:border-dm-primary focus:ring-2 focus:ring-primary/15 transition-all duration-180 outline-none text-sm"
-                >
-                  <option value="">General (toate departamentele)</option>
-                  {departments.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </select>
-              </div>
-
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
-                    const select = document.getElementById('bulk-department') as HTMLSelectElement;
-                    handleBulkUpload(select?.value || '');
+                    handleBulkUpload('');
                   }}
                   disabled={uploading || bulkFiles.length === 0}
                   className="flex-1 h-12 bg-primary dark:bg-dm-primary-container text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-180 hover:bg-primary-hover dark:hover:bg-dm-primary-container/80 active:scale-[0.98]"

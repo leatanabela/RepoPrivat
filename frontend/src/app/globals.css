@@ -24,6 +24,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+select,
+select option {
+  font-family: 'Public Sans', sans-serif;
+}
+
+select option:hover,
+select option:checked {
+  background-color: var(--primary);
+  color: white;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useChatStore } from '@/stores/chat-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { ChatMessage } from '@/components/chat/chat-message';
 import { ChatInput } from '@/components/chat/chat-input';
 import {
@@ -35,6 +36,7 @@ export default function ChatPage() {
     setStreamingContent,
     appendStreamingContent,
   } = useChatStore();
+  const { isAdmin } = useAuthStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
@@ -273,7 +275,7 @@ export default function ChatPage() {
 
       // Store which question triggered this assistant message
       questionForMessageRef.current.set(assistantMsg.id, lastQuestionRef.current);
-      if (userAskedForTicket || couldNotAnswer) {
+      if (!isAdmin && (userAskedForTicket || couldNotAnswer)) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
       }
 
@@ -490,14 +492,7 @@ export default function ChatPage() {
                 </div>
               ) : (
                 <>
-                  {aiSuggestions?.reasoning && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-3.5">
-                      <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Sugestie AI</p>
-                      <p className="text-sm text-blue-700 dark:text-blue-300">{aiSuggestions.reasoning}</p>
-                    </div>
-                  )}
-
-                  <div>
+<div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
                       Subiect
                     </label>
@@ -520,7 +515,7 @@ export default function ChatPage() {
                         onChange={(e) => setTicketForm((f) => ({ ...f, departmentId: e.target.value }))}
                         className="w-full bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/20 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-dm-on-surface focus:ring-2 focus:ring-primary/15 focus:border-primary dark:focus:border-dm-primary outline-none transition-all duration-180 appearance-none pr-10"
                       >
-                        <option value="">Alegeți un departament...</option>
+                        <option value="" disabled hidden>Selectează departament</option>
                         {departments.map((d) => (
                           <option key={d.id} value={d.id}>{d.name}</option>
                         ))}

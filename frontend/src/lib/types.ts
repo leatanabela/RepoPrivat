@@ -113,4 +113,7 @@ export interface Analytics {
     created_at: string;
     profiles?: { full_name: string };
   }>;
+  departmentDistribution: Array<{ name: string; count: number }>;
+  avgResolutionHours: number | null;
+  frequentQuestions: Array<{ content: string; count: number }>;
 }
