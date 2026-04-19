@@ -424,7 +424,7 @@ export default function ChatPage() {
                           📋 Pentru răspunsuri cât mai precise:
                         </p>
                         <ul className="space-y-1 text-xs text-amber-800/90 dark:text-amber-300/90">
-                          <li>• <strong>Fii specific</strong> — menționează categoria ta (angajat, funcționar public, polițist)</li>
+                          <li>• <strong>Fii specific</strong> — menționează categoria ta (angajat, funcționar public)</li>
                           <li>• <strong>Folosește termeni oficiali</strong> — ex: &quot;raport de serviciu&quot; în loc de &quot;contract&quot;</li>
                           <li>• <strong>O întrebare odată</strong> — nu combina mai multe subiecte</li>
                         </ul>
