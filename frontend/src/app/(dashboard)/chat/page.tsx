@@ -380,22 +380,24 @@ export default function ChatPage() {
           <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto px-4">
               <div className="flex flex-col gap-6 py-8">
-                {/* Welcome message */}
-                <div className="flex gap-3 justify-start">
-                  <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
-                    <Bot size={16} className="text-white dark:text-dm-primary" />
-                  </div>
-                  <div className="flex flex-col gap-1 max-w-[75%]">
-                    <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
-                      <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
-                        Bună ziua! Sunt asistentul virtual al primăriei. Te pot ajuta cu informații despre proceduri administrative, legislație, concesiuni, acte necesare și multe altele. Cu ce te pot ajuta?
-                      </p>
+                {/* Welcome message - only shown when no messages yet */}
+                {messages.length === 0 && !streaming && !streamingContent && (
+                  <div className="flex gap-3 justify-start">
+                    <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
+                      <Bot size={16} className="text-white dark:text-dm-primary" />
+                    </div>
+                    <div className="flex flex-col gap-1 max-w-[75%]">
+                      <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
+                        <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
+                          Bună ziua! Sunt asistentul virtual al primăriei. Te pot ajuta cu informații despre proceduri administrative, legislație, concesiuni, acte necesare și multe altele. Cu ce te pot ajuta?
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Example questions - only shown when no messages yet */}
-                {messages.length === 0 && !streaming && (
+                {/* Example questions - only shown before any interaction */}
+                {messages.length === 0 && !streaming && !streamingContent && (
                   <div className="flex gap-3 justify-start">
                     <div className="size-8 shrink-0" aria-hidden="true" />
                     <div className="flex flex-col gap-2 max-w-[85%] w-full">
@@ -406,9 +408,7 @@ export default function ChatPage() {
                         {[
                           'Care sunt drepturile deținuților conform legii?',
                           'Cum se face promovarea în grad profesional?',
-                          'Ce sancțiuni disciplinare există pentru funcționari publici?',
                           'Ce documente sunt necesare pentru autorizația de construire?',
-                          'Care e procedura de eliberare a certificatului de urbanism?',
                           'Ce obligații are angajatul conform regulamentului intern?',
                         ].map((q) => (
                           <button
