@@ -12,9 +12,12 @@ import {
   saveUserMessage,
   saveAssistantMessage,
   deleteChatSession,
+  submitFeedback,
+  getFeedbackForSession,
+  getPopularQuestions,
 } from '@/lib/actions/chat.actions';
 import { createTicketFromChat, getAiTicketSuggestions, getDepartments } from '@/lib/actions/ticket.actions';
-import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot } from 'lucide-react';
+import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot, ThumbsUp, ThumbsDown, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatSkeleton } from '@/components/ui/loading-skeleton';
 import { PRIORITY_LABELS } from '@/lib/constants';
@@ -41,6 +44,8 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
   const [ticketableMessages, setTicketableMessages] = useState<Set<string>>(new Set());
+  const [feedback, setFeedback] = useState<Record<string, 'positive' | 'negative'>>({});
+  const [popularQuestions, setPopularQuestions] = useState<string[]>([]);
   const lastQuestionRef = useRef<string>('');
   const questionForMessageRef = useRef<Map<string, string>>(new Map());
   const noChunksRef = useRef(false);
@@ -103,6 +108,8 @@ export default function ChatPage() {
     if (loadedRef.current) return;
     loadedRef.current = true;
     loadSessions();
+    // Load popular questions for welcome screen
+    getPopularQuestions(4).then(setPopularQuestions).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -127,10 +134,33 @@ export default function ChatPage() {
   async function selectSession(id: string) {
     setCurrentSession(id);
     try {
-      const msgs = await getChatMessages(id);
+      const [msgs, fbMap] = await Promise.all([
+        getChatMessages(id),
+        getFeedbackForSession(id),
+      ]);
       setMessages(msgs);
+      setFeedback(fbMap);
     } catch {
       toast.error('Eroare la încărcarea mesajelor');
+    }
+  }
+
+  async function handleFeedback(messageId: string, rating: 'positive' | 'negative') {
+    // Optimistic update
+    const previous = feedback[messageId];
+    setFeedback((prev) => ({ ...prev, [messageId]: rating }));
+
+    const result = await submitFeedback(messageId, rating);
+    if (result.error) {
+      toast.error('Eroare la salvarea feedback-ului');
+      setFeedback((prev) => {
+        const next = { ...prev };
+        if (previous) next[messageId] = previous;
+        else delete next[messageId];
+        return next;
+      });
+    } else {
+      toast.success(rating === 'positive' ? 'Mulțumim pentru feedback! 👍' : 'Feedback înregistrat. Vom îmbunătăți răspunsurile.');
     }
   }
 
@@ -400,16 +430,26 @@ export default function ChatPage() {
                   <div className="flex gap-3 justify-start">
                     <div className="size-8 shrink-0" aria-hidden="true" />
                     <div className="flex flex-col gap-2 max-w-[85%] w-full">
-                      <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1">
-                        💡 Încearcă una din aceste întrebări:
-                      </p>
+                      {popularQuestions.length >= 2 ? (
+                        <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1 flex items-center gap-1.5">
+                          <TrendingUp size={12} />
+                          Cele mai populare întrebări:
+                        </p>
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1">
+                          💡 Încearcă una din aceste întrebări:
+                        </p>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {[
-                          'Care sunt drepturile deținuților conform legii?',
-                          'Cum se face promovarea în grad profesional?',
-                          'Ce documente sunt necesare pentru autorizația de construire?',
-                          'Ce obligații are angajatul conform regulamentului intern?',
-                        ].map((q) => (
+                        {(popularQuestions.length >= 2
+                          ? popularQuestions
+                          : [
+                              'Care sunt drepturile deținuților conform legii?',
+                              'Cum se face promovarea în grad profesional?',
+                              'Ce documente sunt necesare pentru autorizația de construire?',
+                              'Ce obligații are angajatul conform regulamentului intern?',
+                            ]
+                        ).map((q) => (
                           <button
                             key={q}
                             onClick={() => handleSend(q)}
@@ -437,6 +477,34 @@ export default function ChatPage() {
                   {messages.map((msg) => (
                     <div key={msg.id}>
                       <ChatMessage role={msg.role} content={msg.content} />
+                      {msg.role === 'assistant' && (
+                        <div className="flex items-center gap-1.5 pl-11 mt-2">
+                          <button
+                            onClick={() => handleFeedback(msg.id, 'positive')}
+                            className={cn(
+                              'size-7 rounded-lg flex items-center justify-center transition-all duration-180',
+                              feedback[msg.id] === 'positive'
+                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-dm-surface-high hover:text-emerald-600 dark:hover:text-emerald-400'
+                            )}
+                            title="Răspuns util"
+                          >
+                            <ThumbsUp size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleFeedback(msg.id, 'negative')}
+                            className={cn(
+                              'size-7 rounded-lg flex items-center justify-center transition-all duration-180',
+                              feedback[msg.id] === 'negative'
+                                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-dm-surface-high hover:text-red-600 dark:hover:text-red-400'
+                            )}
+                            title="Răspuns greșit"
+                          >
+                            <ThumbsDown size={14} />
+                          </button>
+                        </div>
+                      )}
                       {msg.role === 'assistant' && ticketableMessages.has(msg.id) && (
                         <div className="flex justify-start pl-11 mt-3">
                           <div className="relative bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-2xl p-5 w-full max-w-sm">

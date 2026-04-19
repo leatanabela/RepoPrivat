@@ -156,3 +156,95 @@ export async function saveAssistantMessage(sessionId: string, content: string, s
   if (error) throw new Error(error.message);
   return data;
 }
+
+// ============================================================
+// Feedback (thumbs up/down on AI responses)
+// ============================================================
+
+export async function submitFeedback(messageId: string, rating: 'positive' | 'negative', comment?: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  // Upsert so user can change their rating
+  const { error } = await supabase
+    .from('chat_feedback')
+    .upsert(
+      { message_id: messageId, user_id: user.id, rating, comment: comment || null },
+      { onConflict: 'message_id,user_id' }
+    );
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function getFeedbackForSession(sessionId: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return {};
+
+  // Get all feedback by this user for messages in this session
+  const { data: messages } = await supabase
+    .from('chat_messages')
+    .select('id')
+    .eq('session_id', sessionId);
+
+  if (!messages || messages.length === 0) return {};
+
+  const messageIds = messages.map((m) => m.id);
+  const { data: feedback } = await supabase
+    .from('chat_feedback')
+    .select('message_id, rating')
+    .eq('user_id', user.id)
+    .in('message_id', messageIds);
+
+  const map: Record<string, 'positive' | 'negative'> = {};
+  for (const f of feedback || []) {
+    map[f.message_id] = f.rating as 'positive' | 'negative';
+  }
+  return map;
+}
+
+// ============================================================
+// Popular questions (for welcome screen)
+// ============================================================
+
+export async function getPopularQuestions(limit = 4): Promise<string[]> {
+  const supabase = await createServerSupabaseClient();
+
+  // Get last 200 user messages
+  const { data } = await supabase
+    .from('chat_messages')
+    .select('content')
+    .eq('role', 'user')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (!data || data.length === 0) return [];
+
+  // Normalize + count frequencies
+  const counts = new Map<string, number>();
+  for (const row of data) {
+    const text = row.content.trim();
+    // Skip too short, too long, or greetings
+    if (text.length < 10 || text.length > 150) continue;
+    if (/^(salut|buna|hey|hi|hello|ce faci|multumesc|merci)/i.test(text)) continue;
+
+    const key = text.toLowerCase();
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  // Return top N by frequency (those with count >= 2), then alphabetical
+  const sorted = Array.from(counts.entries())
+    .filter(([, c]) => c >= 1) // even questions asked once
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+
+  // Restore original casing from first occurrence
+  const result: string[] = [];
+  for (const [lowerText] of sorted) {
+    const original = data.find((d) => d.content.trim().toLowerCase() === lowerText)?.content.trim();
+    if (original) result.push(original.charAt(0).toUpperCase() + original.slice(1));
+  }
+  return result;
+}

@@ -449,3 +449,33 @@ INSERT INTO ticket_categories (name, department_id) VALUES
 -- ============================================================
 -- Create buckets: 'documents', 'ticket-attachments', 'avatars'
 -- These need to be created via the Supabase dashboard or API
+-- Chat feedback table
+CREATE TABLE IF NOT EXISTS chat_feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    message_id UUID NOT NULL REFERENCES chat_messages(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    rating TEXT NOT NULL CHECK (rating IN ('positive', 'negative')),
+    comment TEXT,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(message_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_feedback_message ON chat_feedback(message_id);
+CREATE INDEX IF NOT EXISTS idx_chat_feedback_rating ON chat_feedback(rating);
+
+ALTER TABLE chat_feedback ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own feedback"
+    ON chat_feedback FOR SELECT
+    TO authenticated
+    USING (user_id = auth.uid() OR is_admin(auth.uid()));
+
+CREATE POLICY "Users can create own feedback"
+    ON chat_feedback FOR INSERT
+    TO authenticated
+    WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update own feedback"
+    ON chat_feedback FOR UPDATE
+    TO authenticated
+    USING (user_id = auth.uid());
