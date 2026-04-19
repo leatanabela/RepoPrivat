@@ -163,7 +163,7 @@ export function Sidebar() {
                     : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
                 )}
               >
-                <div className="relative">
+                <div className="relative shrink-0">
                   <Bell size={20} />
                   {badgeCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 size-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -171,7 +171,7 @@ export function Sidebar() {
                     </span>
                   )}
                 </div>
-                <span className="text-sm font-medium">Notificări</span>
+                <span className="text-sm font-medium flex-1 text-left">Notificări</span>
               </button>
               {notifOpen && (
                 <div className="absolute left-full top-0 ml-2 w-72 bg-white dark:bg-dm-surface-low rounded-xl border border-slate-200/80 dark:border-dm-surface-bright/15 shadow-lg z-50 overflow-hidden">

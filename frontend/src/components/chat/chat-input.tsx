@@ -75,7 +75,7 @@ export function ChatInput({ onSend, disabled, showTips }: ChatInputProps) {
           <div className="mb-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-sm">
             <p className="font-semibold text-blue-700 dark:text-blue-300 mb-2">💡 Cum să pui întrebări bune:</p>
             <ul className="space-y-1 text-blue-700/90 dark:text-blue-300/90 text-[13px]">
-              <li>✓ <strong>Fii specific</strong> — menționează categoria (angajat, elev, detinut, funcționar public)</li>
+              <li>✓ <strong>Fii specific</strong> — menționează categoria (angajat, funcționar public, polițist)</li>
               <li>✓ <strong>Folosește termeni oficiali</strong> — &quot;raport de serviciu&quot; nu &quot;contract&quot;</li>
               <li>✓ <strong>O întrebare odată</strong> — nu combina mai multe subiecte</li>
               <li>✗ Evită întrebări prea vagi precum &quot;ajutor&quot; sau &quot;ce fac?&quot;</li>
