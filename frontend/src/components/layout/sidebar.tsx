@@ -315,19 +315,6 @@ export function Sidebar() {
               </Link>
 
               <Link
-                href="/settings"
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
-                  pathname.startsWith('/settings')
-                    ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary font-semibold'
-                    : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
-                )}
-              >
-                <Settings size={20} />
-                <span className="text-sm font-medium">Setări</span>
-              </Link>
-
-              <Link
                 href="/faq"
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
@@ -338,6 +325,19 @@ export function Sidebar() {
               >
                 <HelpCircle size={20} />
                 <span className="text-sm font-medium">Întrebări Frecvente</span>
+              </Link>
+
+              <Link
+                href="/settings"
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
+                  pathname.startsWith('/settings')
+                    ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary font-semibold'
+                    : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
+                )}
+              >
+                <Settings size={20} />
+                <span className="text-sm font-medium">Setări</span>
               </Link>
 
               {isAdmin && (
