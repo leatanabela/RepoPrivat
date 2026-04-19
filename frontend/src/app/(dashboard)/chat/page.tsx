@@ -285,11 +285,11 @@ export default function ChatPage() {
         }
       }
 
-      setStreamingContent('');
-      setStreaming(false);
-
+      // Save message first, then swap UI atomically (no flicker)
       const assistantMsg = await saveAssistantMessage(sessionId, fullContent);
       addMessage(assistantMsg);
+      setStreamingContent('');
+      setStreaming(false);
 
       // Check if user explicitly asked for a ticket
       const userAskedForTicket = /tichet|sesizare|reclama[tț]ie|f[aă][\s-]?mi un|genereaz[aă]|vreau s[aă] (fac|creez|deschid|trimit)/i.test(lastQuestionRef.current);
