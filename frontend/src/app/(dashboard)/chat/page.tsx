@@ -394,6 +394,46 @@ export default function ChatPage() {
                   </div>
                 </div>
 
+                {/* Example questions - only shown when no messages yet */}
+                {messages.length === 0 && !streaming && (
+                  <div className="flex gap-3 justify-start">
+                    <div className="size-8 shrink-0" aria-hidden="true" />
+                    <div className="flex flex-col gap-2 max-w-[85%] w-full">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1">
+                        💡 Încearcă una din aceste întrebări:
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {[
+                          'Care sunt drepturile deținuților conform legii?',
+                          'Cum se face promovarea în grad profesional?',
+                          'Ce sancțiuni disciplinare există pentru funcționari publici?',
+                          'Ce documente sunt necesare pentru autorizația de construire?',
+                          'Care e procedura de eliberare a certificatului de urbanism?',
+                          'Ce obligații are angajatul conform regulamentului intern?',
+                        ].map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => handleSend(q)}
+                            className="text-left px-4 py-3 bg-white dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-xl text-sm text-slate-700 dark:text-dm-on-surface hover:border-primary/40 dark:hover:border-dm-primary/40 hover:bg-primary/5 dark:hover:bg-dm-primary/5 transition-all duration-180"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-3 p-4 bg-amber-50/70 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
+                        <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-2">
+                          📋 Pentru răspunsuri cât mai precise:
+                        </p>
+                        <ul className="space-y-1 text-xs text-amber-800/90 dark:text-amber-300/90">
+                          <li>• <strong>Fii specific</strong> — menționează categoria ta (angajat, elev, funcționar public)</li>
+                          <li>• <strong>Folosește termeni oficiali</strong> — ex: &quot;raport de serviciu&quot; în loc de &quot;contract&quot;</li>
+                          <li>• <strong>O întrebare odată</strong> — nu combina mai multe subiecte</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Messages */}
                   {messages.map((msg) => (
                     <div key={msg.id}>
@@ -458,7 +498,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <ChatInput onSend={handleSend} disabled={streaming} />
+          <ChatInput onSend={handleSend} disabled={streaming} showTips />
         </div>
       </div>
 
