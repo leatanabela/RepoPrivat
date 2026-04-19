@@ -11,6 +11,7 @@ import {
 import { getAnalytics } from '@/lib/actions/admin.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
 import { createEmployee, getEmployees, getDepartments as getEmployeeDepartments, updateEmployee, deleteEmployee, getRoles } from '@/lib/actions/employee.actions';
+import { Pagination } from '@/components/ui/pagination';
 import { formatDate, formatFileSize } from '@/lib/utils';
 import {
   Plus,
@@ -74,6 +75,7 @@ export function MentenantaPage() {
   // Documents state
   const [documents, setDocuments] = useState<Document[]>([]);
   const [docTotal, setDocTotal] = useState(0);
+  const [docPage, setDocPage] = useState(1);
   const [docLoading, setDocLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -107,8 +109,7 @@ export function MentenantaPage() {
   const loadDocuments = useCallback(async () => {
     setDocLoading(true);
     try {
-      // Fetch all documents to allow grouping by department
-      const result = await getDocuments({ page: 1, limit: 500 });
+      const result = await getDocuments({ page: docPage, limit });
       setDocuments(result.documents);
       setDocTotal(result.total);
     } catch {
@@ -116,7 +117,7 @@ export function MentenantaPage() {
     } finally {
       setDocLoading(false);
     }
-  }, []);
+  }, [docPage]);
 
   useEffect(() => {
     loadDocuments();
@@ -367,6 +368,7 @@ export function MentenantaPage() {
     loadDocuments();
   }
 
+  const totalPages = Math.ceil(docTotal / limit);
   const filteredDocs = search
     ? documents.filter(
         (d) =>
@@ -374,26 +376,6 @@ export function MentenantaPage() {
           d.file_name.toLowerCase().includes(search.toLowerCase())
       )
     : documents;
-
-  // Sort docs alphabetically by title within each group
-  const sortedDocs = [...filteredDocs].sort((a, b) =>
-    (a.title || a.file_name).localeCompare(b.title || b.file_name, 'ro')
-  );
-
-  // Group documents by department
-  const groupedDocs = sortedDocs.reduce((acc, doc) => {
-    const deptName = doc.departments?.name || 'Fără Departament';
-    if (!acc[deptName]) acc[deptName] = [];
-    acc[deptName].push(doc);
-    return acc;
-  }, {} as Record<string, Document[]>);
-
-  // Sort groups alphabetically, "Fără Departament" always last
-  const sortedGroups = Object.keys(groupedDocs).sort((a, b) => {
-    if (a === 'Fără Departament') return 1;
-    if (b === 'Fără Departament') return -1;
-    return a.localeCompare(b, 'ro');
-  });
 
   const statCards = [
     { label: 'Tichete în Așteptare', value: analytics?.pendingTickets, icon: Package, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20' },
@@ -462,92 +444,93 @@ export function MentenantaPage() {
               />
             </div>
 
-            {/* Document table - grouped by department */}
-            {docLoading ? (
-              <div className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200/80 dark:border-dm-surface-bright/15 p-16 text-center">
-                <div className="inline-flex items-center gap-3 text-slate-500 dark:text-dm-on-surface-variant">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Se încarcă...
+            {/* Document table */}
+            <div className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200/80 dark:border-dm-surface-bright/15 overflow-hidden">
+              {docLoading ? (
+                <div className="p-16 text-center">
+                  <div className="inline-flex items-center gap-3 text-slate-500 dark:text-dm-on-surface-variant">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Se încarcă...
+                  </div>
                 </div>
-              </div>
-            ) : filteredDocs.length === 0 ? (
-              <div className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200/80 dark:border-dm-surface-bright/15 p-16 text-center">
-                <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-slate-100 dark:bg-dm-surface-high mb-4">
-                  <FileText size={32} className="text-slate-300 dark:text-dm-surface-bright" />
+              ) : filteredDocs.length === 0 ? (
+                <div className="p-16 text-center">
+                  <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-slate-100 dark:bg-dm-surface-high mb-4">
+                    <FileText size={32} className="text-slate-300 dark:text-dm-surface-bright" />
+                  </div>
+                  <p className="text-lg font-bold text-slate-600 dark:text-dm-on-surface-variant">Nu există documente încărcate.</p>
+                  <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-1.5">
+                    Apasă <strong>&quot;Adaugă Document&quot;</strong> pentru a începe.
+                  </p>
                 </div>
-                <p className="text-lg font-bold text-slate-600 dark:text-dm-on-surface-variant">Nu există documente încărcate.</p>
-                <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-1.5">
-                  Apasă <strong>&quot;Adaugă Document&quot;</strong> pentru a începe.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {sortedGroups.map((deptName) => {
-                  const docs = groupedDocs[deptName];
-                  return (
-                    <div key={deptName} className="rounded-2xl bg-white dark:bg-dm-surface-high/30 border border-slate-200/80 dark:border-dm-surface-bright/15 overflow-hidden">
-                      {/* Category header */}
-                      <div className="px-6 py-4 border-b border-slate-100 dark:border-dm-surface-bright/10 bg-slate-50/70 dark:bg-dm-surface-high/40 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-xl bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center">
-                            <FolderOpen size={16} className="text-primary dark:text-dm-primary" />
-                          </div>
-                          <h3 className="text-sm font-bold text-slate-800 dark:text-dm-on-surface">
-                            {deptName}
-                          </h3>
-                        </div>
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 dark:bg-dm-primary/10 text-primary dark:text-dm-primary">
-                          {docs.length} {docs.length === 1 ? 'document' : 'documente'}
-                        </span>
-                      </div>
+              ) : (
+                <>
+                  {/* Table header */}
+                  <div className="hidden sm:grid grid-cols-[1fr_180px_100px] gap-6 px-6 py-3.5 border-b border-slate-100 dark:border-dm-surface-bright/10 bg-slate-50/50 dark:bg-dm-surface-high/20">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-dm-on-surface-variant">
+                      Nume Fișier
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-dm-on-surface-variant">
+                      Data Încărcării
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-dm-on-surface-variant text-right">
+                      Acțiuni
+                    </p>
+                  </div>
 
-                      {/* Documents in category */}
-                      {docs.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="flex items-center gap-4 sm:grid sm:grid-cols-[1fr_180px_100px] sm:gap-6 px-6 py-4 border-b border-slate-100/80 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50 dark:hover:bg-dm-surface-high/50 transition-colors duration-180"
-                        >
-                          <a
-                            href={doc.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-4 min-w-0 flex-1 cursor-pointer"
-                          >
-                            <div className="size-10 rounded-xl bg-slate-100 dark:bg-dm-surface-high flex items-center justify-center flex-shrink-0">
-                              <FileText size={18} className="text-slate-500 dark:text-dm-on-surface-variant" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate text-[14px] hover:text-primary dark:hover:text-dm-primary transition-colors duration-180">
-                                {doc.title || doc.file_name}
-                              </p>
-                              <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant mt-0.5">
-                                {formatFileSize(doc.file_size)} &bull; {doc.file_type || 'Document'}
-                              </p>
-                            </div>
-                          </a>
-                          <p className="hidden sm:block text-sm text-slate-600 dark:text-dm-on-surface-variant">
-                            {formatDate(doc.created_at)}
+                  {/* Table rows */}
+                  {filteredDocs.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="flex items-center gap-4 sm:grid sm:grid-cols-[1fr_180px_100px] sm:gap-6 px-6 py-5 border-b border-slate-100/80 dark:border-dm-surface-bright/5 last:border-0 hover:bg-slate-50 dark:hover:bg-dm-surface-high/50 transition-colors duration-180"
+                    >
+                      <a
+                        href={doc.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 min-w-0 flex-1 cursor-pointer"
+                      >
+                        <div className="size-11 rounded-xl bg-primary/10 dark:bg-dm-primary/10 flex items-center justify-center flex-shrink-0">
+                          <FileText size={20} className="text-primary dark:text-dm-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-slate-800 dark:text-dm-on-surface truncate text-[15px] hover:text-primary dark:hover:text-dm-primary transition-colors duration-180">
+                            {doc.title || doc.file_name}
                           </p>
-                          <div className="flex justify-end flex-shrink-0">
-                            <button
-                              onClick={() => handleDelete(doc.id)}
-                              title="Șterge document"
-                              className="size-10 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 flex items-center justify-center transition-all duration-180 active:scale-95"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
+                          <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant mt-1">
+                            {formatFileSize(doc.file_size)} &bull; {doc.file_type || 'Document'}
+                          </p>
                         </div>
-                      ))}
+                      </a>
+                      <p className="hidden sm:block text-sm text-slate-600 dark:text-dm-on-surface-variant">
+                        {formatDate(doc.created_at)}
+                      </p>
+                      <div className="flex justify-end flex-shrink-0">
+                        <button
+                          onClick={() => handleDelete(doc.id)}
+                          title="Șterge document"
+                          className="size-10 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 flex items-center justify-center transition-all duration-180 active:scale-95"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
-                  );
-                })}
-
-              </div>
-            )}
+                  ))}
+                </>
+              )}
+              {totalPages > 1 && (
+                <Pagination
+                  page={docPage}
+                  totalPages={totalPages}
+                  onPageChange={setDocPage}
+                  total={docTotal}
+                  limit={limit}
+                />
+              )}
+            </div>
 
           </div>
         )}
