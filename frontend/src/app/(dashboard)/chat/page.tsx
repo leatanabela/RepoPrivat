@@ -478,30 +478,33 @@ export default function ChatPage() {
                     <div key={msg.id}>
                       <ChatMessage role={msg.role} content={msg.content} />
                       {msg.role === 'assistant' && (
-                        <div className="flex items-center gap-1.5 pl-11 mt-2">
+                        <div className="flex items-center gap-2 pl-11 mt-3">
+                          <span className="text-xs text-slate-400 dark:text-dm-on-surface-variant/70 mr-1">
+                            A fost util?
+                          </span>
                           <button
                             onClick={() => handleFeedback(msg.id, 'positive')}
                             className={cn(
-                              'size-7 rounded-lg flex items-center justify-center transition-all duration-180',
+                              'size-8 rounded-lg flex items-center justify-center transition-all duration-180 border',
                               feedback[msg.id] === 'positive'
-                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-dm-surface-high hover:text-emerald-600 dark:hover:text-emerald-400'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400'
+                                : 'border-slate-200 dark:border-dm-surface-bright/20 text-slate-400 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:border-emerald-800 dark:hover:text-emerald-400'
                             )}
                             title="Răspuns util"
                           >
-                            <ThumbsUp size={14} />
+                            <ThumbsUp size={15} />
                           </button>
                           <button
                             onClick={() => handleFeedback(msg.id, 'negative')}
                             className={cn(
-                              'size-7 rounded-lg flex items-center justify-center transition-all duration-180',
+                              'size-8 rounded-lg flex items-center justify-center transition-all duration-180 border',
                               feedback[msg.id] === 'negative'
-                                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-dm-surface-high hover:text-red-600 dark:hover:text-red-400'
+                                ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400'
+                                : 'border-slate-200 dark:border-dm-surface-bright/20 text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400'
                             )}
                             title="Răspuns greșit"
                           >
-                            <ThumbsDown size={14} />
+                            <ThumbsDown size={15} />
                           </button>
                         </div>
                       )}
