@@ -4,13 +4,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from supabase import create_client
 import ollama
 
 from ai.config import settings
 from ai.rag_pipeline.rag_chain import ask_question, ask_question_stream
 from ai.document_processing.pipeline import process_document, process_all_unprocessed
 from ai.ticket_service.classifier import suggest_ticket_metadata
+from ai.supabase_client import get_supabase
 
 
 @asynccontextmanager
@@ -39,10 +39,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def get_supabase():
-    return create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
 
 # ---- Request/Response Models ----
@@ -80,7 +76,7 @@ async def health_check():
 async def chat(request: ChatRequest):
     """Send a question and get a RAG-powered answer."""
     try:
-        result = ask_question(
+        result = await ask_question(
             question=request.question,
             chat_history=request.chat_history,
         )
@@ -167,10 +163,13 @@ async def suggest_ticket(request: TicketSuggestRequest):
             for c in (categories.data or [])
         ]
 
-        result = suggest_ticket_metadata(
-            description=request.description,
-            departments=dept_list,
-            categories=cat_list,
+        # Run blocking LLM call in thread pool so we don't block event loop
+        import asyncio
+        result = await asyncio.to_thread(
+            suggest_ticket_metadata,
+            request.description,
+            dept_list,
+            cat_list,
         )
         return result
 

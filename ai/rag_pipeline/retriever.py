@@ -1,10 +1,6 @@
-from supabase import create_client
 from ai.config import settings
 from ai.embedding_service.embeddings import generate_embedding
-
-
-def get_supabase():
-    return create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+from ai.supabase_client import get_supabase
 
 
 def retrieve_relevant_chunks(

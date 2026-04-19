@@ -1,16 +1,12 @@
 import os
 import tempfile
 import httpx
-from supabase import create_client
 
 from ai.config import settings
 from ai.document_processing.extractor import extract_text
 from ai.document_processing.chunker import chunk_text
 from ai.embedding_service.embeddings import generate_embeddings
-
-
-def get_supabase():
-    return create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+from ai.supabase_client import get_supabase
 
 
 async def process_document(document_id: str, file_path: str | None = None):

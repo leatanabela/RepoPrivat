@@ -1,5 +1,8 @@
 import json
-from ai.chat_service.llm import generate_response
+import logging
+from ai.chat_service.llm import generate_response_sync
+
+logger = logging.getLogger(__name__)
 
 CLASSIFICATION_PROMPT = """Ești un asistent AI care clasifică tichetele de suport pentru o instituție publică din România (primărie).
 
@@ -45,22 +48,25 @@ def suggest_ticket_metadata(
         description=description,
     )
 
-    response = generate_response(prompt)
+    # Use format="json" to force Ollama to return valid JSON
+    response = generate_response_sync(prompt, format="json")
 
     # Parse JSON from response
     try:
-        # Try to extract JSON from the response
         response = response.strip()
+        # Handle ```json wrappers as safety net
         if response.startswith("```"):
             response = response.split("```")[1]
             if response.startswith("json"):
                 response = response[4:]
         result = json.loads(response)
-    except json.JSONDecodeError:
-        # Fallback if LLM didn't return valid JSON
+    except json.JSONDecodeError as e:
+        logger.warning(f"Classifier returned invalid JSON: {e}. Raw response: {response[:200]}")
+        # Return nulls so UI can show "Nu s-a putut determina" rather than silently picking first dept
         result = {
-            "department": departments[0]["name"] if departments else None,
-            "category": categories[0]["name"] if categories else None,
+            "title": "",
+            "department": None,
+            "category": None,
             "priority": "medie",
             "reasoning": "Nu s-a putut determina automat",
         }

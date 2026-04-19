@@ -1,6 +1,8 @@
 from ai.rag_pipeline.retriever import retrieve_relevant_chunks
 from ai.chat_service.llm import generate_response, generate_response_stream
+from ai.config import settings
 from collections.abc import AsyncGenerator
+import asyncio
 import re
 
 SYSTEM_PROMPT = """Ești asistentul AI al primăriei. Răspunzi DOAR pe baza documentelor furnizate, în limba română corectă cu diacritice (ă, â, î, ș, ț).
@@ -132,19 +134,22 @@ Instrucțiuni:
     return prompt
 
 
-def ask_question(
+async def ask_question(
     question: str,
     chat_history: list[dict] | None = None,
-    top_k: int = 3,
-    threshold: float = 0.35,
+    top_k: int | None = None,
+    threshold: float | None = None,
 ) -> dict:
     """
-    Full RAG pipeline:
+    Full RAG pipeline (async - doesn't block event loop):
     1. Retrieve relevant document chunks
     2. Build prompt with context
     3. Generate answer with helpdesk-ro
     4. Return answer with sources
     """
+    top_k = top_k if top_k is not None else settings.RETRIEVAL_TOP_K
+    threshold = threshold if threshold is not None else settings.RETRIEVAL_THRESHOLD
+
     # Handle greetings without hitting RAG
     if _is_greeting(question):
         return {
@@ -161,14 +166,14 @@ def ask_question(
             "chunks_used": 0,
         }
 
-    # Step 1: Retrieve
-    chunks = retrieve_relevant_chunks(question, top_k=top_k, threshold=threshold)
+    # Step 1: Retrieve (sync Supabase call in thread)
+    chunks = await asyncio.to_thread(retrieve_relevant_chunks, question, top_k, threshold)
 
     # Step 2: Build prompt
     prompt = _build_prompt(question, chunks, chat_history)
 
-    # Step 3: Generate
-    answer = generate_response(prompt, system_prompt=SYSTEM_PROMPT)
+    # Step 3: Generate (async, non-blocking)
+    answer = await generate_response(prompt, system_prompt=SYSTEM_PROMPT)
 
     # Step 4: Prepare sources
     sources = []
@@ -194,13 +199,16 @@ def ask_question(
 async def ask_question_stream(
     question: str,
     chat_history: list[dict] | None = None,
-    top_k: int = 3,
-    threshold: float = 0.35,
+    top_k: int | None = None,
+    threshold: float | None = None,
 ) -> AsyncGenerator[dict, None]:
     """
     Streaming RAG pipeline - yields answer tokens one at a time.
     First yields sources, then streams answer chunks.
     """
+    top_k = top_k if top_k is not None else settings.RETRIEVAL_TOP_K
+    threshold = threshold if threshold is not None else settings.RETRIEVAL_THRESHOLD
+
     # Handle greetings instantly
     if _is_greeting(question):
         yield {"type": "sources", "data": []}
@@ -217,8 +225,8 @@ async def ask_question_stream(
         yield {"type": "done", "data": ""}
         return
 
-    # Retrieve
-    chunks = retrieve_relevant_chunks(question, top_k=top_k, threshold=threshold)
+    # Retrieve (sync Supabase call in thread)
+    chunks = await asyncio.to_thread(retrieve_relevant_chunks, question, top_k, threshold)
 
     # Prepare sources
     sources = []
