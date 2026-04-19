@@ -63,6 +63,7 @@ export default function ChatPage() {
     reasoning?: string;
   } | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [ticketSubmitting, setTicketSubmitting] = useState(false);
 
   const userScrolledUpRef = useRef(false);
@@ -293,15 +294,16 @@ export default function ChatPage() {
     setTicketModal({ messageId, question: originalQuestion, aiResponse: assistantContent });
     setTicketForm({ subject: originalQuestion, description: originalQuestion, priority: 'medie', departmentId: '' });
     setAiSuggestions(null);
-    setModalLoading(true);
+    setModalLoading(false); // Modal opens instantly, form is usable immediately
 
-    try {
-      const [depts, suggestions] = await Promise.all([
-        getDepartments(),
-        getAiTicketSuggestions(originalQuestion),
-      ]);
-      setDepartments(depts);
-      if (suggestions) {
+    // Load departments (fast DB query)
+    getDepartments().then(setDepartments).catch(() => {});
+
+    // Load AI suggestions in background (slow - can take 10-30s)
+    setSuggestionsLoading(true);
+    getAiTicketSuggestions(originalQuestion)
+      .then((suggestions) => {
+        if (!suggestions) return;
         setAiSuggestions(suggestions);
         const priorityMap: Record<string, TicketPriority> = {
           low: 'scazuta', medium: 'medie', high: 'ridicata', urgent: 'urgenta',
@@ -313,12 +315,9 @@ export default function ChatPage() {
           priority: priorityMap[suggestions.priority] || prev.priority,
           departmentId: suggestions.department_id || prev.departmentId,
         }));
-      }
-    } catch {
-      // Continue without suggestions
-    } finally {
-      setModalLoading(false);
-    }
+      })
+      .catch(() => {})
+      .finally(() => setSuggestionsLoading(false));
   }
 
   async function handleSubmitTicket() {
@@ -525,12 +524,13 @@ export default function ChatPage() {
             </div>
 
             <div className="px-7 py-6 space-y-5">
-              {modalLoading ? (
-                <div className="flex flex-col items-center gap-3 py-10">
-                  <Loader2 size={24} className="animate-spin text-primary dark:text-dm-primary" />
-                  <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant">AI analizează întrebarea...</p>
+              {suggestionsLoading && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+                  <Loader2 size={14} className="animate-spin text-blue-600 dark:text-blue-400" />
+                  <p className="text-xs text-blue-700 dark:text-blue-300">AI analizează întrebarea pentru sugestii automate...</p>
                 </div>
-              ) : (
+              )}
+              {false ? null : (
                 <>
 <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-dm-on-surface mb-1.5">
@@ -611,7 +611,7 @@ export default function ChatPage() {
             <div className="px-7 pb-7 pt-1 flex gap-3">
               <button
                 onClick={handleSubmitTicket}
-                disabled={ticketSubmitting || modalLoading || !ticketForm.description.trim()}
+                disabled={ticketSubmitting || !ticketForm.description.trim()}
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-dm-primary-container text-white rounded-xl text-sm font-semibold hover:bg-slate-800 dark:hover:bg-dm-primary-container/80 transition-all duration-180 disabled:opacity-50 active:scale-[0.98]"
               >
                 {ticketSubmitting ? (
