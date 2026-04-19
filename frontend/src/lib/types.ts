@@ -116,4 +116,7 @@ export interface Analytics {
   departmentDistribution: Array<{ name: string; count: number }>;
   avgResolutionHours: number | null;
   frequentQuestions: Array<{ content: string; count: number }>;
+  positiveFeedback: number;
+  negativeFeedback: number;
+  satisfactionRate: number | null;
 }

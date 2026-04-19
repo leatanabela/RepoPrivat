@@ -34,6 +34,8 @@ import {
   Pencil,
   Shield,
   Loader2,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react';
 import type { Document, Department, Analytics, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -846,6 +848,53 @@ export function MentenantaPage() {
                     <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-3">
                       Bazat pe {analytics.resolvedTickets} tichet{analytics.resolvedTickets !== 1 ? 'e' : ''} rezolvat{analytics.resolvedTickets !== 1 ? 'e' : ''}
                     </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Feedback AI */}
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
+                  Satisfacție Asistent AI
+                </h3>
+                {analyticsLoading ? (
+                  <div className="animate-pulse h-24 bg-slate-100 dark:bg-dm-surface-bright/20 rounded-xl" />
+                ) : !analytics || ((analytics.positiveFeedback ?? 0) + (analytics.negativeFeedback ?? 0)) === 0 ? (
+                  <div className="h-24 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
+                    <ThumbsUp size={24} className="text-slate-300 dark:text-dm-surface-bright" />
+                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun feedback încă</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+                      <div className="size-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
+                        <ThumbsUp size={24} className="text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300">{analytics.positiveFeedback ?? 0}</p>
+                        <p className="text-xs font-semibold text-emerald-700/80 dark:text-emerald-400/80">Răspunsuri utile</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
+                      <div className="size-12 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                        <ThumbsDown size={24} className="text-red-600 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-black text-red-700 dark:text-red-300">{analytics.negativeFeedback ?? 0}</p>
+                        <p className="text-xs font-semibold text-red-700/80 dark:text-red-400/80">Răspunsuri greșite</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+                      <div className="size-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+                        <BarChart3 size={24} className="text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{analytics.satisfactionRate ?? 0}%</p>
+                        <p className="text-xs font-semibold text-blue-700/80 dark:text-blue-400/80">Rata de satisfacție</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

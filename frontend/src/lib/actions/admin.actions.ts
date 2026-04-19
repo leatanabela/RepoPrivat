@@ -65,6 +65,20 @@ export async function getAnalytics(): Promise<Analytics> {
     avgResolutionHours = Math.round((totalMs / resolvedTicketRows.length / 3600000) * 10) / 10;
   }
 
+  // AI feedback stats
+  const { data: feedbackRows } = await supabaseAdmin
+    .from('chat_feedback')
+    .select('rating');
+
+  let positiveFeedback = 0;
+  let negativeFeedback = 0;
+  for (const f of feedbackRows || []) {
+    if (f.rating === 'positive') positiveFeedback++;
+    else if (f.rating === 'negative') negativeFeedback++;
+  }
+  const totalFeedback = positiveFeedback + negativeFeedback;
+  const satisfactionRate = totalFeedback > 0 ? Math.round((positiveFeedback / totalFeedback) * 100) : null;
+
   // Frequent AI questions
   const { data: allUserQuestions } = await supabaseAdmin
     .from('chat_messages')
@@ -101,6 +115,9 @@ export async function getAnalytics(): Promise<Analytics> {
     departmentDistribution,
     avgResolutionHours,
     frequentQuestions,
+    positiveFeedback,
+    negativeFeedback,
+    satisfactionRate,
   };
 }
 

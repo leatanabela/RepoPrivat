@@ -17,7 +17,7 @@ import {
   getPopularQuestions,
 } from '@/lib/actions/chat.actions';
 import { createTicketFromChat, getAiTicketSuggestions, getDepartments } from '@/lib/actions/ticket.actions';
-import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot, ThumbsUp, ThumbsDown, TrendingUp } from 'lucide-react';
+import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatSkeleton } from '@/components/ui/loading-skeleton';
 import { PRIORITY_LABELS } from '@/lib/constants';
@@ -112,11 +112,9 @@ export default function ChatPage() {
     getPopularQuestions(4).then(setPopularQuestions).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (currentSessionId) {
-      getChatMessages(currentSessionId).then(setMessages).catch(() => {});
-    }
-  }, [currentSessionId]);
+  // NOTE: We intentionally do NOT auto-fetch messages on currentSessionId change.
+  // Messages are loaded by selectSession() or explicitly after user sends.
+  // This prevents race conditions where a just-sent message gets overwritten by a stale fetch.
 
   async function loadSessions() {
     try {
@@ -409,47 +407,35 @@ export default function ChatPage() {
           <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto px-4">
               <div className="flex flex-col gap-6 py-8">
-                {/* Welcome message - only shown when no messages yet */}
-                {messages.length === 0 && !streaming && !streamingContent && (
-                  <div className="flex gap-3 justify-start">
-                    <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
-                      <Bot size={16} className="text-white dark:text-dm-primary" />
-                    </div>
-                    <div className="flex flex-col gap-1 max-w-[75%]">
-                      <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
-                        <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
-                          Bună ziua! Sunt asistentul virtual al primăriei. Te pot ajuta cu informații despre proceduri administrative, legislație, concesiuni, acte necesare și multe altele. Cu ce te pot ajuta?
-                        </p>
-                      </div>
+                {/* Welcome message - always shown at start of conversation */}
+                <div className="flex gap-3 justify-start">
+                  <div className="size-8 rounded-xl bg-primary dark:bg-dm-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <Bot size={16} className="text-white dark:text-dm-primary" />
+                  </div>
+                  <div className="flex flex-col gap-1 max-w-[75%]">
+                    <div className="px-5 py-4 rounded-2xl rounded-tl-md bg-white dark:bg-dm-surface-high border border-slate-100 dark:border-dm-surface-bright/10">
+                      <p className="text-base leading-[1.75] text-slate-700 dark:text-dm-on-surface">
+                        Bună ziua! Sunt asistentul virtual al primăriei. Te pot ajuta cu informații despre proceduri administrative, legislație, concesiuni, acte necesare și multe altele. Cu ce te pot ajuta?
+                      </p>
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Example questions - only shown before any interaction */}
                 {messages.length === 0 && !streaming && !streamingContent && (
                   <div className="flex gap-3 justify-start">
                     <div className="size-8 shrink-0" aria-hidden="true" />
                     <div className="flex flex-col gap-2 max-w-[85%] w-full">
-                      {popularQuestions.length >= 2 ? (
-                        <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1 flex items-center gap-1.5">
-                          <TrendingUp size={12} />
-                          Cele mai populare întrebări:
-                        </p>
-                      ) : (
-                        <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1">
-                          💡 Încearcă una din aceste întrebări:
-                        </p>
-                      )}
+                      <p className="text-xs font-semibold text-slate-500 dark:text-dm-on-surface-variant px-1 mb-1">
+                        💡 Încearcă una din aceste întrebări:
+                      </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {(popularQuestions.length >= 2
-                          ? popularQuestions
-                          : [
-                              'Care sunt drepturile deținuților conform legii?',
-                              'Cum se face promovarea în grad profesional?',
-                              'Ce documente sunt necesare pentru autorizația de construire?',
-                              'Ce obligații are angajatul conform regulamentului intern?',
-                            ]
-                        ).map((q) => (
+                        {[
+                          'Care sunt drepturile deținuților conform legii?',
+                          'Cum se face promovarea în grad profesional?',
+                          'Ce documente sunt necesare pentru autorizația de construire?',
+                          'Ce obligații are angajatul conform regulamentului intern?',
+                        ].map((q) => (
                           <button
                             key={q}
                             onClick={() => handleSend(q)}
