@@ -152,6 +152,7 @@ export function Sidebar() {
               </div>
             </Link>
 
+            <nav className="flex flex-col gap-0.5">
             {/* Notifications */}
             <div className="relative" ref={notifRef}>
               <button
@@ -227,7 +228,6 @@ export function Sidebar() {
               )}
             </div>
 
-            <nav className="flex flex-col gap-0.5">
               {/* Asistent AI */}
               <button
                 onClick={() => {
