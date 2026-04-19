@@ -327,19 +327,6 @@ export function Sidebar() {
                 <span className="text-sm font-medium">Întrebări Frecvente</span>
               </Link>
 
-              <Link
-                href="/settings"
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
-                  pathname.startsWith('/settings')
-                    ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary font-semibold'
-                    : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
-                )}
-              >
-                <Settings size={20} />
-                <span className="text-sm font-medium">Setări</span>
-              </Link>
-
               {isAdmin && (
                 <>
                   <div className="my-3 border-t border-slate-100 dark:border-dm-surface-high" />
@@ -366,15 +353,30 @@ export function Sidebar() {
             </nav>
           </div>
 
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-dm-on-surface-variant hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all duration-180 w-full border-t border-slate-100 dark:border-dm-surface-high pt-6"
+          <div className="flex flex-col gap-0.5 border-t border-slate-100 dark:border-dm-surface-high pt-4">
+            <Link
+              href="/settings"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-180',
+                pathname.startsWith('/settings')
+                  ? 'bg-primary/10 text-primary dark:bg-dm-primary/10 dark:text-dm-primary font-semibold'
+                  : 'text-slate-600 dark:text-dm-on-surface-variant hover:bg-slate-50 dark:hover:bg-dm-surface-high'
+              )}
             >
-              <LogOut size={20} />
-              <span className="text-sm font-medium">Logout</span>
-            </button>
-          </form>
+              <Settings size={20} />
+              <span className="text-sm font-medium">Setări</span>
+            </Link>
+
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-dm-on-surface-variant hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all duration-180 w-full"
+              >
+                <LogOut size={20} />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
+            </form>
+          </div>
         </div>
       </aside>
     </>
