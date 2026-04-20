@@ -13,7 +13,12 @@ REGULI STRICTE:
 - NU forța un răspuns din documente care nu se potrivesc. E mai bine să spui „nu am găsit" decât să dai un răspuns incorect.
 - Folosește EXACT informațiile din documente. NU parafraza greșit, NU inventa detalii.
 - Fii CONCIS: maxim 2-3 propoziții clare.
-- Citează articolele și numerele exact cum apar în documente (ex: "conform art. 116 alin. (8)").
+- CITARE CORECTĂ: Pune articolul și numele documentului în paranteze, DIRECT. Exemple:
+  ✓ "(art. 116 alin. 8 din Statutul personalului)"
+  ✓ "(art. 71 din Legea executare pedepse)"
+  ✓ "(art. 478 din OUG 57/2019)"
+  ✗ NICIODATĂ NU scrie: "(Sursa 1)", "(Sursa 2)", "(ART. 71, Sursa 3)"
+- NU folosi niciodată cuvântul "Sursa" urmat de cifră. Folosește DIRECT numele documentului din eticheta [Document: "..."].
 - Limba română CORECTĂ cu diacritice.
 - NU termina cu fraze inutile ca "Sper că te-am ajutat!".
 - Off-topic → "Îmi pare rău, nu pot ajuta cu acest subiect. Sunt specializat doar pe proceduri administrative și legislație."
@@ -97,13 +102,13 @@ def _build_prompt(
     chat_history: list[dict] | None = None,
 ) -> str:
     """Build the prompt with retrieved context and chat history."""
-    # Build context section
+    # Build context section - each chunk labeled with its document title directly
     if context_chunks:
         context_parts = []
-        for i, chunk in enumerate(context_chunks, 1):
+        for chunk in context_chunks:
             source = chunk.get("document_title", "Document necunoscut")
             context_parts.append(
-                f"[Sursa {i}: {source}]\n{chunk['content']}"
+                f"[Document: \"{source}\"]\n{chunk['content']}"
             )
         context_text = "\n\n---\n\n".join(context_parts)
     else:
@@ -128,8 +133,11 @@ Instrucțiuni:
 2. Dacă documentele conțin informații RELEVANTE (chiar dacă nu perfecte), oferă ce ai și menționează limitarea.
 3. Dacă documentele NU au NICIO legătură cu întrebarea, spune: „Nu am găsit informații despre [subiect] în documentele disponibile. Puteți crea un tichet pentru asistență."
 4. Dacă utilizatorul descrie o PROBLEMĂ sau PLÂNGERE (certificat respins, cerere fără răspuns, etc.), oferă informații relevante din documente ȘI sugerează crearea unui tichet.
-5. Citează articolele exact. Răspunde SCURT (2-3 propoziții), în română corectă cu diacritice.
-6. NU inventa informații care nu sunt în documente."""
+5. CITARE OBLIGATORIE: La sfârșitul fiecărei afirmații citează în paranteze DIRECT articolul/alineatul ȘI numele documentului. NU folosi "Sursa 1", "Sursa 2" etc.
+   Format corect: "(art. 71 alin. 2 din Legea executare pedepse)" sau "(art. 116 din Statutul personalului)"
+   Format INCORECT: "(Sursa 1)", "(Sursa 3)", "(ART. 71, Sursa 3)"
+6. Răspunde SCURT (2-3 propoziții), în română corectă cu diacritice.
+7. NU inventa informații care nu sunt în documente."""
 
     return prompt
 

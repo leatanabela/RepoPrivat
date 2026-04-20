@@ -58,23 +58,14 @@ export function ChatMessage({ role, content, isStreaming, sources }: ChatMessage
           )}
         </div>
 
-        {/* Sources */}
+        {/* Sources - just document names, no clickable links */}
         {isAI && !isStreaming && sources && sources.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {sources.map((src, i) => (
-              <a
-                key={src.document_id}
-                href={src.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg text-xs text-slate-600 dark:text-dm-on-surface-variant hover:border-primary/40 dark:hover:border-dm-primary/40 hover:text-primary dark:hover:text-dm-primary transition-all duration-180"
-                title={src.document_title}
-              >
-                <FileText size={12} />
-                <span className="font-medium">Sursa {i + 1}:</span>
-                <span className="truncate max-w-[200px]">{src.document_title}</span>
-              </a>
-            ))}
+          <div className="mt-2 flex items-start gap-2">
+            <FileText size={12} className="text-slate-400 dark:text-dm-on-surface-variant/70 mt-0.5 shrink-0" />
+            <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant/80 leading-relaxed">
+              <span className="font-semibold">Surse:</span>{' '}
+              {Array.from(new Set(sources.map((s) => s.document_title))).join(', ')}
+            </p>
           </div>
         )}
 
