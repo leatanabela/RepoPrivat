@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useChatStore } from '@/stores/chat-store';
 import { useNotificationStore } from '@/stores/notification-store';
 import { signOut } from '@/lib/actions/auth.actions';
-import { getChatSessions, deleteChatSession } from '@/lib/actions/chat.actions';
+import { getChatSessions, getChatMessages, deleteChatSession } from '@/lib/actions/chat.actions';
 import { getTicketNotifications } from '@/lib/actions/ticket.actions';
 import type { ChatSession } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -78,10 +78,15 @@ export function Sidebar() {
     }
   }
 
-  function handleSelectSession(session: ChatSession) {
+  async function handleSelectSession(session: ChatSession) {
     setCurrentSession(session.id);
-    setMessages([]);
     router.push('/chat');
+    try {
+      const msgs = await getChatMessages(session.id);
+      setMessages(msgs);
+    } catch {
+      toast.error('Eroare la încărcarea mesajelor');
+    }
   }
 
   async function handleDeleteSession(id: string) {

@@ -49,6 +49,8 @@ export default function ChatPage() {
   const lastQuestionRef = useRef<string>('');
   const questionForMessageRef = useRef<Map<string, string>>(new Map());
   const noChunksRef = useRef(false);
+  const streamSourcesRef = useRef<Array<{ document_id: string; document_title: string; similarity: number; file_url: string }>>([]);
+  const [messageSources, setMessageSources] = useState<Record<string, Array<{ document_id: string; document_title: string; similarity: number; file_url: string }>>>({});
   const [ticketModal, setTicketModal] = useState<{
     messageId: string;
     question: string;
@@ -211,6 +213,7 @@ export default function ChatPage() {
   async function sendToSession(sessionId: string, message: string) {
     lastQuestionRef.current = message;
     noChunksRef.current = false;
+    streamSourcesRef.current = [];
 
     try {
       const userMsg = await saveUserMessage(sessionId, message);
@@ -258,6 +261,9 @@ export default function ChatPage() {
               if (data === '[DONE]') continue;
               try {
                 const parsed = JSON.parse(data);
+                if (parsed.type === 'sources' && Array.isArray(parsed.data)) {
+                  streamSourcesRef.current = parsed.data;
+                }
                 if (parsed.type === 'metadata' && parsed.data) {
                   if (parsed.data.chunks_used === 0) {
                     noChunksRef.current = true;
@@ -302,7 +308,10 @@ export default function ChatPage() {
       const isLongAnswer = trimmedContent.length > 300;
       const couldNotAnswer = !isGreeting && !isVagueHelper && !isLongAnswer && ((noChunksRef.current && isShortNoInfo) || isRefusalResponse);
 
-      // Store which question triggered this assistant message
+      // Store sources and question for this assistant message
+      if (streamSourcesRef.current.length > 0) {
+        setMessageSources((prev) => ({ ...prev, [assistantMsg.id]: streamSourcesRef.current }));
+      }
       questionForMessageRef.current.set(assistantMsg.id, lastQuestionRef.current);
       if (!isAdmin && (userAskedForTicket || couldNotAnswer)) {
         setTicketableMessages((prev) => new Set(prev).add(assistantMsg.id));
@@ -462,7 +471,7 @@ export default function ChatPage() {
                 {/* Messages */}
                   {messages.map((msg) => (
                     <div key={msg.id}>
-                      <ChatMessage role={msg.role} content={msg.content} />
+                      <ChatMessage role={msg.role} content={msg.content} sources={messageSources[msg.id]} />
                       {msg.role === 'assistant' && (
                         <div className="flex items-center gap-2 pl-11 mt-3">
                           <span className="text-xs text-slate-400 dark:text-dm-on-surface-variant/70 mr-1">

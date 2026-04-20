@@ -2,16 +2,17 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Bot, User, Copy, Check } from 'lucide-react';
+import { Bot, User, Copy, Check, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant';
   content: string;
   isStreaming?: boolean;
+  sources?: Array<{ document_id: string; document_title: string; similarity: number; file_url: string }>;
 }
 
-export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
+export function ChatMessage({ role, content, isStreaming, sources }: ChatMessageProps) {
   const isAI = role === 'assistant';
   const [copied, setCopied] = useState(false);
 
@@ -56,6 +57,26 @@ export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
             <p className="text-base leading-[1.75]">{content}</p>
           )}
         </div>
+
+        {/* Sources */}
+        {isAI && !isStreaming && sources && sources.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {sources.map((src, i) => (
+              <a
+                key={src.document_id}
+                href={src.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-dm-surface-high border border-slate-200 dark:border-dm-surface-bright/15 rounded-lg text-xs text-slate-600 dark:text-dm-on-surface-variant hover:border-primary/40 dark:hover:border-dm-primary/40 hover:text-primary dark:hover:text-dm-primary transition-all duration-180"
+                title={src.document_title}
+              >
+                <FileText size={12} />
+                <span className="font-medium">Sursa {i + 1}:</span>
+                <span className="truncate max-w-[200px]">{src.document_title}</span>
+              </a>
+            ))}
+          </div>
+        )}
 
         {/* Copy button — only on AI messages, visible on hover */}
         {isAI && !isStreaming && content && (
