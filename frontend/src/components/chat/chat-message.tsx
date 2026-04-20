@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Bot, User, Copy, Check, FileText } from 'lucide-react';
+import { Bot, User, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
@@ -16,22 +16,45 @@ export function ChatMessage({ role, content, isStreaming, sources }: ChatMessage
   const isAI = role === 'assistant';
   const [copied, setCopied] = useState(false);
 
-  // Replace "Sursa N" with actual document name so answer shows
-  // "conform art. 1 din cod etic si integritate" instead of "conform art. 1 din Sursa 1"
-  function replaceSourceRefs(text: string): string {
-    if (!sources || sources.length === 0) return text;
+  // Capitalize each word in a document title: "cod etic si integritate" → "Cod Etic Si Integritate"
+  function prettifyTitle(title: string): string {
+    return title
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // Clean up source references in AI responses:
+  // - Replace "Sursa 1" with actual document name
+  // - Replace [Document: "xyz"] with clean inline text
+  function cleanSourceRefs(text: string): string {
+    if (!sources || sources.length === 0) {
+      // Still clean [Document: "..."] tags even without source map
+      return text
+        .replace(/\[Document:\s*"([^"]+)"\]/gi, (_, name) => prettifyTitle(name))
+        .replace(/\[Document:\s*([^\]]+)\]/gi, (_, name) => prettifyTitle(name));
+    }
+
     // Deduplicate sources by document_title preserving order
     const uniqueTitles: string[] = [];
     for (const s of sources) {
       if (!uniqueTitles.includes(s.document_title)) uniqueTitles.push(s.document_title);
     }
-    return text.replace(/\b[Ss]ursa\s*(\d+)\b/g, (_, num) => {
+
+    let cleaned = text;
+    // 1. Replace "Sursa N" with real document name
+    cleaned = cleaned.replace(/\b[Ss]ursa\s*(\d+)\b/g, (_, num) => {
       const idx = parseInt(num, 10) - 1;
-      return uniqueTitles[idx] || `Sursa ${num}`;
+      return uniqueTitles[idx] ? prettifyTitle(uniqueTitles[idx]) : `Sursa ${num}`;
     });
+    // 2. Remove [Document: "xyz"] wrappers, keep just the name prettified
+    cleaned = cleaned
+      .replace(/\[Document:\s*"([^"]+)"\]/gi, (_, name) => prettifyTitle(name))
+      .replace(/\[Document:\s*([^\]]+)\]/gi, (_, name) => prettifyTitle(name));
+    return cleaned;
   }
 
-  const displayContent = isAI && !isStreaming ? replaceSourceRefs(content) : content;
+  const displayContent = isAI && !isStreaming ? cleanSourceRefs(content) : content;
 
   function handleCopy() {
     navigator.clipboard.writeText(displayContent);
@@ -74,17 +97,6 @@ export function ChatMessage({ role, content, isStreaming, sources }: ChatMessage
             <p className="text-base leading-[1.75]">{content}</p>
           )}
         </div>
-
-        {/* Sources - just document names, no clickable links */}
-        {isAI && !isStreaming && sources && sources.length > 0 && (
-          <div className="mt-2 flex items-start gap-2">
-            <FileText size={12} className="text-slate-400 dark:text-dm-on-surface-variant/70 mt-0.5 shrink-0" />
-            <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant/80 leading-relaxed">
-              <span className="font-semibold">Surse:</span>{' '}
-              {Array.from(new Set(sources.map((s) => s.document_title))).join(', ')}
-            </p>
-          </div>
-        )}
 
         {/* Copy button — only on AI messages, visible on hover */}
         {isAI && !isStreaming && content && (
