@@ -16,8 +16,25 @@ export function ChatMessage({ role, content, isStreaming, sources }: ChatMessage
   const isAI = role === 'assistant';
   const [copied, setCopied] = useState(false);
 
+  // Replace "Sursa N" with actual document name so answer shows
+  // "conform art. 1 din cod etic si integritate" instead of "conform art. 1 din Sursa 1"
+  function replaceSourceRefs(text: string): string {
+    if (!sources || sources.length === 0) return text;
+    // Deduplicate sources by document_title preserving order
+    const uniqueTitles: string[] = [];
+    for (const s of sources) {
+      if (!uniqueTitles.includes(s.document_title)) uniqueTitles.push(s.document_title);
+    }
+    return text.replace(/\b[Ss]ursa\s*(\d+)\b/g, (_, num) => {
+      const idx = parseInt(num, 10) - 1;
+      return uniqueTitles[idx] || `Sursa ${num}`;
+    });
+  }
+
+  const displayContent = isAI && !isStreaming ? replaceSourceRefs(content) : content;
+
   function handleCopy() {
-    navigator.clipboard.writeText(content);
+    navigator.clipboard.writeText(displayContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -48,7 +65,7 @@ export function ChatMessage({ role, content, isStreaming, sources }: ChatMessage
         >
           {isAI ? (
             <div className="prose prose-slate dark:prose-invert prose-base max-w-none [&>p]:text-base [&>p]:leading-[1.75] [&>ul]:text-base [&>ol]:text-base [&>p:last-child]:mb-0 dark:[&>p]:text-dm-on-surface dark:[&>ul]:text-dm-on-surface dark:[&>ol]:text-dm-on-surface [&>ul]:leading-[1.75] [&>ol]:leading-[1.75]">
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown>{displayContent}</ReactMarkdown>
               {isStreaming && (
                 <span className="inline-block w-1.5 h-5 bg-primary/50 dark:bg-dm-primary/50 animate-pulse rounded-sm ml-0.5 align-middle" />
               )}
