@@ -1,5 +1,5 @@
 from ai.rag_pipeline.retriever import retrieve_relevant_chunks
-from ai.rag_pipeline.institution_context import get_institution_context
+from ai.rag_pipeline.institution_context import get_institution_context, get_institution_answer
 from ai.chat_service.llm import generate_response, generate_response_stream
 from ai.config import settings
 from collections.abc import AsyncGenerator
@@ -186,6 +186,16 @@ async def ask_question(
             "chunks_used": 0,
         }
 
+    # Fast-path: institutional questions (program, salariu, sărbători, concedii)
+    # → answer directly from institution_info table, no LLM needed (instant + accurate)
+    inst_answer = await asyncio.to_thread(get_institution_answer, question)
+    if inst_answer:
+        return {
+            "answer": inst_answer,
+            "sources": [],
+            "chunks_used": 0,
+        }
+
     # Step 1: Retrieve (sync Supabase call in thread)
     chunks = await asyncio.to_thread(retrieve_relevant_chunks, question, top_k, threshold)
 
@@ -242,6 +252,15 @@ async def ask_question_stream(
         yield {"type": "sources", "data": []}
         yield {"type": "metadata", "data": {"chunks_used": 0}}
         yield {"type": "token", "data": _VAGUE_RESPONSE}
+        yield {"type": "done", "data": ""}
+        return
+
+    # Fast-path: institutional questions (program, salariu, sărbători, concedii)
+    inst_answer = await asyncio.to_thread(get_institution_answer, question)
+    if inst_answer:
+        yield {"type": "sources", "data": []}
+        yield {"type": "metadata", "data": {"chunks_used": 0}}
+        yield {"type": "token", "data": inst_answer}
         yield {"type": "done", "data": ""}
         return
 

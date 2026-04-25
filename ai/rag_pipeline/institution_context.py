@@ -86,3 +86,106 @@ def invalidate_cache() -> None:
     """Force refresh of cache (call after admin changes)."""
     _CACHE["data"] = None
     _CACHE["timestamp"] = 0
+
+
+# Detection patterns for institutional questions
+import re
+
+_QUERY_PATTERNS = {
+    "program_lucru": re.compile(
+        r"\b(program(?:ul)?(?:\s+de)?\s+(?:lucru|munc[aă]|institu[tț]ie)|"
+        r"orar(?:ul)?(?:\s+de)?(?:\s+lucru|de\s+munc[aă])?|"
+        r"la\s+ce\s+or[aă]\s+(?:se\s+(?:deschide|închide|inchide)|începe|termin[aă]|terminați|inchideți|deschideți)|"
+        r"c[aâ]nd\s+(?:se\s+(?:deschide|închide|inchide)|începe|termin[aă])|"
+        r"(?:în\s+)?ce\s+(?:zile|interval|or[ae]r?)\s+lucr[aă]ți|"
+        r"pauz[aă](?:\s+de\s+masa)?|"
+        r"or(?:ar|e)\s+(?:de\s+)?(?:public|primire))\b",
+        re.IGNORECASE,
+    ),
+    "salariu": re.compile(
+        r"\b(salariu(?:l|le)?|"
+        r"(?:zi(?:ua)?\s+(?:de\s+)?salar(?:iu(?:lui)?)?)|"
+        r"c[aâ]nd\s+(?:primesc|primim|se\s+(?:da|d[aă]|primește|achit[aă]))\s+salariu|"
+        r"data\s+salariu|"
+        r"plata\s+salariu)\b",
+        re.IGNORECASE,
+    ),
+    "sarbatoare": re.compile(
+        r"\b(s[aă]rb[aă]tor(?:i|e)|"
+        r"zile?\s+liber[ae]?|"
+        r"vacan[tț][aă]?|"
+        r"(?:zi|zile|s[aă]pt[aă]m[aâ]n[aă])\s+nelucr[aă]toa?re|"
+        r"pa[sș]te(?:le)?|cr[aă]ciun(?:ul)?|anul\s+nou|"
+        r"1\s+(?:mai|iunie|decembrie))\b",
+        re.IGNORECASE,
+    ),
+    "concediu": re.compile(
+        r"\b(concedi[uiul]+|"
+        r"odihn[aă]?|"
+        r"(?:zile|c[aâ]te\s+zile)\s+(?:de\s+)?(?:concediu|odihn[aă]|liber[ae])|"
+        r"perioad[aă]\s+(?:de\s+)?concediu)\b",
+        re.IGNORECASE,
+    ),
+}
+
+
+def detect_institution_intent(question: str) -> str | None:
+    """Returns the institution_info type if the question matches one,
+    or None if it's not an institutional question."""
+    q = question.lower().strip()
+    for type_key, pattern in _QUERY_PATTERNS.items():
+        if pattern.search(q):
+            return type_key
+    return None
+
+
+def get_institution_answer(question: str) -> str | None:
+    """If question matches an institutional topic, return a direct answer
+    from institution_info table. Returns None if no match or no data.
+
+    This bypasses the LLM entirely for guaranteed accurate responses.
+    """
+    intent = detect_institution_intent(question)
+    if not intent:
+        return None
+
+    try:
+        sb = get_supabase()
+        result = sb.table("institution_info").select(
+            "type, title, content, date_from, date_to"
+        ).eq("type", intent).execute()
+        rows = result.data or []
+    except Exception as e:
+        print(f"[institution_context] Error fetching answer: {e}")
+        return None
+
+    if not rows:
+        return None
+
+    # Format answer
+    label = _TYPE_LABELS.get(intent, intent)
+    if len(rows) == 1:
+        item = rows[0]
+        date_info = ""
+        if item.get("date_from") or item.get("date_to"):
+            parts = []
+            if item.get("date_from"):
+                parts.append(f"de la {item['date_from']}")
+            if item.get("date_to"):
+                parts.append(f"până la {item['date_to']}")
+            date_info = f" ({' '.join(parts)})"
+        return f"**{item['title']}**\n\n{item['content']}{date_info}"
+
+    # Multiple items
+    lines = [f"**{label}:**\n"]
+    for item in rows:
+        line = f"• **{item['title']}**: {item['content']}"
+        if item.get("date_from") or item.get("date_to"):
+            parts = []
+            if item.get("date_from"):
+                parts.append(f"de la {item['date_from']}")
+            if item.get("date_to"):
+                parts.append(f"până la {item['date_to']}")
+            line += f" ({' '.join(parts)})"
+        lines.append(line)
+    return "\n".join(lines)
