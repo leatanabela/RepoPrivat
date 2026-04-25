@@ -1,95 +1,82 @@
-"""Fetch institution info (program, salariu, sărbători, concedii) to inject into AI prompt.
+"""Hardcoded institution info (program, salariu, sărbători, concedii) per category.
 
-This is a lightweight, cached helper that pulls from the institution_info Supabase table
-and formats it as additional context for the LLM. No embeddings, no RAG complexity —
-just direct text injection so the AI always knows the latest institution rules.
+These answers are baked into the code (no DB lookup, no document chunks, no RAG)
+because they're stable category-level facts about the institution that should
+ALWAYS produce the same correct answer instantly.
+
+Public API (unchanged for backward compat):
+- detect_institution_intent(question) -> str | None
+- get_institution_answer(question)    -> str | None  (hardcoded direct answer)
+- get_institution_context()           -> str         (formatted block for system prompt)
+- invalidate_cache()                  -> None        (no-op kept for callers)
 """
-from typing import Any
-import time
-from ai.supabase_client import get_supabase
+from __future__ import annotations
+import re
 
-# Cache for 60 seconds to avoid hitting DB on every chat message
-_CACHE: dict[str, Any] = {"data": None, "timestamp": 0}
-_CACHE_TTL_SECONDS = 60
+# ---------------------------------------------------------------------------
+# Hardcoded answers per institutional category.
+# Edit the strings below to update what the AI says — no DB migration needed.
+# ---------------------------------------------------------------------------
+
+_HARDCODED: dict[str, dict[str, str]] = {
+    "program_lucru": {
+        "title": "Program de lucru",
+        "content": (
+            "Programul de lucru al instituției este de luni până vineri, "
+            "între orele 09:00 și 17:00, cu pauză de masă între 12:00 și 13:00. "
+            "Sâmbăta și duminica instituția este închisă."
+        ),
+    },
+    "salariu": {
+        "title": "Ziua plății salariului",
+        "content": (
+            "Salariul se plătește lunar, pe data de 15 a fiecărei luni. "
+            "Dacă data de 15 cade într-o zi nelucrătoare (weekend sau sărbătoare legală), "
+            "plata se efectuează în ultima zi lucrătoare anterioară."
+        ),
+    },
+    "sarbatoare": {
+        "title": "Sărbători legale (zile libere)",
+        "content": (
+            "Conform Codului Muncii (art. 139), zilele de sărbătoare legală în care nu se lucrează sunt:\n"
+            "• 1 și 2 ianuarie — Anul Nou\n"
+            "• 24 ianuarie — Ziua Unirii Principatelor Române\n"
+            "• Vinerea Mare, prima și a doua zi de Paște\n"
+            "• 1 mai — Ziua Muncii\n"
+            "• 1 iunie — Ziua Copilului\n"
+            "• Prima și a doua zi de Rusalii\n"
+            "• 15 august — Adormirea Maicii Domnului\n"
+            "• 30 noiembrie — Sfântul Andrei\n"
+            "• 1 decembrie — Ziua Națională a României\n"
+            "• 25 și 26 decembrie — Crăciunul"
+        ),
+    },
+    "concediu": {
+        "title": "Concedii",
+        "content": (
+            "Tipurile de concediu de care beneficiază angajații instituției:\n"
+            "• Concediu de odihnă: 21 zile lucrătoare/an pentru vechime sub 5 ani, "
+            "respectiv 25 zile lucrătoare/an pentru vechime peste 5 ani.\n"
+            "• Concediu medical: acordat pe baza certificatului eliberat de medicul curant.\n"
+            "• Concediu de maternitate: 126 zile (63 zile prenatal + 63 zile postnatal).\n"
+            "• Concediu pentru creșterea copilului: până la împlinirea vârstei de 2 ani.\n"
+            "• Concedii fără plată: în condițiile prevăzute de Codul Muncii."
+        ),
+    },
+}
 
 _TYPE_LABELS = {
     "program_lucru": "PROGRAM DE LUCRU",
     "salariu": "ZIUA SALARIULUI",
     "sarbatoare": "SĂRBĂTORI / ZILE LIBERE",
     "concediu": "CONCEDII",
-    "altele": "ALTE INFORMAȚII",
 }
 
 
-def _format_item(item: dict) -> str:
-    """Format a single institution_info row as readable text for the LLM."""
-    lines = [f"• {item['title']}: {item['content']}"]
-    if item.get("date_from") or item.get("date_to"):
-        date_parts = []
-        if item.get("date_from"):
-            date_parts.append(f"de la {item['date_from']}")
-        if item.get("date_to"):
-            date_parts.append(f"până la {item['date_to']}")
-        lines.append(f"  ({' '.join(date_parts)})")
-    return "\n".join(lines)
-
-
-def get_institution_context() -> str:
-    """Returns formatted institution info as a string ready to inject in system prompt.
-
-    Returns empty string if no info exists or on error (fails safely).
-    Cached for 60 seconds.
-    """
-    now = time.time()
-    if _CACHE["data"] is not None and (now - _CACHE["timestamp"]) < _CACHE_TTL_SECONDS:
-        return _CACHE["data"]
-
-    try:
-        sb = get_supabase()
-        result = sb.table("institution_info").select(
-            "type, title, content, date_from, date_to"
-        ).order("type", desc=False).execute()
-        rows = result.data or []
-    except Exception as e:
-        # Fail safe — never break the AI if DB is unavailable
-        print(f"[institution_context] Error fetching: {e}")
-        _CACHE["data"] = ""
-        _CACHE["timestamp"] = now
-        return ""
-
-    if not rows:
-        _CACHE["data"] = ""
-        _CACHE["timestamp"] = now
-        return ""
-
-    # Group by type
-    by_type: dict[str, list[dict]] = {}
-    for row in rows:
-        by_type.setdefault(row["type"], []).append(row)
-
-    # Build formatted text
-    sections = []
-    for type_key, label in _TYPE_LABELS.items():
-        items = by_type.get(type_key, [])
-        if not items:
-            continue
-        formatted = "\n".join(_format_item(it) for it in items)
-        sections.append(f"### {label}\n{formatted}")
-
-    context = "\n\n".join(sections)
-    _CACHE["data"] = context
-    _CACHE["timestamp"] = now
-    return context
-
-
-def invalidate_cache() -> None:
-    """Force refresh of cache (call after admin changes)."""
-    _CACHE["data"] = None
-    _CACHE["timestamp"] = 0
-
-
-# Detection patterns for institutional questions
-import re
+# ---------------------------------------------------------------------------
+# Intent detection — regex per category.
+# These match the user's question and return the matching category key.
+# ---------------------------------------------------------------------------
 
 _QUERY_PATTERNS = {
     "program_lucru": re.compile(
@@ -105,21 +92,18 @@ _QUERY_PATTERNS = {
     "salariu": re.compile(
         # Only match temporal questions about WHEN salary is paid, NOT about amount.
         # Strategy: require BOTH a temporal keyword AND "salariu*"
-        # The temporal context can be before or after "salariu*"
         # Excludes: "ce salariu am", "cat e salariul" (asks for amount, not date)
         r"(?:"
         # Temporal phrase before "salariu"
         r"\b(?:zi(?:ua)?(?:\s+de)?|c[aâ]nd|data|plata|[iî]n\s+ce\s+(?:zi|dat[aă])|"
         r"care\s+dat[aă]|ce\s+dat[aă]|primesc|primim|cade|vine|achit[aă])\s+"
-        r"(?:[a-zăâîșțA-ZĂÂÎȘȚ]+\s+)*?"  # any words in between
+        r"(?:[a-zăâîșțA-ZĂÂÎȘȚ]+\s+)*?"
         r"salar(?:iu|iul|iului|iile|iilor|i)?\b"
         r"|"
         # OR: "salariu" followed by temporal context
         r"\bsalar(?:iu|iul|iului|iile|i)\s+"
-        r"(?:[iî]n\s+fiecare\s+lun[aă]|lunar|"
-        r"c[aâ]nd|cade|vine)\b"
+        r"(?:[iî]n\s+fiecare\s+lun[aă]|lunar|c[aâ]nd|cade|vine)\b"
         r"|"
-        # Standalone keyword phrases that strongly imply temporal
         r"\bzi(?:ua)?\s+salar(?:iu|iul|iului|i)\b"
         r")",
         re.IGNORECASE,
@@ -144,8 +128,7 @@ _QUERY_PATTERNS = {
 
 
 def detect_institution_intent(question: str) -> str | None:
-    """Returns the institution_info type if the question matches one,
-    or None if it's not an institutional question."""
+    """Returns the institution category if the question matches one, else None."""
     q = question.lower().strip()
     for type_key, pattern in _QUERY_PATTERNS.items():
         if pattern.search(q):
@@ -153,53 +136,41 @@ def detect_institution_intent(question: str) -> str | None:
     return None
 
 
-def get_institution_answer(question: str) -> str | None:
-    """If question matches an institutional topic, return a direct answer
-    from institution_info table. Returns None if no match or no data.
+# ---------------------------------------------------------------------------
+# Direct answer (fast-path, bypasses LLM).
+# ---------------------------------------------------------------------------
 
-    This bypasses the LLM entirely for guaranteed accurate responses.
+def get_institution_answer(question: str) -> str | None:
+    """If the question is institutional, return the hardcoded answer for that category.
+    Returns None if no match — callers should fall through to RAG/LLM in that case.
     """
     intent = detect_institution_intent(question)
     if not intent:
         return None
-
-    try:
-        sb = get_supabase()
-        result = sb.table("institution_info").select(
-            "type, title, content, date_from, date_to"
-        ).eq("type", intent).execute()
-        rows = result.data or []
-    except Exception as e:
-        print(f"[institution_context] Error fetching answer: {e}")
+    item = _HARDCODED.get(intent)
+    if not item:
         return None
+    return f"**{item['title']}**\n\n{item['content']}"
 
-    if not rows:
-        return None
 
-    # Format answer
-    label = _TYPE_LABELS.get(intent, intent)
-    if len(rows) == 1:
-        item = rows[0]
-        date_info = ""
-        if item.get("date_from") or item.get("date_to"):
-            parts = []
-            if item.get("date_from"):
-                parts.append(f"de la {item['date_from']}")
-            if item.get("date_to"):
-                parts.append(f"până la {item['date_to']}")
-            date_info = f" ({' '.join(parts)})"
-        return f"**{item['title']}**\n\n{item['content']}{date_info}"
+# ---------------------------------------------------------------------------
+# Context block for system prompt injection — gives the LLM all institutional
+# facts so it can answer naturally even when the fast-path doesn't fire.
+# ---------------------------------------------------------------------------
 
-    # Multiple items
-    lines = [f"**{label}:**\n"]
-    for item in rows:
-        line = f"• **{item['title']}**: {item['content']}"
-        if item.get("date_from") or item.get("date_to"):
-            parts = []
-            if item.get("date_from"):
-                parts.append(f"de la {item['date_from']}")
-            if item.get("date_to"):
-                parts.append(f"până la {item['date_to']}")
-            line += f" ({' '.join(parts)})"
-        lines.append(line)
-    return "\n".join(lines)
+def get_institution_context() -> str:
+    """Returns all hardcoded institution info as a single formatted string,
+    ready to inject into the LLM system prompt.
+    """
+    sections = []
+    for type_key, label in _TYPE_LABELS.items():
+        item = _HARDCODED.get(type_key)
+        if not item:
+            continue
+        sections.append(f"### {label}\n• {item['title']}: {item['content']}")
+    return "\n\n".join(sections)
+
+
+def invalidate_cache() -> None:
+    """No-op kept for backward compatibility (no DB cache anymore)."""
+    return None
