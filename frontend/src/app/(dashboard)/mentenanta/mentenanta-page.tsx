@@ -8,7 +8,6 @@ import {
   deleteDocument,
   triggerProcessing,
 } from '@/lib/actions/document.actions';
-import { getAnalytics } from '@/lib/actions/admin.actions';
 import { getDepartments } from '@/lib/actions/ticket.actions';
 import { createEmployee, getEmployees, getDepartments as getEmployeeDepartments, updateEmployee, deleteEmployee, getRoles } from '@/lib/actions/employee.actions';
 import { Pagination } from '@/components/ui/pagination';
@@ -19,12 +18,7 @@ import {
   FileText,
   Search,
   X,
-  BarChart3,
-  Package,
-  Clock,
-  CheckCircle,
   Users,
-  MessageSquare,
   BookOpen,
   Upload,
   UserPlus,
@@ -34,26 +28,10 @@ import {
   Pencil,
   Shield,
   Loader2,
-  ThumbsUp,
-  ThumbsDown,
 } from 'lucide-react';
-import type { Document, Department, Analytics, Profile } from '@/lib/types';
+import type { Document, Department, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
 
-const QUESTION_PREFIXES = /^(buna ziua[,!]?\s*|salut[,!]?\s*|hei[,!]?\s*|hello[,!]?\s*|hi[,!]?\s*|hey[,!]?\s*)?(as vrea sa (stiu|știu|aflu|intreb|întreb)\s*|vreau sa (stiu|știu|aflu)\s*|imi (poti|poți) spune\s*|spune-mi\s*|ma intereseaza\s*|mă interesează\s*)?(cum (pot|as putea|aș putea|sa|să|se|este|e)\s*|care (este|sunt|e)\s*|ce (este|sunt|e|fel de|tip de|inseamna|însemnă)\s*|unde (pot|este|sunt|e|se|gasesc|găsesc)\s*|(cand|când) (pot|este|sunt|e|se)\s*|de ce (este|sunt|e|se|nu)\s*|cine (este|sunt|e|se)\s*|cat (costa|costă|este|e)\s*|câte?\s*)/i;
-
-function summarizeQuestion(raw: string): string {
-  let text = raw
-    .replace(/[?!"""''„"]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  text = text.replace(QUESTION_PREFIXES, '').trim();
-
-  if (text.length === 0) return raw.slice(0, 60);
-
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
 
 interface CreatedAccount {
   fullName: string;
@@ -61,7 +39,7 @@ interface CreatedAccount {
   tempPassword: string;
 }
 
-type Tab = 'documente' | 'angajati' | 'statistici';
+type Tab = 'documente' | 'angajati';
 
 export function MentenantaPage() {
   const searchParams = useSearchParams();
@@ -69,7 +47,7 @@ export function MentenantaPage() {
 
   useEffect(() => {
     const tab = searchParams.get('tab') as Tab;
-    if (tab && ['documente', 'angajati', 'statistici'].includes(tab)) {
+    if (tab && ['documente', 'angajati'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -87,9 +65,6 @@ export function MentenantaPage() {
   const [bulkFiles, setBulkFiles] = useState<File[]>([]);
   const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number; fileName: string } | null>(null);
 
-  // Analytics state
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
 
   // Employees state
   const [employees, setEmployees] = useState<Profile[]>([]);
@@ -126,24 +101,7 @@ export function MentenantaPage() {
     getDepartments().then(setDepartments);
   }, [loadDocuments]);
 
-  const loadAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true);
-    try {
-      const data = await getAnalytics();
-      setAnalytics(data);
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  }, []);
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [loadAnalytics]);
-
-  // Reload analytics when switching to statistici tab
-  useEffect(() => {
-    if (activeTab === 'statistici') loadAnalytics();
-  }, [activeTab, loadAnalytics]);
 
   const loadEmployees = useCallback(async () => {
     setEmpLoading(true);
@@ -379,12 +337,6 @@ export function MentenantaPage() {
       )
     : documents;
 
-  const statCards = [
-    { label: 'Tichete în Așteptare', value: analytics?.pendingTickets, icon: Package, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20' },
-    { label: 'Tichete în Lucru', value: analytics?.inProgressTickets, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { label: 'Tichete Rezolvate', value: analytics?.resolvedTickets, icon: CheckCircle, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { label: 'Utilizatori', value: analytics?.totalUsers, icon: Users, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-  ];
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -395,7 +347,6 @@ export function MentenantaPage() {
           {([
             { id: 'documente', label: 'Documente', icon: FileText },
             { id: 'angajati', label: 'Angajați', icon: Users },
-            { id: 'statistici', label: 'Statistici', icon: BarChart3 },
           ] as const).map((tab) => (
             <button
               key={tab.id}
@@ -739,210 +690,6 @@ export function MentenantaPage() {
           </div>
         )}
 
-        {/* ── STATISTICI TAB ── */}
-        {activeTab === 'statistici' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {statCards.map((card) => (
-                <div
-                  key={card.label}
-                  className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 hover:shadow-sm transition-shadow duration-180"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">{card.label}</p>
-                    <div className={`size-10 rounded-xl ${card.bg} flex items-center justify-center`}>
-                      <card.icon size={20} className={card.color} />
-                    </div>
-                  </div>
-                  <p className={`text-4xl font-black ${card.color}`}>
-                    {analyticsLoading ? '—' : (card.value ?? 0)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Distribuție pe Departamente */}
-              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Distribuția Tichetelor pe Departamente
-                </h3>
-                {analyticsLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse space-y-1.5">
-                        <div className="h-3 bg-slate-200 dark:bg-dm-surface-bright/30 rounded w-1/3" />
-                        <div className="h-6 bg-slate-100 dark:bg-dm-surface-bright/20 rounded-lg" />
-                      </div>
-                    ))}
-                  </div>
-                ) : !analytics?.departmentDistribution?.length ? (
-                  <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                    <BarChart3 size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun tichet înregistrat</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {analytics.departmentDistribution.map((dept) => {
-                      const max = analytics.departmentDistribution[0].count;
-                      const pct = max > 0 ? (dept.count / max) * 100 : 0;
-                      return (
-                        <div key={dept.name}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-slate-700 dark:text-dm-on-surface">{dept.name}</span>
-                            <span className="text-sm font-bold text-slate-500 dark:text-dm-on-surface-variant">{dept.count}</span>
-                          </div>
-                          <div className="h-6 bg-slate-100 dark:bg-dm-surface-high rounded-lg overflow-hidden">
-                            <div
-                              className="h-full bg-primary/80 dark:bg-dm-primary/60 rounded-lg transition-all duration-500"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Timp mediu de rezolvare */}
-              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Timp mediu de rezolvare
-                </h3>
-                {analyticsLoading ? (
-                  <div className="h-48 flex items-center justify-center">
-                    <div className="animate-pulse size-32 rounded-full bg-slate-100 dark:bg-dm-surface-bright/20" />
-                  </div>
-                ) : analytics?.avgResolutionHours == null ? (
-                  <div className="h-48 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                    <Clock size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun tichet rezolvat încă</p>
-                  </div>
-                ) : (
-                  <div className="h-48 flex flex-col items-center justify-center">
-                    <div className="relative size-36 flex items-center justify-center">
-                      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-100 dark:text-dm-surface-high" />
-                        <circle
-                          cx="50" cy="50" r="42" fill="none" strokeWidth="8"
-                          strokeLinecap="round"
-                          className="text-emerald-500 dark:text-emerald-400"
-                          stroke="currentColor"
-                          strokeDasharray={`${Math.min((analytics.avgResolutionHours / 72) * 264, 264)} 264`}
-                        />
-                      </svg>
-                      <div className="text-center z-10">
-                        <p className="text-3xl font-black text-slate-800 dark:text-dm-on-surface">
-                          {analytics.avgResolutionHours < 1
-                            ? `${Math.round(analytics.avgResolutionHours * 60)}m`
-                            : analytics.avgResolutionHours < 24
-                              ? `${analytics.avgResolutionHours}h`
-                              : `${Math.round(analytics.avgResolutionHours / 24 * 10) / 10}z`}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-dm-on-surface-variant font-medium">
-                          {analytics.avgResolutionHours < 1 ? 'minute' : analytics.avgResolutionHours < 24 ? 'ore' : 'zile'}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-500 dark:text-dm-on-surface-variant mt-3">
-                      Bazat pe {analytics.resolvedTickets} tichet{analytics.resolvedTickets !== 1 ? 'e' : ''} rezolvat{analytics.resolvedTickets !== 1 ? 'e' : ''}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Feedback AI */}
-              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Satisfacție Asistent AI
-                </h3>
-                {analyticsLoading ? (
-                  <div className="animate-pulse h-24 bg-slate-100 dark:bg-dm-surface-bright/20 rounded-xl" />
-                ) : !analytics || ((analytics.positiveFeedback ?? 0) + (analytics.negativeFeedback ?? 0)) === 0 ? (
-                  <div className="h-24 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                    <ThumbsUp size={24} className="text-slate-300 dark:text-dm-surface-bright" />
-                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun feedback încă</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
-                      <div className="size-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
-                        <ThumbsUp size={24} className="text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                      <div>
-                        <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300">{analytics.positiveFeedback ?? 0}</p>
-                        <p className="text-xs font-semibold text-emerald-700/80 dark:text-emerald-400/80">Răspunsuri utile</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
-                      <div className="size-12 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
-                        <ThumbsDown size={24} className="text-red-600 dark:text-red-400" />
-                      </div>
-                      <div>
-                        <p className="text-3xl font-black text-red-700 dark:text-red-300">{analytics.negativeFeedback ?? 0}</p>
-                        <p className="text-xs font-semibold text-red-700/80 dark:text-red-400/80">Răspunsuri greșite</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-                      <div className="size-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-                        <BarChart3 size={24} className="text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{analytics.satisfactionRate ?? 0}%</p>
-                        <p className="text-xs font-semibold text-blue-700/80 dark:text-blue-400/80">Rata de satisfacție</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Întrebări Frecvente AI */}
-              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
-                  Întrebări Frecvente
-                </h3>
-                {analyticsLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high/20">
-                        <div className="size-8 rounded-lg bg-slate-200 dark:bg-dm-surface-bright/30 shrink-0" />
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-3.5 bg-slate-200 dark:bg-dm-surface-bright/30 rounded w-3/4" />
-                          <div className="h-2.5 bg-slate-100 dark:bg-dm-surface-bright/20 rounded w-1/4" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : !analytics?.frequentQuestions?.length ? (
-                  <div className="h-36 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
-                    <MessageSquare size={32} className="text-slate-300 dark:text-dm-surface-bright" />
-                    <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Nicio conversație încă</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {analytics.frequentQuestions.map((q, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high/30 border border-slate-100 dark:border-dm-surface-bright/10"
-                      >
-                        <div className="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                          <MessageSquare size={14} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <p className="text-sm font-medium text-slate-700 dark:text-dm-on-surface flex-1 min-w-0 truncate">{summarizeQuestion(q.content)}</p>
-                        <span className="shrink-0 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-xs font-bold text-blue-600 dark:text-blue-400">
-                          {q.count}x
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Upload Modal */}

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Bell, Ticket, FileText, ExternalLink, BarChart3, Clock, MessageSquare } from 'lucide-react';
+import { Bell, Ticket, FileText, ExternalLink, BarChart3, Clock, MessageSquare, ThumbsUp, ThumbsDown, Users, CheckCircle } from 'lucide-react';
 import { getTicketNotifications } from '@/lib/actions/ticket.actions';
 import { getTickets } from '@/lib/actions/ticket.actions';
+import { getEmployees } from '@/lib/actions/employee.actions';
 import { getDocuments } from '@/lib/actions/document.actions';
 import { getAnalytics } from '@/lib/actions/admin.actions';
 import { useAuthStore } from '@/stores/auth-store';
@@ -31,7 +32,9 @@ function summarizeQuestion(raw: string): string {
 interface DashboardStats {
   pendingTickets: number;
   inProgressTickets: number;
+  resolvedTickets: number;
   totalDocuments: number;
+  totalEmployees: number;
 }
 
 export default function DashboardPage() {
@@ -55,6 +58,8 @@ export default function DashboardPage() {
           promises.push(
             getTickets({ status: 'in_asteptare' as any, page: 1, limit: 1 }),
             getTickets({ status: 'in_lucru' as any, page: 1, limit: 1 }),
+            getTickets({ status: 'rezolvat' as any, page: 1, limit: 1 }),
+            getEmployees({ page: 1, limit: 1 }),
           );
         } else {
           promises.push(
@@ -69,17 +74,21 @@ export default function DashboardPage() {
           setStats({
             pendingTickets: results[2].total,
             inProgressTickets: results[3].total,
+            resolvedTickets: results[4].total,
             totalDocuments: results[1].total,
+            totalEmployees: results[5].total,
           });
         } else {
           setStats({
             pendingTickets: results[2].total,
             inProgressTickets: 0,
+            resolvedTickets: 0,
             totalDocuments: results[1].total,
+            totalEmployees: 0,
           });
         }
       } catch {
-        setStats({ pendingTickets: 0, inProgressTickets: 0, totalDocuments: 0 });
+        setStats({ pendingTickets: 0, inProgressTickets: 0, resolvedTickets: 0, totalDocuments: 0, totalEmployees: 0 });
       } finally {
         setLoading(false);
       }
@@ -133,7 +142,7 @@ export default function DashboardPage() {
           </a>
         </div>
 
-        {/* Stat cards */}
+        {/* Stat cards — rândul 1 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {/* Notificări */}
           <Link href="/notifications" className="block h-full">
@@ -150,24 +159,38 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* Tichete */}
-          <Link href={isAdmin ? '/tickets?status=in_asteptare' : '/tickets?status=rezolvat'} className="block h-full">
-            <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">
-                  {isAdmin ? 'Tichete în așteptare' : 'Tichete rezolvate'}
-                </p>
-                <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
-                  <Ticket size={20} className="text-orange-600 dark:text-orange-400" />
+          {/* Total angajați */}
+          {isAdmin ? (
+            <Link href="/mentenanta?tab=angajati" className="block h-full">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">Total angajați</p>
+                  <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+                    <Users size={20} className="text-purple-600 dark:text-purple-400" />
+                  </div>
                 </div>
+                <p className="text-4xl font-black text-primary dark:text-dm-primary">
+                  {loading ? '—' : (stats?.totalEmployees ?? 0)}
+                </p>
               </div>
-              <p className="text-4xl font-black text-primary dark:text-dm-primary">
-                {loading ? '—' : (stats?.pendingTickets ?? 0)}
-              </p>
-            </div>
-          </Link>
+            </Link>
+          ) : (
+            <Link href="/tickets?status=rezolvat" className="block h-full">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">Tichete rezolvate</p>
+                  <div className="size-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                    <CheckCircle size={20} className="text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                </div>
+                <p className="text-4xl font-black text-primary dark:text-dm-primary">
+                  {loading ? '—' : (stats?.pendingTickets ?? 0)}
+                </p>
+              </div>
+            </Link>
+          )}
 
-          {/* Documente */}
+          {/* Total documente */}
           <Link href={isAdmin ? '/mentenanta' : '/documents'} className="block h-full">
             <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
@@ -182,6 +205,56 @@ export default function DashboardPage() {
             </div>
           </Link>
         </div>
+
+        {/* Stat cards — rândul 2 (doar admin) */}
+        {isAdmin && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+            {/* Tichete în așteptare */}
+            <Link href="/tickets?status=in_asteptare" className="block h-full">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">Tichete în așteptare</p>
+                  <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+                    <Ticket size={20} className="text-orange-600 dark:text-orange-400" />
+                  </div>
+                </div>
+                <p className="text-4xl font-black text-primary dark:text-dm-primary">
+                  {loading ? '—' : (stats?.pendingTickets ?? 0)}
+                </p>
+              </div>
+            </Link>
+
+            {/* Tichete în lucru */}
+            <Link href="/tickets?status=in_lucru" className="block h-full">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">Tichete în lucru</p>
+                  <div className="size-10 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center">
+                    <Clock size={20} className="text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+                <p className="text-4xl font-black text-primary dark:text-dm-primary">
+                  {loading ? '—' : (stats?.inProgressTickets ?? 0)}
+                </p>
+              </div>
+            </Link>
+
+            {/* Tichete rezolvate */}
+            <Link href="/tickets?status=rezolvat" className="block h-full">
+              <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 h-full cursor-pointer transition-all duration-180 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-dm-on-surface-variant">Tichete rezolvate</p>
+                  <div className="size-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                    <CheckCircle size={20} className="text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                </div>
+                <p className="text-4xl font-black text-primary dark:text-dm-primary">
+                  {loading ? '—' : (stats?.resolvedTickets ?? 0)}
+                </p>
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* Recent notifications section */}
         <div className="mt-8 bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6">
@@ -352,19 +425,58 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Evaluarea răspunsurilor Asistentului AI */}
+            <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
+                Evaluarea răspunsurilor Asistentului AI
+              </h3>
+              {analyticsLoading ? (
+                <div className="animate-pulse h-24 bg-slate-100 dark:bg-dm-surface-bright/20 rounded-xl" />
+              ) : !analytics || ((analytics.positiveFeedback ?? 0) + (analytics.negativeFeedback ?? 0)) === 0 ? (
+                <div className="h-24 flex flex-col items-center justify-center rounded-xl bg-slate-50 dark:bg-dm-surface-high border border-dashed border-slate-200 dark:border-dm-surface-bright/20 gap-2">
+                  <ThumbsUp size={24} className="text-slate-300 dark:text-dm-surface-bright" />
+                  <p className="text-sm font-medium text-slate-500 dark:text-dm-on-surface-variant">Niciun feedback încă</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+                    <div className="size-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
+                      <ThumbsUp size={24} className="text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300">{analytics.positiveFeedback ?? 0}</p>
+                      <p className="text-xs font-semibold text-emerald-700/80 dark:text-emerald-400/80">Răspunsuri utile</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
+                    <div className="size-12 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                      <ThumbsDown size={24} className="text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-black text-red-700 dark:text-red-300">{analytics.negativeFeedback ?? 0}</p>
+                      <p className="text-xs font-semibold text-red-700/80 dark:text-red-400/80">Răspunsuri greșite</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+                    <div className="size-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+                      <BarChart3 size={24} className="text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{analytics.satisfactionRate ?? 0}%</p>
+                      <p className="text-xs font-semibold text-blue-700/80 dark:text-blue-400/80">Rata de satisfacție</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Întrebări Frecvente */}
             <div className="bg-white dark:bg-dm-surface-high/30 rounded-2xl border border-slate-200/80 dark:border-dm-surface-bright/15 p-6 lg:col-span-2">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface">
-                  Întrebări Frecvente
-                </h3>
-                <Link
-                  href="/mentenanta?tab=statistici"
-                  className="text-xs font-medium text-primary dark:text-dm-primary hover:underline"
-                >
-                  Vezi tot
-                </Link>
-              </div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-dm-on-surface mb-5">
+                Întrebări Frecvente
+              </h3>
               {analyticsLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -384,7 +496,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {analytics.frequentQuestions.slice(0, 3).map((q, i) => (
+                  {analytics.frequentQuestions.map((q, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-dm-surface-high/30 border border-slate-100 dark:border-dm-surface-bright/10"
