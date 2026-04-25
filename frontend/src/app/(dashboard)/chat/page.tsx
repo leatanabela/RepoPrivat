@@ -316,8 +316,17 @@ export default function ChatPage() {
       setStreamingContent('');
       setStreaming(false);
 
-      // Check if user explicitly asked for a ticket
-      const userAskedForTicket = /tichet|sesizare|reclama[tț]ie|f[aă][\s-]?mi un|genereaz[aă]|vreau s[aă] (fac|creez|deschid|trimit)/i.test(lastQuestionRef.current);
+      // Check if user explicitly asked for a ticket / sesizare / reclamatie / cerere
+      const q = lastQuestionRef.current.toLowerCase();
+      const userAskedForTicket =
+        // Direct mentions of ticket-related nouns (singular/plural)
+        /\b(tichet[eul]*|ticket[seul]*|tikket|tiket|sesiz[aă]r[ie]+|sesisare|reclama[tț]i[ie]+|reclamatie|reclamati[ie]+|plâng[ae]r[ie]+|plang[ae]r[ie]+|peti[tț]i[ie]+|petitie|sez[ie]?sare)\b/i.test(q) ||
+        // Verb forms: creez/creezi/creeze/cream/creati/creează + ticket-words
+        /\b(creez|creezi|creeze|creeaza|cre[ae]z[aă]|cream|creați|cre[ae]za|f[aă]\s*-?(mi|mă|ne)|f[aă]c|f[aă]cem|deschid[ea]?[mt]?|deschidem|depun[em]?|trimit[em]?|inreg[isztr]+|înreg[isztr]+|raport[ae]z[aă]?|generez[ai]?|genereaz[aă]|gener[aă])\b\s*(o|un|niște|nest|cer|tich|tick|sesiz|reclam|plang|plâng|peti)/i.test(q) ||
+        // Modal verbs of intent: vreau/as vrea/pot/cum sa/imi trebuie + ticket-words
+        /\b(vreau|aș?\s*(vrea|dori)|as\s*(vrea|dori)|pot|imi\s*trebuie|îmi\s*trebuie|cum\s*(s[aă]|pot|fac)|trebuie|am\s*nevoie\s*(s[aă]|de))\b[^.?!]*\b(tich|tick|tiket|sesiz|reclam|plang|plâng|peti|cerere|cereri)/i.test(q) ||
+        // "fa-mi"/"creeaza-mi"/"genereaza-mi"
+        /\bf[aă]\s*-?mi\b|cre[ae]az[aă]\s*-?mi\b|genere(az[aă]|az)\s*-?mi\b|deschide\s*-?mi\b/i.test(q);
 
       // Show ticket card if: user explicitly asked, OR AI truly could not help
       const trimmedContent = fullContent.trim();
