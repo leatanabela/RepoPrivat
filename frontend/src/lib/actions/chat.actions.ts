@@ -1,6 +1,7 @@
 'use server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AI_SERVICE_URL } from '@/lib/constants';
 
 export async function createChatSession(title?: string) {
   const supabase = await createServerSupabaseClient();
@@ -138,6 +139,52 @@ export async function saveUserMessage(sessionId: string, content: string) {
   }
 
   return data;
+}
+
+/**
+ * Asynchronously generate an AI-powered short title for a chat session.
+ *
+ * - Called fire-and-forget from the chat page on the FIRST user message.
+ * - Calls AI service which generates a 3-5 word summary and saves it directly to DB.
+ * - The frontend re-fetches sessions after the AI response, picking up the new title.
+ * - If this fails, the keyword-extracted fallback title from saveUserMessage remains.
+ */
+export async function generateChatTitleAi(sessionId: string, question: string) {
+  // Skip greetings and ultra-short messages
+  if (!question?.trim() || question.trim().length < 5) return { skipped: true };
+  const greetingPattern = /^\s*(bun[aă]|salut|hey|hello|hi|ce faci|cum e[sș]ti|noroc|servus|hei|neata)\s*[?!.,]*\s*$/i;
+  if (greetingPattern.test(question.trim())) return { skipped: true };
+
+  // Verify the session belongs to the current user (security check)
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Neautentificat' };
+
+  const { data: session } = await supabase
+    .from('chat_sessions')
+    .select('user_id')
+    .eq('id', sessionId)
+    .single();
+
+  if (!session || session.user_id !== user.id) {
+    return { error: 'Sesiune invalidă' };
+  }
+
+  try {
+    const res = await fetch(`${AI_SERVICE_URL}/api/chat/title`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId, question }),
+      // Reasonable timeout - if AI is too slow, frontend will refetch later anyway
+      signal: AbortSignal.timeout(45000),
+    });
+    if (!res.ok) return { error: 'AI service title generation failed' };
+    return await res.json();
+  } catch (e) {
+    // Silent fail - fallback title already saved by saveUserMessage
+    console.warn('[generateChatTitleAi] failed:', e);
+    return { error: 'AI service unavailable' };
+  }
 }
 
 export async function saveAssistantMessage(sessionId: string, content: string, sources: unknown[] = []) {

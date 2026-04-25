@@ -10,6 +10,7 @@ from ai.config import settings
 from ai.rag_pipeline.rag_chain import ask_question, ask_question_stream
 from ai.document_processing.pipeline import process_document, process_all_unprocessed
 from ai.ticket_service.classifier import suggest_ticket_metadata
+from ai.chat_service.title_generator import generate_and_save_title
 from ai.supabase_client import get_supabase
 
 
@@ -63,6 +64,11 @@ class ProcessDocumentRequest(BaseModel):
 
 class TicketSuggestRequest(BaseModel):
     description: str
+
+
+class GenerateTitleRequest(BaseModel):
+    session_id: str
+    question: str
 
 
 # ---- Endpoints ----
@@ -173,6 +179,23 @@ async def suggest_ticket(request: TicketSuggestRequest):
         )
         return result
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat/title")
+async def generate_chat_title(request: GenerateTitleRequest):
+    """Generate a short summary title for a chat session and save it.
+
+    Called asynchronously from the frontend after the first user message.
+    Returns immediately the generated title; the DB is also updated.
+    """
+    try:
+        result = await generate_and_save_title(
+            session_id=request.session_id,
+            question=request.question,
+        )
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

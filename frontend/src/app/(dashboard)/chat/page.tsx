@@ -15,6 +15,7 @@ import {
   submitFeedback,
   getFeedbackForSession,
   getPopularQuestions,
+  generateChatTitleAi,
 } from '@/lib/actions/chat.actions';
 import { createTicketFromChat, getAiTicketSuggestions, getDepartments } from '@/lib/actions/ticket.actions';
 import { Plus, Trash2, MessageSquare, TicketPlus, X, Loader2, Send, Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -215,12 +216,32 @@ export default function ChatPage() {
     noChunksRef.current = false;
     streamSourcesRef.current = [];
 
+    // Detect FIRST user message of this session — used to trigger AI title generation
+    const isFirstMessage = messages.length === 0;
+
     try {
       const userMsg = await saveUserMessage(sessionId, message);
       addMessage(userMsg);
     } catch {
       toast.error('Eroare la trimiterea mesajului');
       return;
+    }
+
+    // Fire-and-forget: generate a short AI title in parallel.
+    // The keyword fallback title is already saved by saveUserMessage, so user sees
+    // *something* immediately. When AI finishes (50ms-30s later), refresh sessions
+    // and the sidebar updates automatically with the better title.
+    if (isFirstMessage) {
+      generateChatTitleAi(sessionId, message)
+        .then(async (result) => {
+          if (result && !('error' in result) && !('skipped' in result)) {
+            try {
+              const updated = await getChatSessions();
+              setSessions(updated);
+            } catch { /* ignore */ }
+          }
+        })
+        .catch(() => { /* fallback title remains */ });
     }
 
     const history = [...messages, { role: 'user' as const, content: message }]
