@@ -28,9 +28,11 @@ import {
   Pencil,
   Shield,
   Loader2,
+  Building2,
 } from 'lucide-react';
 import type { Document, Department, Profile } from '@/lib/types';
 import toast from 'react-hot-toast';
+import { InstitutionAdmin } from '@/components/institution/institution-admin';
 
 
 interface CreatedAccount {
@@ -39,7 +41,7 @@ interface CreatedAccount {
   tempPassword: string;
 }
 
-type Tab = 'documente' | 'angajati';
+type Tab = 'documente' | 'angajati' | 'institutie';
 
 export function MentenantaPage() {
   const searchParams = useSearchParams();
@@ -47,7 +49,7 @@ export function MentenantaPage() {
 
   useEffect(() => {
     const tab = searchParams.get('tab') as Tab;
-    if (tab && ['documente', 'angajati'].includes(tab)) {
+    if (tab && ['documente', 'angajati', 'institutie'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -347,6 +349,7 @@ export function MentenantaPage() {
           {([
             { id: 'documente', label: 'Documente', icon: FileText },
             { id: 'angajati', label: 'Angajați', icon: Users },
+            { id: 'institutie', label: 'Instituție', icon: Building2 },
           ] as const).map((tab) => (
             <button
               key={tab.id}
@@ -688,6 +691,11 @@ export function MentenantaPage() {
               )}
             </div>
           </div>
+        )}
+
+        {/* ── INSTITUȚIE TAB ── */}
+        {activeTab === 'institutie' && (
+          <InstitutionAdmin />
         )}
 
       </div>

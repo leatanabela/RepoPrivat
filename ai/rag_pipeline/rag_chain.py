@@ -1,4 +1,5 @@
 from ai.rag_pipeline.retriever import retrieve_relevant_chunks
+from ai.rag_pipeline.institution_context import get_institution_context
 from ai.chat_service.llm import generate_response, generate_response_stream
 from ai.config import settings
 from collections.abc import AsyncGenerator
@@ -114,6 +115,16 @@ def _build_prompt(
     else:
         context_text = "Nu s-au găsit documente relevante pentru această întrebare."
 
+    # Institution-specific info (program, salariu, sărbători, concedii) — admin-managed
+    # This is injected as PRIORITY context because it's official, current, and authoritative.
+    institution_context = get_institution_context()
+    institution_section = ""
+    if institution_context:
+        institution_section = f"""INFORMAȚII OFICIALE INSTITUȚIE (date introduse de administrator — sursă autoritară):
+{institution_context}
+
+"""
+
     # Build chat history section
     history_text = ""
     if chat_history:
@@ -123,21 +134,22 @@ def _build_prompt(
             history_parts.append(f"{role}: {msg['content']}")
         history_text = f"\nConversația anterioară:\n" + "\n".join(history_parts) + "\n"
 
-    prompt = f"""DOCUMENTE RELEVANTE:
+    prompt = f"""{institution_section}DOCUMENTE RELEVANTE:
 {context_text}
 {history_text}
 ÎNTREBARE: {question}
 
 Instrucțiuni:
 1. Răspunde EXACT la întrebarea pusă. Dacă utilizatorul întreabă despre „vacanță de Paște", NU răspunde despre concediu de creștere copil.
-2. Dacă documentele conțin informații RELEVANTE (chiar dacă nu perfecte), oferă ce ai și menționează limitarea.
-3. Dacă documentele NU au NICIO legătură cu întrebarea, spune: „Nu am găsit informații despre [subiect] în documentele disponibile. Puteți crea un tichet pentru asistență."
-4. Dacă utilizatorul descrie o PROBLEMĂ sau PLÂNGERE (certificat respins, cerere fără răspuns, etc.), oferă informații relevante din documente ȘI sugerează crearea unui tichet.
-5. CITARE OBLIGATORIE: La sfârșitul fiecărei afirmații citează în paranteze DIRECT articolul/alineatul ȘI numele documentului. NU folosi "Sursa 1", "Sursa 2" etc.
-   Format corect: "(art. 71 alin. 2 din Legea executare pedepse)" sau "(art. 116 din Statutul personalului)"
-   Format INCORECT: "(Sursa 1)", "(Sursa 3)", "(ART. 71, Sursa 3)"
-6. Răspunde SCURT (2-3 propoziții), în română corectă cu diacritice.
-7. NU inventa informații care nu sunt în documente."""
+2. PRIORITATE: dacă întrebarea e despre programul instituției, ziua salariului, sărbători, concedii sau orice info administrativă internă, folosește SECȚIUNEA „INFORMAȚII OFICIALE INSTITUȚIE" — aceea e sursă autoritară.
+3. Dacă întrebarea e despre legislație sau proceduri, folosește documentele relevante.
+4. Dacă documentele NU au NICIO legătură cu întrebarea și nici „INFORMAȚII OFICIALE INSTITUȚIE" nu acoperă subiectul, spune: „Nu am găsit informații despre [subiect] în documentele disponibile. Puteți crea un tichet pentru asistență."
+5. Dacă utilizatorul descrie o PROBLEMĂ sau PLÂNGERE (certificat respins, cerere fără răspuns, etc.), oferă informații relevante din documente ȘI sugerează crearea unui tichet.
+6. CITARE: pentru info din documente, citează în paranteze DIRECT articolul/alineatul ȘI numele documentului. Pentru info din „INFORMAȚII OFICIALE INSTITUȚIE", nu e nevoie de citare formală.
+   Format corect documente: "(art. 71 alin. 2 din Legea executare pedepse)"
+   Format INCORECT: "(Sursa 1)", "(Sursa 3)"
+7. Răspunde SCURT (2-3 propoziții), în română corectă cu diacritice.
+8. NU inventa informații care nu sunt în documente sau în secțiunea „INFORMAȚII OFICIALE INSTITUȚIE"."""
 
     return prompt
 

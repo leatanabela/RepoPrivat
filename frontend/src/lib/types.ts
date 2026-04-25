@@ -120,3 +120,26 @@ export interface Analytics {
   negativeFeedback: number;
   satisfactionRate: number | null;
 }
+
+export type InstitutionInfoType = 'program_lucru' | 'salariu' | 'sarbatoare' | 'concediu' | 'altele';
+
+export interface InstitutionInfo {
+  id: string;
+  type: InstitutionInfoType;
+  title: string;
+  content: string;
+  date_from: string | null;
+  date_to: string | null;
+  metadata: Record<string, unknown>;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const INSTITUTION_INFO_TYPE_LABELS: Record<InstitutionInfoType, string> = {
+  program_lucru: 'Program de lucru',
+  salariu: 'Zi salariu',
+  sarbatoare: 'Sărbători legale',
+  concediu: 'Concedii',
+  altele: 'Altele',
+};

@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { Analytics } from '@/lib/types';
+import { InstitutionViewer } from '@/components/institution/institution-viewer';
 
 const QUESTION_PREFIXES = /^(buna ziua[,!]?\s*|salut[,!]?\s*|hei[,!]?\s*|hello[,!]?\s*|hi[,!]?\s*|hey[,!]?\s*)?(as vrea sa (stiu|știu|aflu|intreb|întreb)\s*|vreau sa (stiu|știu|aflu)\s*|imi (poti|poți) spune\s*|spune-mi\s*|ma intereseaza\s*|mă interesează\s*)?(cum (pot|as putea|aș putea|sa|să|se|este|e)\s*|care (este|sunt|e)\s*|ce (este|sunt|e|fel de|tip de|inseamna|însemnă)\s*|unde (pot|este|sunt|e|se|gasesc|găsesc)\s*|(cand|când) (pot|este|sunt|e|se)\s*|de ce (este|sunt|e|se|nu)\s*|cine (este|sunt|e|se)\s*|cat (costa|costă|este|e)\s*|câte?\s*)/i;
 
@@ -140,6 +141,11 @@ export default function DashboardPage() {
             iLegis
             <ExternalLink size={14} />
           </a>
+        </div>
+
+        {/* Informații instituție — vizibil pentru toți, mai sus la angajați */}
+        <div className="mb-6">
+          <InstitutionViewer collapsedByDefault={isAdmin} />
         </div>
 
         {/* Stat cards — rândul 1 */}
