@@ -103,7 +103,7 @@ _RAW_CONTEXT_PATTERNS = re.compile(
     r"po[tț]i\s+s[aă]\s+(?:imi|îmi|mi)\s+(?:dai|ar[aă][tț]i|trimi[tț]i)|"
     r"care\s+e(?:ste)?|unde\s+(?:apare|scrie|este)|cum\s+scrie)\s+"
     r"[^.?!]*\b("
-    r"contextul?(?:\s+(?:exact|integral|complet|brut))?\s+(?:din\s+)?(?:pdf|document(?:e|ele|ul)?|fi[sș]ier(?:ul)?)|"
+    r"contextul?(?:\s+(?:exact|integral|complet|brut))?(?:\s+(?:din\s+)?(?:pdf|document(?:e|ele|ul)?|fi[sș]ier(?:ul)?))?|"
     r"paragraful?(?:\s+(?:exact|complet|integral))?\s+(?:care\s+)?(?:zice|spune|prevede|men[tț]ioneaz[aă]|cite[sș]te)|"
     r"paragraful?(?:\s+exact)?\s+din\s+(?:pdf|document(?:e|ele|ul)?)|"
     r"fragmentul?\s+(?:exact|brut|complet|integral)?(?:\s+din)?(?:\s+pdf|\s+document(?:ul)?)?|"
