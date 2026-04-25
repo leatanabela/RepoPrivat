@@ -103,11 +103,25 @@ _QUERY_PATTERNS = {
         re.IGNORECASE,
     ),
     "salariu": re.compile(
-        r"\b(salariu(?:l|le)?|"
-        r"(?:zi(?:ua)?\s+(?:de\s+)?salar(?:iu(?:lui)?)?)|"
-        r"c[aâ]nd\s+(?:primesc|primim|se\s+(?:da|d[aă]|primește|achit[aă]))\s+salariu|"
-        r"data\s+salariu|"
-        r"plata\s+salariu)\b",
+        # Only match temporal questions about WHEN salary is paid, NOT about amount.
+        # Strategy: require BOTH a temporal keyword AND "salariu*"
+        # The temporal context can be before or after "salariu*"
+        # Excludes: "ce salariu am", "cat e salariul" (asks for amount, not date)
+        r"(?:"
+        # Temporal phrase before "salariu"
+        r"\b(?:zi(?:ua)?(?:\s+de)?|c[aâ]nd|data|plata|[iî]n\s+ce\s+(?:zi|dat[aă])|"
+        r"care\s+dat[aă]|ce\s+dat[aă]|primesc|primim|cade|vine|achit[aă])\s+"
+        r"(?:[a-zăâîșțA-ZĂÂÎȘȚ]+\s+)*?"  # any words in between
+        r"salar(?:iu|iul|iului|iile|iilor|i)?\b"
+        r"|"
+        # OR: "salariu" followed by temporal context
+        r"\bsalar(?:iu|iul|iului|iile|i)\s+"
+        r"(?:[iî]n\s+fiecare\s+lun[aă]|lunar|"
+        r"c[aâ]nd|cade|vine)\b"
+        r"|"
+        # Standalone keyword phrases that strongly imply temporal
+        r"\bzi(?:ua)?\s+salar(?:iu|iul|iului|i)\b"
+        r")",
         re.IGNORECASE,
     ),
     "sarbatoare": re.compile(
