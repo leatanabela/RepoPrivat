@@ -97,6 +97,77 @@ def _is_vague(text: str) -> bool:
     return bool(_VAGUE_PATTERNS.match(text.strip()))
 
 
+# User wants raw chunks/context from PDF (no LLM summarization)
+_RAW_CONTEXT_PATTERNS = re.compile(
+    r"(vreau|d[aă]?[- ]?mi|arat[aă]?[- ]?mi|trimite[- ]?mi|ofer[aă]?[- ]?mi|"
+    r"po[tț]i\s+s[aă]\s+(?:imi|îmi|mi)\s+(?:dai|ar[aă][tț]i|trimi[tț]i)|"
+    r"care\s+e(?:ste)?|unde\s+(?:apare|scrie|este)|cum\s+scrie)\s+"
+    r"[^.?!]*\b("
+    r"contextul?(?:\s+(?:exact|integral|complet|brut))?\s+(?:din\s+)?(?:pdf|document(?:e|ele|ul)?|fi[sș]ier(?:ul)?)|"
+    r"paragraful?(?:\s+(?:exact|complet|integral))?\s+(?:care\s+)?(?:zice|spune|prevede|men[tț]ioneaz[aă]|cite[sș]te)|"
+    r"paragraful?(?:\s+exact)?\s+din\s+(?:pdf|document(?:e|ele|ul)?)|"
+    r"fragmentul?\s+(?:exact|brut|complet|integral)?(?:\s+din)?(?:\s+pdf|\s+document(?:ul)?)?|"
+    r"chunk(?:uri(?:le)?|s)?(?:\s+(?:din|de\s+la))?(?:\s+pdf|\s+document(?:ul)?)?|"
+    r"textul?\s+(?:exact|integral|complet|brut)?(?:\s+din)?(?:\s+pdf|\s+document(?:ul)?)?|"
+    r"surs[ae](?:le)?\s+(?:exact|complet)?|"
+    r"citatul?(?:\s+exact)?(?:\s+din\s+(?:pdf|document(?:ul)?))?"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _is_raw_context_request(text: str) -> bool:
+    """Check if user is asking for raw chunks/context from PDF (no summary)."""
+    t = text.strip().lower()
+    if _RAW_CONTEXT_PATTERNS.search(t):
+        return True
+    # Short standalone forms
+    short_patterns = [
+        r"^arat[aă]?[- ]?mi\s+(?:contextul|paragraful|fragmentul|textul|sursa|citatul)",
+        r"^vreau\s+(?:contextul|paragraful|fragmentul|textul|sursa|citatul)",
+        r"^d[aă][- ]?mi\s+(?:contextul|paragraful|fragmentul|textul|sursa|citatul|chunk)",
+        r"^cite[sș]te[- ]?mi\s+",
+        r"\bf[aă]r[aă]\s+rezumat\b",
+        r"\bnu\s+rezuma\b",
+        r"\bcuv[aâ]nt\s+cu\s+cuv[aâ]nt\b",
+        r"\bexact\s+(?:cum|ce)\s+scrie\b",
+        r"\bcum\s+scrie\s+(?:exact\s+)?(?:in|în)\s+(?:pdf|document)",
+        r"^paragraful\s+(?:exact|complet|integral)?\s*(?:care\s+)?(?:zice|spune|prevede|men[tț]ioneaz[aă])",
+        r"^fragmentul\s+(?:exact|complet|integral)?\s*(?:care\s+)?(?:zice|spune|prevede)",
+        r"^textul\s+(?:exact|complet|integral)?\s*(?:care\s+)?(?:zice|spune|prevede)",
+    ]
+    for p in short_patterns:
+        if re.search(p, t, re.IGNORECASE):
+            return True
+    return False
+
+
+def _format_raw_chunks(chunks: list[dict]) -> str:
+    """Format chunks as readable raw text — for users who asked for the actual paragraphs."""
+    if not chunks:
+        return "Nu am găsit fragmente relevante în documentele disponibile."
+
+    parts = ["**Iată fragmentele exacte din documente:**\n"]
+    for i, chunk in enumerate(chunks, 1):
+        title = chunk.get("document_title", "Document necunoscut")
+        content = chunk["content"].strip()
+        sim = chunk.get("similarity", 0)
+        parts.append(f"### {i}. {title}\n_(relevanță: {sim:.0%})_\n")
+        parts.append(f"> {content}\n")
+    return "\n".join(parts)
+
+
+def _last_user_question(chat_history: list[dict] | None) -> str | None:
+    """Get the user's PREVIOUS question (before current) from chat history."""
+    if not chat_history:
+        return None
+    # Walk backwards, find last user message
+    for msg in reversed(chat_history):
+        if msg.get("role") == "user":
+            return msg.get("content", "").strip() or None
+    return None
+
+
 def _build_prompt(
     question: str,
     context_chunks: list[dict],
@@ -196,6 +267,29 @@ async def ask_question(
             "chunks_used": 0,
         }
 
+    # Fast-path: user asks for RAW chunks/context from PDF (no LLM summarization).
+    # Use the previous user question to find relevant chunks, then return them verbatim.
+    if _is_raw_context_request(question):
+        prev_q = _last_user_question(chat_history) or question
+        raw_chunks = await asyncio.to_thread(retrieve_relevant_chunks, prev_q, top_k, threshold)
+        sources_raw = []
+        seen = set()
+        for c in raw_chunks:
+            did = c["document_id"]
+            if did not in seen:
+                seen.add(did)
+                sources_raw.append({
+                    "document_id": did,
+                    "document_title": c["document_title"],
+                    "similarity": round(c["similarity"], 3),
+                    "file_url": c.get("file_url", ""),
+                })
+        return {
+            "answer": _format_raw_chunks(raw_chunks),
+            "sources": sources_raw,
+            "chunks_used": len(raw_chunks),
+        }
+
     # Step 1: Retrieve (sync Supabase call in thread)
     chunks = await asyncio.to_thread(retrieve_relevant_chunks, question, top_k, threshold)
 
@@ -261,6 +355,29 @@ async def ask_question_stream(
         yield {"type": "sources", "data": []}
         yield {"type": "metadata", "data": {"chunks_used": 0}}
         yield {"type": "token", "data": inst_answer}
+        yield {"type": "done", "data": ""}
+        return
+
+    # Fast-path: user asks for RAW chunks/context from PDF (no LLM summarization).
+    # Find chunks for the PREVIOUS user question, return them verbatim.
+    if _is_raw_context_request(question):
+        prev_q = _last_user_question(chat_history) or question
+        raw_chunks = await asyncio.to_thread(retrieve_relevant_chunks, prev_q, top_k, threshold)
+        sources_raw = []
+        seen = set()
+        for c in raw_chunks:
+            did = c["document_id"]
+            if did not in seen:
+                seen.add(did)
+                sources_raw.append({
+                    "document_id": did,
+                    "document_title": c["document_title"],
+                    "similarity": round(c["similarity"], 3),
+                    "file_url": c.get("file_url", ""),
+                })
+        yield {"type": "sources", "data": sources_raw}
+        yield {"type": "metadata", "data": {"chunks_used": len(raw_chunks)}}
+        yield {"type": "token", "data": _format_raw_chunks(raw_chunks)}
         yield {"type": "done", "data": ""}
         return
 
