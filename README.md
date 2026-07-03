@@ -1,6 +1,10 @@
+TEDIHT - The European Digital Innovation Hub in Transilvania
+
+Hackathon - Soluții pentru Digitalizarea Sectorului Public
+
 # AI HelpDesk
 
-Platformă de tip helpdesk cu asistent AI pentru o instituție publică. Utilizatorii pot pune întrebări unui chatbot care răspunde pe baza documentelor oficiale încărcate în sistem (RAG — Retrieval-Augmented Generation) și pot deschide tichete de suport, clasificate automat cu ajutorul AI-ului.
+Platformă de tip helpdesk cu asistent AI pentru o instituție publică. Utilizatorii (angajații instituțiilor publice, ex: primării, școli, prefecturi) pot pune întrebări unui chatbot care răspunde pe baza documentelor oficiale încărcate în sistem (RAG — Retrieval-Augmented Generation) și pot deschide tichete de suport, atunci când modelul AI nu găsește răspunsul în documente, care vor fi trimise la departamentele responsabile, clasificate automat cu ajutorul AI-ului.
 
 ## Funcționalități
 
